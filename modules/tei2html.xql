@@ -3,6 +3,7 @@ xquery version "3.0";
 module namespace tei-to-html="localhost:8080/exist/apps/SAI/tei2html";
 (: This is based off of SARIT's module. :)
 import module namespace app="localhost:8080/exist/apps/SAI/templates" at "app.xql";
+import module namespace config="localhost:8080/exist/apps/SAI/config" at "config.xqm";
 
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 
@@ -417,6 +418,8 @@ declare function tei-to-html:bibl-shortname($nodes) {
     let $date := 
         if ($nodes/tei:date) then $nodes/tei:date/text()
         else "no date"
+    let $label := ""
+    let $shortname := concat($authorstring," ",$date,$label)
     return
-        concat($authorstring," ",$date)
+        $shortname
 };
