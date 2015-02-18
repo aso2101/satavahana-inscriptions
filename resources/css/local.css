@@ -1,0 +1,21 @@
+#topbar a {
+  text-align:left;
+  float:left;
+  margin:5px 15px;
+  padding:0px;
+  font-family:sans-serif;
+  font-weight:bold;
+  color:#fff;
+  text-decoration:none;
+}
+#topbar form {
+  text-align:right;
+  padding-right:15px;
+}
+#freesearch {
+  float:right;
+  text-align:right;
+  padding-top:9px;
+  padding-right:9px;
+  width:300px;
+}

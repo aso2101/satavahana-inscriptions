@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta xmlns="http://exist-db.org/xquery/repo">
+    <description>Prototype for a database of South Asian Inscriptions, starting with the Sātavāhana period (1st c. BCE-3rd c. CE).</description>
+    <author>Andrew Ollett</author>
+    <website/>
+    <status>alpha</status>
+    <license>GNU-LGPL</license>
+    <copyright>true</copyright>
+    <type>application</type>
+    <target>/apps/SAI/</target>
+    <prepare>pre-install.xql</prepare>
+    <finish/>
+</meta>

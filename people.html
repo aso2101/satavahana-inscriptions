@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="container">
+        <div class="row">
+            <div class="page-header">
+                <h1>People</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="personList" data-template="app:list-people" data-template-key="{$id}">
+                <div class="person" data-template="templates:each" data-template-from="people" data-template-to="person">
+                    <h4>
+                        <a href="" data-template="app:person-name"/>
+                    </h4>
+                    <div data-template="app:inscriptions-related-to-person"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

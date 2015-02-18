@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="container">
+        <div class="row">
+            <div class="page-header">
+                <h1>Sātavāhana Gazetteer</h1>
+                <p>This is a list of all of the places either <em>mentioned</em> in the 
+                   corpus of inscriptions, or <em>where</em> the inscriptions have actually
+                   been found. In some cases a place falls into both categories. The places
+                   are listed by their ancient names. (Note that some places referred to
+                   in these texts, such as the names of modern villages or states, are
+                   skipped here.)</p>
+                <p>Some places, but not all, have a short description which can be accessed
+                   by clicking on the link. Where available, places are put on the below map.</p>
+            </div>
+        </div>
+        
+        <!-- This calls the (simple) load function from map.xql. !-->
+        <!-- map.xql should also be able to create GeoJSON data
+             and load it into the map... !-->
+        <div class="row" data-template="smap:draw-map"/>
+        <ul id="marker-list"/>
+        <div data-template="app:list-places">
+            <div data-template="templates:each" data-template-from="places" data-template-to="place">
+                <h3>
+                    <a href="" data-template="app:place-name"/>
+                </h3>
+                <div data-template="app:places-inscriptions-located"/>
+                <div data-template="app:places-inscriptions-mentioned"/>
+            </div>
+        </div>
+    </div>
+</div>

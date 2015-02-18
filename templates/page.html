@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title data-template="config:app-title">Sātavāhana Inscriptions</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta data-template="config:app-meta"/>
+        <link rel="shortcut icon" href="$shared/resources/images/exist_icon_16x16.ico"/>
+        <link rel="stylesheet" type="text/css" href="$shared/resources/css/bootstrap-3.0.3.min.css"/>
+        <link rel="stylesheet" type="text/css" href="/exist/apps/SAI/resources/css/style.css"/>
+        <link rel="stylesheet" type="text/css" href="/exist/apps/SAI/resources/css/local.css"/>
+        <link rel="stylesheet" type="text/css" href="/exist/apps/SAI/resources/css/sarit-css.css"/>
+        <link rel="stylesheet" type="text/css" href="/exist/apps/SAI/resources/css/modal.css"/>
+        <script type="text/javascript" src="/exist/apps/SAI/resources/js/scrollTo.js"/>
+        <script type="text/javascript" src="$shared/resources/scripts/jquery/jquery-1.7.1.min.js"/>
+        <script type="text/javascript" src="$shared/resources/scripts/loadsource.js"/>
+        <script type="text/javascript" src="$shared/resources/scripts/bootstrap-3.0.3.min.js"/>
+        <script src="https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.js"/>
+        <link href="https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.css" rel="stylesheet"/>
+    </head>
+    <body id="body">
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"/>
+                    <span class="icon-bar"/>
+                    <span class="icon-bar"/>
+                </button>
+                <a class="navbar-brand" href="/exist/apps/SAI/index.html">Sātavāhana Inscriptions</a>
+            </div>
+            <div class="navbar-collapse collapse" id="navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown" id="inscriptions">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Inscriptions</a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="/exist/apps/SAI/by_place.html">By place</a>
+                                <a href="/exist/apps/SAI/by_date.html">By date</a>
+                                <a href="/exist/apps/SAI/by_ruler.html">By ruler</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="inscriptions">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Contexts</a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="/exist/apps/SAI/places.html">Places</a>
+                                <a href="/exist/apps/SAI/people.html">People</a>
+                                <a href="/exist/apps/SAI/bibliography.html">Bibliography</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <div id="freesearch">
+                    <span class="input-group">
+                        <input name="free-search" type="search" class="templates:form-control form-control"/>
+                        <span class="input-group-btn">
+                            <button id="f-btn-search" type="submit" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-search"/>
+                            </button>
+                        </span>
+                    </span>
+                    <input type="hidden" name="field" value="text"/>
+                </div>
+            </div>
+        </nav>
+        <div id="content"/>
+        <footer>
+            <a class="poweredby" href="http://exist-db.org">
+                <img src="$shared/resources/images/powered-by.svg" alt="Powered by eXist-db"/>
+            </a>
+        </footer>
+    </body>
+</html>

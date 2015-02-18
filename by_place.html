@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="container">
+        <div class="row">
+            <div class="page-header">
+                <h1>Inscriptions by Place</h1>
+                <p>This page lists inscriptions both by the <a href="#location">location</a> where they
+                    were found, and by the <a href="#mentioned">places mentioned</a> in them. The place-names
+                    link to their entry in the <a href="/exist/apps/SAI/places.html">gazetteer</a>.</p>
+            </div>
+        </div>
+        
+        <!-- This calls the (simple) load function from map.xql. !-->
+        <!-- map.xql should also be able to create GeoJSON data
+             and load it into the map... !-->
+        <div class="row" data-template="smap:draw-map"/>
+        
+        <!-- I think that the place-names (<h3> here) should link to the directory
+             of places (gazetteer) !-->
+        <div class="row">
+            <h2>
+                <a id="location"/>Locations where inscriptions are found</h2>
+            <div data-template="app:list-places-location">
+                <div data-template="templates:each" data-template-from="places" data-template-to="place">
+                    <h3>
+                        <a href="" data-template="app:place-name"/>
+                    </h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1">ID</th>
+                                <th>Title</th>
+                                <th class="col-md-2">Approximate date</th>
+                                <th class="col-md-2">Language</th>
+                                <th class="col-md-1">Download</th>
+                            </tr>
+                        </thead>
+                        <tbody data-template="app:list-inscriptions-by-place-location">
+                            <tr data-template="templates:each" data-template-from="inscriptions" data-template-to="inscription">
+                                <td>
+                                    <a href="" data-template="app:inscription-id"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-title"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-date"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-language"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:download-epidoc"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <a id="mentioned"/>
+            <h2>Places mentioned in inscriptions</h2>
+            <div data-template="app:list-places-mentioned">
+                <div data-template="templates:each" data-template-from="places" data-template-to="place">
+                    <h3>
+                        <a href="" data-template="app:place-name"/>
+                    </h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1">ID</th>
+                                <th>Title</th>
+                                <th class="col-md-2">Approximate date</th>
+                                <th class="col-md-2">Language</th>
+                                <th class="col-md-1">Download</th>
+                            </tr>
+                        </thead>
+                        <tbody data-template="app:list-inscriptions-by-place-mentioned">
+                            <tr data-template="templates:each" data-template-from="inscriptions" data-template-to="inscription">
+                                <td>
+                                    <a href="" data-template="app:inscription-id"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-title"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-date"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-language"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:download-epidoc"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

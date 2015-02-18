@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="container">
+        <div class="row">
+            <div class="page-header">
+                <h1>Inscriptions by Ruler</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div data-template="app:list-rulers">
+                <div data-template="templates:each" data-template-from="rulers" data-template-to="ruler">
+                    <h3>
+                        <a href="" data-template="app:ruler-name"/>
+                    </h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1">ID</th>
+                                <th>Title</th>
+                                <th class="col-md-2">Regnal year</th>
+                                <th class="col-md-2">Approximate date</th>
+                                <th class="col-md-1">Download</th>
+                            </tr>
+                        </thead>
+                        <tbody data-template="app:list-inscriptions-by-ruler">
+                            <tr data-template="templates:each" data-template-from="inscriptions" data-template-to="inscription">
+                                <td>
+                                    <a href="" data-template="app:inscription-id"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-title"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-regnal_year"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:inscription-date"/>
+                                </td>
+                                <td>
+                                    <a href="" data-template="app:download-epidoc"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

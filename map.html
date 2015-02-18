@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml">
+    <script>
+    L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
+    var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
+        .setView([20.217, 74.083], 8); // centers on Nasik
+
+    map.featureLayer.on('click', function(e) {
+        map.panTo(e.layer.getLatLng());
+    });
+</script>
+</div>
