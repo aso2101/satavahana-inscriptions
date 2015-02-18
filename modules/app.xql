@@ -275,7 +275,7 @@ declare function app:list-people($node as node(), $model as map(*)) {
             let $name := 
                 if ($config:person-authority//tei:person[@xml:id=$id]/tei:persName/text())
                     then $config:person-authority//tei:person[@xml:id=$id]/tei:persName/text()
-                else concat($id," (not in authority file)")
+                else $id
             order by $name
             return app:generate-person-entry($nid,$name)
     }
