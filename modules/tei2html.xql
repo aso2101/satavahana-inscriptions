@@ -39,12 +39,20 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             case element(tei:p) return tei-to-html:p($node, $options)
             case element(tei:div) return tei-to-html:div($node,$options)
             
+            (: Headings are dealt with in the div function :)
+            case element(tei:head) return ""
+            
             (: Core inline elements :)
             case element(tei:ref) return tei-to-html:ref($node,$options)
+            case element(tei:placeName) return tei-to-html:placeName($node,$options)
+            case element(tei:persName) return tei-to-html:persName($node,$options)
+            case element(tei:app) return tei-to-html:app($node,$options)
             
             (: Epidoc-specific elements :)
             case element(tei:gap) return tei-to-html:gap($node, $options)
             case element(tei:lb) return tei-to-html:lb($node, $options)
+            case element(tei:supplied) return tei-to-html:supplied($node,$options)
+            case element(tei:unclear) return tei-to-html:unclear($node,$options)
             
             (: Bibliography elements :)
             case element(tei:bibl) return tei-to-html:bibl($node)
@@ -72,7 +80,7 @@ declare function tei-to-html:teiHeader($node as element(tei:teiHeader), $options
         the header and displays it. :)
     (:  Displays the title. :)
     <div>
-    <h2>{ tei-to-html:dispatch($node/tei:fileDesc/tei:titleStmt/tei:title, $options) }</h2>
+    <h2>{ tei-to-html:dispatch($node/tei:fileDesc/tei:titleStmt/tei:title, $options) }</h2><br/>
     { tei-to-html:placeOfOrigin($node, $options) }
     { tei-to-html:dateOfOrigin($node, $options) }
     { tei-to-html:objectDescription($node, $options) }
@@ -112,7 +120,7 @@ declare function tei-to-html:objectDescription($node, $options) {
 };
 
 declare function tei-to-html:language($node) {
-    let $script := root($node)/tei:text/tei:body/tei:div[@type='edition']/@xml:lang
+    let $script := root($node)//tei:div[@type='edition']/@xml:lang
     let $script := if ($script eq 'sa-Latn') then 'Sanskrit' 
                    else if ($script eq 'mi-Latn') then 'Middle Indic'
                    else 'no language specified'
@@ -151,7 +159,28 @@ declare function tei-to-html:div($node as element(tei:div),$options) {
 declare function tei-to-html:apparatus($node as element(tei:div),$options) as element()* {
     tei-to-html:recurse($node,$options)
 };
-
+(: Bibliography division: just contains <bibl> elements :)
+declare function tei-to-html:bibliography($node as element(tei:div),$options) as element()* {
+    <div class="bibentry">
+        <b>Bibliography: </b>
+        { 
+            for $x in $node/tei:bibl
+            let $id := substring-after($x/tei:ptr/@target,"bibl:")
+            let $target := $config:bibl-authority//tei:bibl[@xml:id=$id]
+            let $shortname := tei-to-html:bibl-shortname($target)
+            let $link := <a href='/exist/apps/SAI/bibliography.html#{$id}'>{$shortname}</a>
+            let $rangeno := 
+                if ($x/tei:citedRange/text()) then concat(": ",$x/tei:citedRange/text())
+                else ""
+            let $stringafter :=
+                if ($x/following-sibling::tei:bibl) then ", " else ""
+            return 
+                <span>
+                    {$link}{$rangeno}{$stringafter}
+                </span>
+        }
+    </div>
+};
 (:  Edition division :)
 declare function tei-to-html:edition($node as element(tei:div),$options) as element()* {
     <div class="epidoc" id="edition">
@@ -159,12 +188,6 @@ declare function tei-to-html:edition($node as element(tei:div),$options) as elem
         { tei-to-html:recurse($node,$options) }
     </div>
 };
-
-(:  Bibliography division :)
-declare function tei-to-html:bibliography($node as element(tei:div),$options) as element()* {
-    tei-to-html:recurse($node,$options)  
-};
-
 (: Commentary division :)
 declare function tei-to-html:commentary($node as element(tei:div),$options) as element()* {
     <div class="epidoc" id="commentary">
@@ -183,7 +206,15 @@ declare function tei-to-html:translation($node as element(tei:div),$options) as 
 
 (: Textpart :)
 declare function tei-to-html:textpart($node as element(tei:div),$options) as element()* {
-    tei-to-html:recurse($node,$options)
+    let $heading := 
+        if ($node/tei:head) then <h2>{$node/tei:head/text()}</h2>
+        else ""
+    return 
+        <div>
+            { $heading }
+            { tei-to-html:recurse($node,$options) }
+        </div>
+    
 };
 
 declare function tei-to-html:p($node as element(tei:p), $options) as element()+ {
@@ -222,7 +253,6 @@ declare function tei-to-html:gap($node as element(tei:gap),$options) {
         then concat('[',$extentstring,$certainty,']')
         else ''
 };
-
 declare function tei-to-html:extent-string($node as node()) {
     let $circa := 'c.'
     let $cur-dot := '.'
@@ -240,14 +270,39 @@ declare function tei-to-html:extent-string($node as node()) {
         then concat('c. ',$node/@atLeast,' - ',$node/@atMost)
         else ''
 };
-
 declare function tei-to-html:dot-out($number, $cur-dot) {
     let $sequence :=
         for $x in (1 to xs:integer($number))
         return $cur-dot
     return string-join($sequence,'')
 };
-
+declare function tei-to-html:supplied($node as element(tei:supplied),$options) as element()* {
+    <span class="supplied">{ tei-to-html:recurse($node,$options) }</span>
+};
+declare function tei-to-html:unclear($node as element(tei:unclear),$options) as element()* {
+    <span class="unclear">{ tei-to-html:recurse($node,$options) }</span>
+};
+declare function tei-to-html:app($node as element(tei:app),$options) as element()* {
+    let $lem := $node/tei:lem/text()
+    let $space := " "
+    let $readings := 
+        <span class="appcontainer">
+            {
+                for $x in ($node/tei:lem | $node/tei:rdg)
+                let $text := <span>{ tei-to-html:recurse($x,$options) }</span>
+                let $brack := if ($x/self::tei:lem) then "]" else ""
+                let $witnesses := concat(' ',translate(translate(string($x/@wit),' ',''),'#',''))
+                let $wit := if ($x/@wit) then <span class="wit">{$ witnesses }</span> else ""
+                return 
+                    ( <span class="appentry">{$text}{$wit}{$brack}</span> )
+            }
+        </span>
+    return 
+        if ($lem) then
+            <span class="app">{$lem}{$readings}</span>
+        else
+            <span class="app">*{$readings}</span>
+};
 declare function tei-to-html:lb($node as element(tei:lb),$options) {
     let $prebreak := 
         (: The official EpiDoc stylesheets have a few exceptions to hyphenation
@@ -265,26 +320,36 @@ declare function tei-to-html:lb($node as element(tei:lb),$options) {
             $postbreak,
             $span )
 };
-
+declare function tei-to-html:placeName($node as element(tei:placeName),$options) as element()* {
+    let $key := substring-after($node/@key,"pl:")
+    let $target := concat("/exist/apps/SAI/places.html#",$key)
+    return
+        if ($key) then
+            <a href="{$target}">{ tei-to-html:recurse($node,$options) }</a>
+        else 
+            <span>{ tei-to-html:recurse($node,$options) }</span>
+};
+declare function tei-to-html:persName($node as element(tei:persName),$options) as element()* {
+    let $key := substring-after($node/@key,"pers:")
+    let $target := concat("/exist/apps/SAI/people.html#",$key)
+    return
+        if ($key) then
+            <a href="{$target}">{ tei-to-html:recurse($node,$options) }</a>
+        else 
+            <span>{ tei-to-html:recurse($node,$options) }</span>
+};
 declare function tei-to-html:ref($node as element(tei:ref),$options) {
     let $target := substring-after($node/@target,"bibl:")
-    let $text := $node/text()
+    let $text := if ($node/text()) then $node/text() else ""
     return
         if ($target) then
             <a href="/exist/apps/SAI/bibliography.html#{$target}">{$text}</a>
         else tei-to-html:recurse($node,$options)  
 };
-declare function tei-to-html:biblpntr($node) {
-    let $target := substring-after($node/@target,"bibl:")
-    let $range := $node/tei:citedRange/text()
-    return
-        <a href="/exist/apps/SAI/bibliography.html#{$target}">abc</a>
-};
-
 declare function tei-to-html:bibl($node as element(tei:bibl)) {
     let $type := $node/@type
     return 
-        if ($node/ancestor::tei:div[@type='bibliography']) then tei-to-html:biblpntr($node)
+        if ($node/ancestor::tei:div[@type='bibliography']) then ()
         else
             if ($type = "book") then 
                 tei-to-html:bibl-book($node)

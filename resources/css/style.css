@@ -6,3 +6,25 @@ footer .poweredby img { width: 120px; }
 
 /* Overrides of Bootstrap */
 .navbar { margin-bottom:0px; }
+a:hover { text-decoration:none }
+a { font-weight:normal }
+
+/* SARIT or EpiDoc-specific style */
+.supplied:before { content:'[' }
+.supplied:after { content:']' }
+.unclear:before { content:'[' }
+.unclear:after { content:']' }
+
+/* For apparatus entries (see hover.js) */
+.app { color: #009933; }
+.app .appcontainer { display:none }
+.appentry { display:block }
+.wit { font-weight:bold }
+.tooltip {
+	display:none;
+	position:absolute;
+	color: #000;
+	border-radius: 2px;
+	padding:10px;
+    z-index:100;
+}

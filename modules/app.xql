@@ -449,11 +449,11 @@ declare function app:view-map($node as node(), $model as map(*)) {
             let $latlong := concat($long,", ",$lat)
             return
                 <section class="accordion">
-                    <div id="map-container">
+                    <div class="map-container">
                         <input id="ac-1" name="accordion-1" type="checkbox"/>
                         <label for="ac-1">Map of inscription location ({$placename})</label>
                             <article>
-                                <div id="map">
+                                <div id="map" class="row">
                                     <script type="text/javascript">
             L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
             var geojson = [{ smap:create-data() }];
