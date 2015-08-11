@@ -292,8 +292,9 @@ function app:person($node as node(), $model as map(*), $key as xs:string) {
 
 declare function app:person-name($node as node(), $model as map(*)) {
     let $person := $model("person")
+    let $anchor := $person/@xml:id
     return 
-        $person/tei:persName/text()
+        <h4><a name="{$person/@xml:id}"/>{ $person/tei:persName/text() }</h4>
 };
 
 declare function app:inscriptions-related-to-person($node as node(), $model as map(*), $type as xs:string?) {

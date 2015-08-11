@@ -7,7 +7,6 @@ import module namespace config="localhost:8080/exist/apps/SAI/config" at "config
 
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 
-
 (: This is mostly adapted from SARIT's code :)
 (: A helper function in case no options are passed to the function :)
 declare function tei-to-html:render($content as node()*) as element()+ {
@@ -47,6 +46,7 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             case element(tei:placeName) return tei-to-html:placeName($node,$options)
             case element(tei:persName) return tei-to-html:persName($node,$options)
             case element(tei:app) return tei-to-html:app($node,$options)
+            case element(tei:note) return tei-to-html:note($node,$options)
             
             (: Epidoc-specific elements :)
             case element(tei:gap) return tei-to-html:gap($node, $options)
@@ -282,8 +282,13 @@ declare function tei-to-html:supplied($node as element(tei:supplied),$options) a
 declare function tei-to-html:unclear($node as element(tei:unclear),$options) as element()* {
     <span class="unclear">{ tei-to-html:recurse($node,$options) }</span>
 };
+declare function tei-to-html:note($node as element(tei:note),$options) {
+    if ($node/tei:p) then 
+        tei-to-html:recurse($node/tei:p,$options)
+    else tei-to-html:recurse($node,$options)
+};
 declare function tei-to-html:app($node as element(tei:app),$options) as element()* {
-    let $lem := $node/tei:lem/text()
+    let $lem := $node/tei:lem
     let $space := " "
     let $readings := 
         <span class="appcontainer">
@@ -297,11 +302,21 @@ declare function tei-to-html:app($node as element(tei:app),$options) as element(
                     ( <span class="appentry">{$text}{$wit}{$brack}</span> )
             }
         </span>
+    let $notes := 
+        <span class="appcontainer">
+            {
+                for $x in ($node/tei:note)
+                let $text := tei-to-html:note($x,$options)
+                return
+                    ( <span class="appentry">{$text}</span>)
+            }
+        </span>
     return 
         if ($lem) then
-            <span class="app">{$lem}{$readings}</span>
+            ( <span class="app">{ tei-to-html:recurse($lem,$options) }{$readings}{$notes}</span> )
         else
-            <span class="app">*{$readings}</span>
+            ( <span class="app">*{$readings}{$notes}</span> )
+        
 };
 declare function tei-to-html:lb($node as element(tei:lb),$options) {
     let $prebreak := 
