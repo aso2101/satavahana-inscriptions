@@ -14,7 +14,7 @@ declare namespace ti="http://chs.harvard.edu/xmlns/cts3/ti";
 declare namespace h="http://www.w3.org/1999/xhtml";
 declare namespace functx="http://www.functx.com";
 
-(:~
+(:
  : Much of this code is adapted from the SARIT project,
  : which was the inspiration for this database. :)
 
@@ -122,8 +122,7 @@ declare function app:ruler($node as node(), $model as map(*), $key as xs:string)
         map { "ruler" := $ruler[1] }
 };
 
-declare function app:place-name($node as node(), $model as map(*), $type as xs:string?) {
-    let $suffix := if ($type) then "." || $type else ()
+declare function app:place-name($node as node(), $model as map(*)) {
     let $place := $model("place")
     let $text :=
         if ($place//tei:placeName[@type='ancient'])
@@ -132,9 +131,9 @@ declare function app:place-name($node as node(), $model as map(*), $type as xs:s
     return
         if (contains(request:get-url(),'places.html'))
         then 
-            <span>{$text}<a id="{$text}"/></span>
+            <span class="{$text}">{$text}<a id="{$text}"/></span>
         else 
-            <a href="places.html#{$text}"><span id="{$text}">{$text}</span></a>
+            <a href="places.html#{$text}" id="{$text}"><span class="{$text}">{$text}</span></a>
 };
 
 declare function app:ruler-name($node as node(), $model as map(*), $type as xs:string?) {
@@ -274,7 +273,7 @@ declare function app:list-people($node as node(), $model as map(*)) {
             let $nid := xs:NCName($id)
             let $name := 
                 if ($config:person-authority//tei:person[@xml:id=$id]/tei:persName/text())
-                    then $config:person-authority//tei:person[@xml:id=$id]/tei:persName/text()
+                    then $config:person-authority//tei:person[@xml:id=$id][1]/tei:persName/text()
                 else $id
             order by $name
             return app:generate-person-entry($nid,$name)
