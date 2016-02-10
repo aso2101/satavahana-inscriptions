@@ -246,11 +246,15 @@ declare function app:inscription-id($node as node(), $model as map(*)) {
  : I am currently pulling this information from the @xml:lang
  : attribute of div[@type='edition'], rather than text. :)
 declare function app:inscription-language($node as node(), $model as map(*)) {
-    let $inscription := $model("inscripton")
+    let $inscription := $model("inscription")
     let $script := $inscription//tei:div[@type='edition']/@xml:lang
-    let $script := if ($script eq 'sa-Latn') then 'Sanskrit' else 'Middle Indic'
+    let $script := if ($script eq 'sa-Latn') then 'Sanskrit'
+                   else if ($script eq 'mi-Latn') then 'Middle Indic'
+                   else if ($script eq 'xx') then 'Unknown'
+                   else 'Unspecified'
     (: Obviously this will need revision at some point... :)
-    return $script
+    return 
+        $script
 };
 
 (: This also needs work. :)
