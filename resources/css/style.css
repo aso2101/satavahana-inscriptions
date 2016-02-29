@@ -28,3 +28,33 @@ a { font-weight:normal }
 	padding:10px;
     z-index:100;
 }
+/* For the KWIC results */
+div.hit-count { 
+    margin-top:20px;
+}
+#results {
+  table-layout: fixed;
+}
+#results .following,
+#results .previous,
+#results .hi {
+  /*white-space: pre-wrap;*/
+  /* css-3 */
+  /*white-space: -moz-pre-wrap;*/
+  /* Mozilla, since 1999 */
+  /*white-space: -pre-wrap;*/
+  /* Opera 4-6 */
+  /*white-space: -o-pre-wrap;*/
+  /* Opera 7 */
+  word-wrap: break-word;
+}
+#results .previous {
+  text-align: right;
+}
+#results .hi {
+  width: 10em;
+  text-align: center;
+}
+#results .reference .number {
+  margin-right: 1em;
+}

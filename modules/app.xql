@@ -4,7 +4,7 @@ module namespace app="localhost:8080/exist/apps/SAI/templates";
 
 import module namespace templates="http://exist-db.org/xquery/templates" ;
 import module namespace config="localhost:8080/exist/apps/SAI/config" at "config.xqm";
-import module namespace kwic="http://exist-db.org/xquery/kwic" at "resource:org/exist/xquery/lib/kwic.xql";
+import module namespace kwic="http://exist-db.org/xquery/kwic";
 import module namespace smap="localhost:8080/exist/apps/SAI/smap" at "map.xql";
 import module namespace tei-to-html="localhost:8080/exist/apps/SAI/tei2html" at "tei2html.xql";
 
@@ -410,9 +410,7 @@ declare function app:places-inscriptions-mentioned($node as node(), $model as ma
 
 declare function app:view($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
-    let $xsl := doc(concat($config:remote-root,'/stylesheets/sarit-base-nostruct.xsl'))
     return
-        (: transform:transform($inscription,$xsl,()) :)
         tei-to-html:render($inscription)
 };
 
@@ -472,6 +470,182 @@ declare function app:view-map($node as node(), $model as map(*)) {
         else ()
 };
 
-(:  The SEARCH routines will probably have to wait until the next
-    installment, because the texts are not tokenizable (as needed for Lucene),
-    so we will have to use the NGram index. :)
+(:  Right now these are more or less modelled on SARIT's search function. :)
+declare function app:query($node as node()*, $model as map(*), $query as xs:string?) as map(*) {
+    (:If there is no query string, fill up the map with existing values:)
+    if (empty($query))
+        then
+            map {
+                "hits" := session:get-attribute("apps.sai"),
+                "query" := session:get-attribute("apps.sai.query")
+            }
+    (: Otherwise perform the query :)
+    else
+        let $context := collection($config:remote-data-root)/tei:TEI/tei:text
+        let $hits :=
+            for $hit in 
+                (
+                $context//tei:p[ft:query(., $query)],
+                $context//tei:head[ft:query(., $query)],
+                $context//tei:lg[ft:query(., $query)],
+                $context//tei:trailer[ft:query(., $query)],
+                $context//tei:l[not(local-name(./..) eq 'lg')][ft:query(., $query)],
+                $context//tei:quote[ft:query(., $query)],
+                $context//tei:text[ft:query(.,$query)],
+                $context//tei:unclear[ft:query(.,$query)],
+                $context//tei:supplied[ft:query(.,$query)]
+                )
+            order by ft:score($hit) descending
+            return $hit
+        (: The hits are not returned directly, but processed by the nested templates :)
+        let $store := (
+            session:set-attribute("apps.sai", $hits),
+            session:set-attribute("apps.sai.query", $query)
+        )
+        return
+            map {
+                "hits" := $hits,
+                "query" := $query
+            }
+};
+(:~
+ : Create a bootstrap pagination element to navigate through the hits.
+ :)
+(:template function in search.html:)
+declare
+    %templates:wrap
+    %templates:default('start', 1)
+    %templates:default("per-page", 10)
+    %templates:default("min-hits", 0)
+    %templates:default("max-pages", 10)
+function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-page as xs:int, $min-hits as xs:int,
+    $max-pages as xs:int) {
+    if ($min-hits < 0 or count($model("hits")) >= $min-hits) then
+        let $count := xs:integer(ceiling(count($model("hits"))) div $per-page) + 1
+        let $middle := ($max-pages + 1) idiv 2
+        return (
+            if ($start = 1) then (
+                <li class="disabled">
+                    <a><i class="glyphicon glyphicon-fast-backward"/></a>
+                </li>,
+                <li class="disabled">
+                    <a><i class="glyphicon glyphicon-backward"/></a>
+                </li>
+            ) else (
+                <li>
+                    <a href="?start=1"><i class="glyphicon glyphicon-fast-backward"/></a>
+                </li>,
+                <li>
+                    <a href="?start={max( ($start - $per-page, 1 ) ) }"><i class="glyphicon glyphicon-backward"/></a>
+                </li>
+            ),
+            let $startPage := xs:integer(ceiling($start div $per-page))
+            let $lowerBound := max(($startPage - ($max-pages idiv 2), 1))
+            let $upperBound := min(($lowerBound + $max-pages - 1, $count))
+            let $lowerBound := max(($upperBound - $max-pages + 1, 1))
+            for $i in $lowerBound to $upperBound
+            return
+                if ($i = ceiling($start div $per-page)) then
+                    <li class="active"><a href="?start={max( (($i - 1) * $per-page + 1, 1) )}">{$i}</a></li>
+                else
+                    <li><a href="?start={max( (($i - 1) * $per-page + 1, 1)) }">{$i}</a></li>,
+            if ($start + $per-page < count($model("hits"))) then (
+                <li>
+                    <a href="?start={$start + $per-page}"><i class="glyphicon glyphicon-forward"/></a>
+                </li>,
+                <li>
+                    <a href="?start={max( (($count - 1) * $per-page + 1, 1))}"><i class="glyphicon glyphicon-fast-forward"/></a>
+                </li>
+            ) else (
+                <li class="disabled">
+                    <a><i class="glyphicon glyphicon-forward"/></a>
+                </li>,
+                <li>
+                    <a><i class="glyphicon glyphicon-fast-forward"/></a>
+                </li>
+            )
+        ) else
+            ()
+};
+(:  Number of hits :)
+declare function app:hit-count($node as node()*, $model as map(*)) {
+    <span xmlns="http://www.w3.org/1999/xhtml" id="hit-count">{ count($model("hits")) }</span>
+};
+declare function app:query-name($node as node()*, $model as map(*)) {
+    <span xmlns="http://www.w3.org/1999/xhtml" id="query-name">{ $model("query") }</span>
+};
+declare %private function app:get-next($div as element()) {
+    if ($div/tei:div) then
+        if (count(($div/tei:div[1])/preceding-sibling::*) < 5) then
+            app:get-next($div/tei:div[1])
+        else
+            $div/tei:div[1]
+    else
+        $div/following::tei:div[1]
+};
+
+declare %private function app:get-previous($div as element(tei:div)?) {
+    if (empty($div)) then
+        ()
+    else
+        if (
+            empty($div/preceding-sibling::tei:div)  (: first div in section :)
+            and count($div/preceding-sibling::*) < 5 (: less than 5 elements before div :)
+            and $div/.. instance of element(tei:div) (: parent is a div :)
+        ) then
+            app:get-previous($div/..)
+        else
+            $div
+};
+declare %private function app:get-current($div as element()?) {
+    if (empty($div)) then
+        ()
+    else
+        if ($div instance of element(tei:teiHeader)) then
+        $div
+        else
+            if (
+                empty($div/preceding-sibling::tei:div)  (: first div in section :)
+                and count($div/preceding-sibling::*) < 5 (: less than 5 elements before div :)
+                and $div/.. instance of element(tei:div) (: parent is a div :)
+            ) then
+                app:get-previous($div/..)
+            else
+                $div
+};
+declare function local:filter-kwic($node as node(), $mode as xs:string) as xs:string? {
+  if ($node/ancestor::tei:div or $node/ancestor::tei:note) then 
+      ()
+  else if ($mode eq 'before') then 
+      concat($node, ' ')
+  else 
+      concat(' ',$node)
+};
+(:~
+    Output the actual search result as a div, using the kwic module to summarize full text matches.
+:)
+(:template function in search.html:)
+declare 
+    %templates:wrap
+    %templates:default("start", 1)
+    %templates:default("per-page", 10)
+function app:show-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
+    for $hit at $p in subsequence($model("hits"), $start, $per-page)
+    let $inscription := $hit/ancestor::tei:TEI
+    let $inscription-title := $inscription//tei:titleStmt/tei:title/text()
+    let $inscription-id := $inscription/@xml:id/string()
+    (:pad hit with surrounding siblings:)
+    let $hit-padded := <hit>{($hit/preceding-sibling::*[1], $hit, $hit/following-sibling::*[1])}</hit>
+    let $loc := 
+        <tr class="reference">
+            <td colspan="3">
+                <span class="number">{$start + $p - 1}</span>
+                <a href="inscriptions/{$inscription-id}">{ $inscription-title }</a>
+            </td>
+        </tr>
+    let $matchId := ($hit/@xml:id, util:node-id($hit))[1]
+    let $config := <config width="80" table="yes"/>
+    let $kwic := kwic:summarize($hit-padded, $config, util:function(xs:QName("local:filter-kwic"), 2))
+    return
+        ($loc, $kwic)
+};

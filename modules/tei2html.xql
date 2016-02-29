@@ -36,6 +36,9 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             
             (: Core block elements :)
             case element(tei:p) return tei-to-html:p($node, $options)
+            case element(tei:lg) return tei-to-html:lg($node,$options)
+            case element(tei:l) return tei-to-html:l($node,$options)
+            case element(tei:caesura) return tei-to-html:caesura($node,$options)
             case element(tei:div) return tei-to-html:div($node,$options)
             
             (: Headings are dealt with in the div function :)
@@ -47,6 +50,8 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             case element(tei:persName) return tei-to-html:persName($node,$options)
             case element(tei:app) return tei-to-html:app($node,$options)
             case element(tei:note) return tei-to-html:note($node,$options)
+            case element(tei:emph) return tei-to-html:emph($node,$options)
+            case element(tei:seg) return tei-to-html:seg($node,$options)
             
             (: Epidoc-specific elements :)
             case element(tei:gap) return tei-to-html:gap($node, $options)
@@ -160,6 +165,7 @@ declare function tei-to-html:div($node as element(tei:div),$options) {
 declare function tei-to-html:apparatus($node as element(tei:div),$options) as element()* {
     tei-to-html:recurse($node,$options)
 };
+
 (: Bibliography division: just contains <bibl> elements :)
 declare function tei-to-html:bibliography($node as element(tei:div),$options) as element()* {
     <div class="bibentry">
@@ -223,11 +229,37 @@ declare function tei-to-html:p($node as element(tei:p), $options) as element()+ 
     return 
         if ($rend = ('right', 'center', 'first', 'indent') ) 
         then
-            <p class="{concat('p', '-', data($rend))}" title="tei:p" id="{$node/@xml:id}">{ tei-to-html:recurse($node, $options) }</p>
+            <p class="{concat('p', '-', data($rend))}" id="{$node/@xml:id}">{ tei-to-html:recurse($node, $options) }</p>
         else 
-            <p class="p" title="tei:p">{tei-to-html:recurse($node, $options)}</p>
+            <p class="p">{tei-to-html:recurse($node, $options)}</p>
 };
-
+declare function tei-to-html:lg($node as element(tei:lg), $options) as element()+ {
+    (: we want line breaks after every pāda, but
+       that should be taken care of by tei-to-html:l. :)
+    let $met := <span class="met">{ fn:string($node/@met) }</span>
+    return
+    <div class="lg">
+        { if ($node/@met) then $met else () }
+        { tei-to-html:recurse($node,$options) }
+    </div>
+};
+declare function tei-to-html:l($node as element(tei:l), $options) as element()+ {
+    <span class="l">{ tei-to-html:recurse($node,$options) }</span>
+};
+declare function tei-to-html:caesura($node as element(tei:caesura), $options) as element()+ {
+    <span class="caesura"/>
+};
+declare function tei-to-html:seg($node as element(tei:seg), $options) {
+    (: I assume that seg[@met] will only be used to enclose a gap 
+        element, and therefore I don't run the recursion on this
+        element. :)
+    let $met :=  fn:replace(fn:replace($node/@met,'-','⏑'),'\+','−')
+    return 
+        if ($met) then 
+            concat('[',$met,']')
+        else tei-to-html:recurse($node,$options)
+    
+};
 declare function tei-to-html:gap($node as element(tei:gap),$options) {
     let $reason := $node/@reason
     let $extentstring := tei-to-html:extent-string($node)
@@ -353,6 +385,9 @@ declare function tei-to-html:persName($node as element(tei:persName),$options) a
             <a href="{$target}">{ tei-to-html:recurse($node,$options) }</a>
         else 
             <span>{ tei-to-html:recurse($node,$options) }</span>
+};
+declare function tei-to-html:emph($node as element(tei:emph),$options) {
+    <em>{ tei-to-html:recurse($node,$options) }</em>
 };
 declare function tei-to-html:ref($node as element(tei:ref),$options) {
     let $target := substring-after($node/@target,"bibl:")

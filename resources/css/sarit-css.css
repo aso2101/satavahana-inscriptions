@@ -62,7 +62,7 @@ div.body {
   padding:0;
 }
 p {
-  text-indent:20px;
+  text-indent:0px;
 }
 /* Formats line-groups (verses):
       These are inline so that following
@@ -70,6 +70,12 @@ p {
       last line of a verse. */
 div.lg {
   display:inline;
+}
+div.lg span.met {
+   margin-top:20px;
+   font-style:italic;
+   display;block;
+   font-size:90%;
 }
 /* Format individual lines as block elements */
 div.lg span.l {
@@ -80,8 +86,8 @@ div.lg span.l+div.lg span.l:last-child {
   display:inline-block;
 }
 div.lg span.l
-/* Add space after pāda-break (<lb type="pada"/>) */
-span.quarter:after {
+/* Add space after pāda-break (<caesura>) */
+span.caesura:after {
   content: "\A\0000a0\0000a0\0000a0\0000a0\0000a0\0000a0" !important;
   white-space:pre;
 }

@@ -51,17 +51,18 @@
                         </ul>
                     </li>
                 </ul>
-                <div id="freesearch">
-                    <span class="input-group">
-                        <input name="free-search" type="search" class="templates:form-control form-control"/>
-                        <span class="input-group-btn">
-                            <button id="f-btn-search" type="submit" class="btn btn-primary">
-                                <span class="glyphicon glyphicon-search"/>
-                            </button>
+                <form action="/exist/apps/SAI/search.html">
+                    <div id="freesearch">
+                        <span class="input-group">
+                            <input name="query" type="search" class="form-control"/>
+                            <span class="input-group-btn">
+                                <button id="f-btn-search" type="submit" class="btn btn-primary">
+                                    <span class="glyphicon glyphicon-search"/>
+                                </button>
+                            </span>
                         </span>
-                    </span>
-                    <input type="hidden" name="field" value="text"/>
-                </div>
+                    </div>
+                </form>
             </div>
         </nav>
         <div id="content"/>
