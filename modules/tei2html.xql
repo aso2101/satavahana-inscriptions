@@ -34,6 +34,9 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             (: This constructs the header at the top :)
             case element(tei:teiHeader) return tei-to-html:teiHeader($node, $options)
             
+            (: Facsimiles :)
+            case element(tei:facsimile) return tei-to-html:facsimile($node, $options)
+            
             (: Core block elements :)
             case element(tei:p) return tei-to-html:p($node, $options)
             case element(tei:lg) return tei-to-html:lg($node,$options)
@@ -174,7 +177,10 @@ declare function tei-to-html:bibliography($node as element(tei:div),$options) as
             for $x in $node/tei:bibl
             let $id := substring-after($x/tei:ptr/@target,"bibl:")
             let $target := $config:bibl-authority//tei:bibl[@xml:id=$id]
-            let $shortname := tei-to-html:bibl-shortname($target)
+            let $shortname := 
+                if ($x/tei:ptr/text()) 
+                then $x/tei:ptr/text()
+                else tei-to-html:bibl-shortname($target)
             let $link := <a href='/exist/apps/SAI/bibliography.html#{$id}'>{$shortname}</a>
             let $rangeno := 
                 if ($x/tei:citedRange/text()) then concat(": ",$x/tei:citedRange/text())
@@ -389,6 +395,49 @@ declare function tei-to-html:persName($node as element(tei:persName),$options) a
 declare function tei-to-html:emph($node as element(tei:emph),$options) {
     <em>{ tei-to-html:recurse($node,$options) }</em>
 };
+
+declare function tei-to-html:facsimile($node as element(tei:facsimile),$options) {
+    let $graphics := 
+        for $i in $node/tei:graphic
+        let $x := fn:substring-before(fn:substring-after($i/@url,"images/"),".")
+        return 
+            <div class="col-lg-3 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#" data-toggle="modal" data-target="#{$x}">
+                    <img class="img-rounded" alt="" src="{concat("/exist/apps/SAI-data/",$i/@url)}"></img>
+                </a>
+            </div>
+    let $modals :=
+        for $i in $node/tei:graphic
+        let $x := fn:substring-before(fn:substring-after($i/@url,"images/"),".")
+        return
+            <div id="{$x}" class="modal fade" data-backdrop="true" data-keyboard="true" tabindex="-1">
+                <div class="modal-lg" role="document">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">x</button>
+                        <h3>Facsimiles</h3>
+                    </div>
+                    <div class="modal-body">
+                        <img class="img-responsive center-block" src="{concat("/exist/apps/SAI-data/",$i/@url)}"></img>
+                        <p class="text-center">{$i/tei:desc}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+    return
+        <div class="epidoc" id="translation">
+            <h2>Facsimiles</h2>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        {$graphics}
+                    </div>
+                </div>
+            </div>
+            {$modals}
+        </div>
+};
 declare function tei-to-html:ref($node as element(tei:ref),$options) {
     let $target := substring-after($node/@target,"bibl:")
     let $text := if ($node/text()) then $node/text() else ""
@@ -410,6 +459,10 @@ declare function tei-to-html:bibl($node as element(tei:bibl)) {
                 tei-to-html:bibl-incollection($node)
             else if ($type = "inbook") then
                 tei-to-html:bibl-inbook($node)
+            else if ($type = "report") then
+                tei-to-html:bibl-report($node)
+            else if ($type = "dissertation") then
+                tei-to-html:bibl-dissertation($node)
             else "null"
 };
 
@@ -479,6 +532,26 @@ declare function tei-to-html:bibl-incollection($node as element(tei:bibl)) {
             {$authorstring}. “{$titlestring}.” pp. {$pagestring} in {$editorstring}{$edstring} <em>{$bookstring}</em>{$volstring}. {$pubstring}.{$notestring}
         </div>
 };
+declare function tei-to-html:bibl-report($node as element(tei:bibl)) {
+    let $id := string($node/@xml:id)
+    let $titlestring := $node/tei:title/text()
+    let $pubstring := concat($node/tei:pubPlace/text(),": ",$node/tei:publisher/text())
+    return
+        <div id="{$id}" type="bibitem">
+           <em>{$titlestring}. </em> {$pubstring}.
+        </div>
+};
+declare function tei-to-html:bibl-dissertation($node as element(tei:bibl)) {
+    let $id := string($node/@xml:id)
+    let $authors := $node/tei:author
+    let $authorstring := tei-to-html:author-string($authors)
+    let $title := $node/tei:title/text()
+    let $imprint := concat("PhD Dissertation, ",$node/tei:publisher/text()," ",$node/tei:date/text())
+    return 
+        <div id="{$id}" type="bibitem">
+           {$authorstring}. <em>{$title}. </em> {$imprint}.
+        </div>
+};
 declare function tei-to-html:bibl-inbook($node as element(tei:bibl)) {
     let $id := string($node/@xml:id)
     let $authors := $node/tei:author
@@ -530,10 +603,12 @@ declare function tei-to-html:bibl-shortname($nodes) {
             concat($authors[1]//tei:surname/text()," and ",$authors[2]//tei:surname/text()," et al.")
         else if ($authors[2]) then
             concat($authors[1]//tei:surname/text()," and ",$authors[2]//tei:surname/text())
-        else $authors[1]//tei:surname/text()
+        else if ($authors[1]//tei:surname/text()) then
+            $authors[1]//tei:surname/text()
+        else $authors/text()
     let $date := 
         if ($nodes/tei:date) then $nodes/tei:date/text()
-        else "no date"
+        else ""
     let $label := ""
     let $shortname := concat($authorstring," ",$date,$label)
     return

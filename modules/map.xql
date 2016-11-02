@@ -12,15 +12,15 @@ declare option output:media-type "application/json";
     file. This means that the geodata needs to be specified in the
     place authority file if it's going to be presented on the map. :)
 declare function smap:create-data() as xs:string* {
-    for $place in $config:place-authority//tei:place
-    where $place/tei:geo
+    for $place in collection($config:remote-context-root)//tei:place
+    where $place//tei:geo
     return 
         let $name := 
             if ($place/tei:placeName[@type='ancient'])
             then $place/tei:placeName[@type='ancient'][1]/text()
             else $place/tei:placeName[1]/text()
-        let $lat := substring-before($place/tei:geo,' ')
-        let $long := substring-after($place/tei:geo,' ')
+        let $lat := substring-before($place//tei:geo,' ')
+        let $long := substring-after($place//tei:geo,' ')
         let $temp :=
             <root>
                 <type>Feature</type>

@@ -278,6 +278,8 @@ declare function app:list-people($node as node(), $model as map(*)) {
             let $name := 
                 if ($config:person-authority//tei:person[@xml:id=$id]/tei:persName/text())
                     then $config:person-authority//tei:person[@xml:id=$id][1]/tei:persName/text()
+                else if (collection($config:person-authority-dir)//tei:person[@xml:id=$id]/tei:persName/text())
+                    then collection($config:person-authority-dir)//tei:person[@xml:id=$id]/tei:persName/text()
                 else $id
             order by $name
             return app:generate-person-entry($nid,$name)
@@ -414,7 +416,7 @@ declare function app:view($node as node(), $model as map(*)) {
         tei-to-html:render($inscription)
 };
 
-declare function app:view-facsimiles($node as node(), $model as map(*)) {
+(:  declare function app:view-facsimiles($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     return 
         if ($inscription//tei:facsimile/tei:graphic)
@@ -422,7 +424,7 @@ declare function app:view-facsimiles($node as node(), $model as map(*)) {
             let $graphics := 
                 for $i in $inscription//tei:facsimile/tei:graphic
                 return 
-                    <div>
+                    <div class="col-lg-3 col-md-4 col-xs-6 thumb">
                         <img style="padding:1em;" src="{concat("/exist/apps/SAI-data/",$i/@url)}"></img>
                         <p>{$i/tei:desc}</p>
                     </div>
@@ -437,12 +439,16 @@ declare function app:view-facsimiles($node as node(), $model as map(*)) {
                 </div>
                 </section>
         else ()
-};
+}; :)
 
 declare function app:view-map($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
-    let $placename := substring-after($inscription//tei:origPlace/tei:placeName/@key,"pl:")
-    let $place := $config:place-authority//tei:place[@xml:id = $placename]
+    let $placename := substring-after($inscription//tei:origPlace/tei:placeName[1]/@key,"pl:")
+    let $place := 
+        if ($config:place-authority//tei:place[@xml:id = $placename]) 
+            then $config:place-authority//tei:place[@xml:id = $placename]
+        else collection($config:place-authority-dir)//tei:place[@xml:id = $placename]
+
     return
         if ($place/tei:geo)
         then 

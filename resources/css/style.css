@@ -58,3 +58,10 @@ div.hit-count {
 #results .reference .number {
   margin-right: 1em;
 }
+/* Overwrites some bootstrap defaults */
+.modal-backdrop, 
+.modal-backdrop.fade.in{
+opacity: 0.85 !important;
+filter: alpha(opacity=85) !important;
+background: #ffffff;
+}
