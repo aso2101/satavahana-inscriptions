@@ -88,45 +88,66 @@ declare function tei-to-html:teiHeader($node as element(tei:teiHeader), $options
         the header and displays it. :)
     (:  Displays the title. :)
     <div>
-    <h2>{ tei-to-html:dispatch($node/tei:fileDesc/tei:titleStmt/tei:title, $options) }</h2><br/>
-    { tei-to-html:placeOfOrigin($node, $options) }
-    { tei-to-html:dateOfOrigin($node, $options) }
+    <h2>{ tei-to-html:dispatch($node/tei:fileDesc/tei:titleStmt/tei:title, $options) }</h2>
     { tei-to-html:objectDescription($node, $options) }
+    { tei-to-html:objectHistory($node,$options) }
     { tei-to-html:language($node) }
     </div>
 };
-
-declare function tei-to-html:placeOfOrigin($node, $options) {
-    let $place := $node//tei:origPlace
+declare function tei-to-html:objectDescription($node,$options) {
+    let $support := $node//tei:supportDesc
+    let $layout := $node//tei:layoutDesc
+    return 
+        if ($support or $layout)
+        then
+            <div class="bibentry">
+                <b>Object description</b>: 
+                <ul>
+                    { if ($support) then tei-to-html:support($support,$options) else () }
+                    { if ($layout) then tei-to-html:layout($layout,$options) else () }
+                </ul>
+            </div>
+        else ()
+};
+declare function tei-to-html:objectHistory($node,$options) {
+    let $origin := $node//tei:origin
+    let $provenance := $node//tei:provenance
     return
-        if ($place) 
+        if ($origin or $provenance)
         then 
             <div class="bibentry">
-                <b>Place of origin</b>: { tei-to-html:recurse($place, $options) }
+                <b>Object history:</b>
+                <ul>
+                    { if ($origin) then tei-to-html:origin($origin,$options) else () }
+                    { if ($provenance) then tei-to-html:provenance($provenance,$options) else () }
+                </ul>
             </div>
-        else ()
+    else ()
 };
-declare function tei-to-html:dateOfOrigin($node, $options) {
-    let $date := $node//tei:origDate
+declare function tei-to-html:support($node,$options) {
+    <li><b>Support: </b> { tei-to-html:recurse($node,$options) }</li>
+};
+declare function tei-to-html:layout($node,$options) {
+    <li><b>Layout: </b> { tei-to-html:recurse($node,$options) }</li>
+};
+declare function tei-to-html:origin($node, $options) {
+    let $place := $node//tei:origPlace
+    let $date := 
+        if ($node//tei:origDate) then $node//tei:origDate
+        else "date unknown"
     return
-        if ($date) 
-        then
-            <div class="bibentry">
-                <b>Date of origin</b>: { tei-to-html:recurse($date, $options) }
-            </div>
-        else ()
+        <li><b>Origin ({ $date })</b>: { tei-to-html:recurse($place, $options) }</li>
 };
-declare function tei-to-html:objectDescription($node, $options) {
-    let $objdesc := $node/tei:sourceDesc/tei:msDesc/tei:physDesc/tei:objectDesc
+declare function tei-to-html:provenance($nodes,$options) {
+    for $x in $nodes
+    let $date := 
+        if ($x[@notAfter]) then concat($x/@notAfter," or before")
+        else if ($x[@notBefore]) then concat($x/@notBefore," or after")
+        else if ($x[@when]) then string($x/@when)
+        else "(date unknown)"
     return
-        if ($objdesc)
-        then
-            <div class="bibentry">
-                <b>Object description</b>: { tei-to-html:dispatch($objdesc, $options) }
-            </div>
-        else ()
+        <li><b>{ $date }</b>: { tei-to-html:recurse($x,$options) }</li>
 };
-
 declare function tei-to-html:language($node) {
     let $script := root($node)//tei:div[@type='edition']/@xml:lang
     let $script := if ($script eq 'sa-Latn') then 'Sanskrit' 
@@ -171,8 +192,8 @@ declare function tei-to-html:apparatus($node as element(tei:div),$options) as el
 
 (: Bibliography division: just contains <bibl> elements :)
 declare function tei-to-html:bibliography($node as element(tei:div),$options) as element()* {
-    <div class="bibentry">
-        <b>Bibliography: </b>
+    <div class="epidoc" id="bibliography">
+        <h2>Bibliography</h2>
         { 
             for $x in $node/tei:bibl
             let $id := substring-after($x/tei:ptr/@target,"bibl:")
@@ -204,7 +225,7 @@ declare function tei-to-html:edition($node as element(tei:div),$options) as elem
 (: Commentary division :)
 declare function tei-to-html:commentary($node as element(tei:div),$options) as element()* {
     <div class="epidoc" id="commentary">
-        <h2>Notes</h2>
+        <h2>Commentary</h2>
         { tei-to-html:recurse($node,$options) }
     </div>
 };
@@ -426,8 +447,8 @@ declare function tei-to-html:facsimile($node as element(tei:facsimile),$options)
                 </div>
             </div>
     return
-        <div class="epidoc" id="translation">
-            <h2>Facsimiles</h2>
+        <div class="bibentry">
+            <b>Facsimiles:</b>
             <div class="container">
                 <div class="row">
                     <div class="col-md-4">

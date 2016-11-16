@@ -425,7 +425,7 @@ declare function app:view($node as node(), $model as map(*)) {
                 for $i in $inscription//tei:facsimile/tei:graphic
                 return 
                     <div class="col-lg-3 col-md-4 col-xs-6 thumb">
-                        <img style="padding:1em;" src="{concat("/exist/apps/SAI-data/",$i/@url)}"></img>
+                        <img style="padding:1em;" src="{concat("/exist/apps/SAI-data/images/",$i/@url)}"></img>
                         <p>{$i/tei:desc}</p>
                     </div>
             return
@@ -448,12 +448,11 @@ declare function app:view-map($node as node(), $model as map(*)) {
         if ($config:place-authority//tei:place[@xml:id = $placename]) 
             then $config:place-authority//tei:place[@xml:id = $placename]
         else collection($config:place-authority-dir)//tei:place[@xml:id = $placename]
-
     return
         if ($place/tei:geo)
         then 
-            let $lat := substring-before($place/tei:geo,' ')
-            let $long := substring-after($place/tei:geo,' ')
+            let $lat := substring-before($place/tei:geo/text(),' ')
+            let $long := substring-after($place/tei:geo/text(),' ')
             let $latlong := concat($long,", ",$lat)
             return
                 <section class="accordion">
