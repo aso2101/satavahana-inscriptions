@@ -6,7 +6,6 @@ import module namespace templates="http://exist-db.org/xquery/templates" ;
 import module namespace config="localhost:8080/exist/apps/SAI/config" at "config.xqm";
 import module namespace kwic="http://exist-db.org/xquery/kwic";
 import module namespace smap="localhost:8080/exist/apps/SAI/smap" at "map.xql";
-import module namespace search="http://localhost/ns/search" at "lib/search.xqm";
 import module namespace facet="http://expath.org/ns/facet" at "lib/facet.xqm";
 import module namespace tei-to-html="localhost:8080/exist/apps/SAI/tei2html" at "tei2html.xql";
 
