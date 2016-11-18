@@ -17,5 +17,15 @@
   text-align:right;
   padding-top:9px;
   padding-right:9px;
-  width:300px;
+  width:325px;
 }
+#results tr {background:#F8F8F8;}
+#results tr.reference {background:white;}
+/* Search styles */
+.sai-search .form-control{
+    width:50%;
+}
+/* Facet styles */
+.label-facet {background-color:#eee; color:#666; font-weight:normal; margin:.25em; display:inline-block;}
+.facet-label {margin-left:.5em; display:block; text-align:left; white-space: normal;}
+.facet .icon{margin-left:.25em;}

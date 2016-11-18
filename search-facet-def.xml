@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<facets xmlns="http://expath.org/ns/facet">
+    <!-- Need a local function to browse by data type -->
+    <facet-definition name="Type">
+        <group-by function="facet:element-type">
+            <sub-path>name(.)</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+    <facet-definition name="Language">
+        <group-by function="facet:lang-type">
+            <sub-path>descendant::div[@type='edition']/@xml:lang</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+</facets>

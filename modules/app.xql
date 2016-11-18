@@ -6,6 +6,8 @@ import module namespace templates="http://exist-db.org/xquery/templates" ;
 import module namespace config="localhost:8080/exist/apps/SAI/config" at "config.xqm";
 import module namespace kwic="http://exist-db.org/xquery/kwic";
 import module namespace smap="localhost:8080/exist/apps/SAI/smap" at "map.xql";
+import module namespace search="http://localhost/ns/search" at "lib/search.xqm";
+import module namespace facet="http://expath.org/ns/facet" at "lib/facet.xqm";
 import module namespace tei-to-html="localhost:8080/exist/apps/SAI/tei2html" at "tei2html.xql";
 
 declare namespace expath="http://expath.org/ns/pkg";
@@ -425,7 +427,7 @@ declare function app:view($node as node(), $model as map(*)) {
                 for $i in $inscription//tei:facsimile/tei:graphic
                 return 
                     <div class="col-lg-3 col-md-4 col-xs-6 thumb">
-                        <img style="padding:1em;" src="{concat("/exist/apps/SAI-data/images/",$i/@url)}"></img>
+                        <img style="padding:1em;" src="{concat("/exist/apps/SAI-data/",$i/@url)}"></img>
                         <p>{$i/tei:desc}</p>
                     </div>
             return
@@ -448,11 +450,12 @@ declare function app:view-map($node as node(), $model as map(*)) {
         if ($config:place-authority//tei:place[@xml:id = $placename]) 
             then $config:place-authority//tei:place[@xml:id = $placename]
         else collection($config:place-authority-dir)//tei:place[@xml:id = $placename]
+
     return
         if ($place/tei:geo)
         then 
-            let $lat := substring-before($place/tei:geo/text(),' ')
-            let $long := substring-after($place/tei:geo/text(),' ')
+            let $lat := substring-before($place/tei:geo,' ')
+            let $long := substring-after($place/tei:geo,' ')
             let $latlong := concat($long,", ",$lat)
             return
                 <section class="accordion">
@@ -475,7 +478,17 @@ declare function app:view-map($node as node(), $model as map(*)) {
         else ()
 };
 
-(:  Right now these are more or less modelled on SARIT's search function. :)
+
+(:
+    Search functions
+    Right now these are more or less modelled on SARIT's search function. 
+:)
+
+(:~
+ : Builds query.
+ : @param $query from input field
+ : @param $filter select search type
+:)
 declare function app:query($node as node()*, $model as map(*), $query as xs:string?) as map(*) {
     (:If there is no query string, fill up the map with existing values:)
     if (empty($query))
@@ -485,23 +498,62 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
                 "query" := session:get-attribute("apps.sai.query")
             }
     (: Otherwise perform the query :)
-    else
-        let $context := collection($config:remote-data-root)/tei:TEI/tei:text
+    else 
+        let $facet-def := doc($config:app-root || '/search-facet-def.xml')/child::*
+        let $context := collection($config:remote-data-root)/tei:TEI
         let $hits :=
-            for $hit in 
-                (
-                $context//tei:p[ft:query(., $query)],
-                $context//tei:head[ft:query(., $query)],
-                $context//tei:lg[ft:query(., $query)],
-                $context//tei:trailer[ft:query(., $query)],
-                $context//tei:l[not(local-name(./..) eq 'lg')][ft:query(., $query)],
-                $context//tei:quote[ft:query(., $query)],
-                $context//tei:text[ft:query(.,$query)],
-                $context//tei:unclear[ft:query(.,$query)],
-                $context//tei:supplied[ft:query(.,$query)]
-                )
-            order by ft:score($hit) descending
-            return $hit
+            if(request:get-parameter('filter', '') = 'translation') then
+                let $hits := util:eval(concat("$context//tei:div[@type='translation'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def)))
+                for $hit in $hits
+                order by ft:score($hit) descending
+                return $hit
+            else if(request:get-parameter('filter', '') = 'metadata') then
+                let $persons-data := collection(replace($config:remote-data-root,'/data','/contextual/Persons'))//tei:person
+                let $places-data := collection(replace($config:remote-data-root,'/data','/contextual/Places'))//tei:place
+                (: Change to contextual/Bibliography when data has been moved :)
+                let $bibl-data := collection(replace($config:remote-data-root,'/data','/contextual'))//tei:bibl
+                let $path := concat(
+                        "($persons-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
+                        ",$places-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
+                        ",$bibl-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
+                        ",$context//tei:teiHeader[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
+                        ",$context//tei:div[@type='bibliography'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
+                        ",$context//tei:div[@type='commentary'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),")"
+                    )
+                let $hits := util:eval($path)
+                for $hit in $hits
+                order by ft:score($hit) descending
+                return $hit                
+            else if(request:get-parameter('filter', '') = 'text') then 
+                for $hit in util:eval(concat("$context[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def)))
+                    (:(
+                    $context[ft:query(., $query)],
+                    $context//tei:p[ft:query(., $query)],
+                    $context//tei:head[ft:query(., $query)],
+                    $context//tei:lg[ft:query(., $query)],
+                    $context//tei:trailer[ft:query(., $query)],
+                    $context//tei:l[not(local-name(./..) eq 'lg')][ft:query(., $query)],
+                    $context//tei:quote[ft:query(., $query)],
+                    $context//tei:text[ft:query(.,$query)],
+                    $context//tei:unclear[ft:query(.,$query)],
+                    $context//tei:supplied[ft:query(.,$query)]
+                    ):)
+                order by ft:score($hit) descending
+                return $hit
+            else    
+                let $persons-data := collection(replace($config:remote-data-root,'/data','/contextual/Persons'))//tei:person
+                let $places-data := collection(replace($config:remote-data-root,'/data','/contextual/Places'))//tei:place
+                let $bibl-data := collection(replace($config:remote-data-root,'/data','/contextual'))//tei:bibl
+                let $path := concat(
+                        "($persons-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
+                        ",$places-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
+                        ",$bibl-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
+                        ",$context[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),")"
+                    )
+                let $hits := util:eval($path)
+                for $hit in $hits
+                order by ft:score($hit) descending
+                return $hit
         (: The hits are not returned directly, but processed by the nested templates :)
         let $store := (
             session:set-attribute("apps.sai", $hits),
@@ -513,6 +565,19 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
                 "query" := $query
             }
 };
+
+(:~
+ : Default search options to be passed to Lucene via ft:query()
+:)
+declare function app:search-options(){
+    <options>
+        <default-operator>and</default-operator>
+        <phrase-slop>1</phrase-slop>
+        <leading-wildcard>yes</leading-wildcard>
+        <filter-rewrite>yes</filter-rewrite>
+    </options>
+};
+
 (:~
  : Create a bootstrap pagination element to navigate through the hits.
  :)
@@ -572,6 +637,7 @@ function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-
         ) else
             ()
 };
+
 (:  Number of hits :)
 declare function app:hit-count($node as node()*, $model as map(*)) {
     <span xmlns="http://www.w3.org/1999/xhtml" id="hit-count">{ count($model("hits")) }</span>
@@ -588,7 +654,6 @@ declare %private function app:get-next($div as element()) {
     else
         $div/following::tei:div[1]
 };
-
 declare %private function app:get-previous($div as element(tei:div)?) {
     if (empty($div)) then
         ()
@@ -626,26 +691,44 @@ declare function local:filter-kwic($node as node(), $mode as xs:string) as xs:st
   else 
       concat(' ',$node)
 };
+
 (:~
     Output the actual search result as a div, using the kwic module to summarize full text matches.
 :)
+
 (:template function in search.html:)
 declare 
     %templates:wrap
     %templates:default("start", 1)
     %templates:default("per-page", 10)
 function app:show-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
+(
     for $hit at $p in subsequence($model("hits"), $start, $per-page)
-    let $inscription := $hit/ancestor::tei:TEI
-    let $inscription-title := $inscription//tei:titleStmt/tei:title/text()
-    let $inscription-id := $inscription/@xml:id/string()
+    let $r := root($hit)
+    let $type := 
+        if(($r/name(.) = ('TEI','teiHeader')) or ($r/child::*/name(.) = ('TEI','teiHeader'))) then 'Inscription'
+        else if($r/child::*/name(.) = ('listBibl','bibl')) then 'Bibliography'
+        else if($r/child::*/name(.) = 'person') then 'Person'
+        else if($r/child::*/name(.) = 'place') then 'Place'
+        else $r/child::*/name(.)
+    let $title := if($r/descendant::tei:titleStmt/tei:title) then 
+                     $r/descendant::tei:titleStmt/tei:title[1]/text()
+                  else if($r/child::tei:person) then
+                     $r/descendant::tei:persName[1]/text()
+                  else if($r/child::tei:place) then
+                     $r/descendant::tei:placeName[1]/text()
+                  else if($r/descendant::tei:title) then 
+                     $r/descendant::tei:title[1]/text()   
+                  else (:$r/child::*[1]:) 'Title'
+    let $id := $r//@xml:id/string()
     (:pad hit with surrounding siblings:)
     let $hit-padded := <hit>{($hit/preceding-sibling::*[1], $hit, $hit/following-sibling::*[1])}</hit>
     let $loc := 
         <tr class="reference">
             <td colspan="3">
                 <span class="number">{$start + $p - 1}</span>
-                <a href="inscriptions/{$inscription-id}">{ $inscription-title }</a>
+                <span class="number badge">{$type}</span>
+                <a href="inscriptions/{$id}">{ $title }</a>
             </td>
         </tr>
     let $matchId := ($hit/@xml:id, util:node-id($hit))[1]
@@ -653,4 +736,21 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
     let $kwic := kwic:summarize($hit-padded, $config, util:function(xs:QName("local:filter-kwic"), 2))
     return
         ($loc, $kwic)
+)        
+};
+
+declare function app:search-facets($node as node(), $model as map(*)) {
+let $hits := $model("hits")
+let $facet-def := doc($config:app-root || '/search-facet-def.xml')
+return facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
+
+};
+declare function app:facet($node as node(), $model as map(*)) {
+let $hits := $model("inscriptions")
+let $facet-def := doc($config:app-root || '/facet-def.xml')
+return 
+(facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition)),
+$facet-def/descendant::facet:facet-definition,
+$config:remote-data-root
+)
 };
