@@ -150,9 +150,9 @@ declare function tei-to-html:provenance($nodes,$options) {
 };
 declare function tei-to-html:language($node) {
     let $script := root($node)//tei:div[@type='edition']/@xml:lang
-    let $script := if ($script eq 'sa-Latn') then 'Sanskrit' 
-                   else if ($script eq 'mi-Latn') then 'Middle Indic'
-                   else if ($script eq 'xx') then 'Unknown'
+    let $script := if ($script eq 'san-Latn') then 'Sanskrit' 
+                   else if ($script eq 'pra-Latn') then 'Middle Indic'
+                   else if ($script eq 'und') then 'Unknown'
                    else 'no language specified'
     return 
         if ($script)

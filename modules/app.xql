@@ -249,9 +249,9 @@ declare function app:inscription-id($node as node(), $model as map(*)) {
 declare function app:inscription-language($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     let $script := $inscription//tei:div[@type='edition']/@xml:lang
-    let $script := if ($script eq 'sa-Latn') then 'Sanskrit'
-                   else if ($script eq 'mi-Latn') then 'Middle Indic'
-                   else if ($script eq 'xx') then 'Unknown'
+    let $script := if ($script eq 'san-Latn') then 'Sanskrit'
+                   else if ($script eq 'pra-Latn') then 'Middle Indic'
+                   else if ($script eq 'und') then 'Unknown'
                    else 'Unspecified'
     (: Obviously this will need revision at some point... :)
     return 
