@@ -52,6 +52,7 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             case element(tei:placeName) return tei-to-html:placeName($node,$options)
             case element(tei:persName) return tei-to-html:persName($node,$options)
             case element(tei:app) return tei-to-html:app($node,$options)
+            case element(tei:choice) return tei-to-html:choice($node,$options)
             case element(tei:note) return tei-to-html:note($node,$options)
             case element(tei:emph) return tei-to-html:emph($node,$options)
             case element(tei:seg) return tei-to-html:seg($node,$options)
@@ -359,6 +360,7 @@ declare function tei-to-html:app($node as element(tei:app),$options) as element(
                 (: change as of 12/16: use @source for bibliographical sources,
                    @wit for documentary witnesses,
                    and @resp for persons :)
+                (: maybe we don't need to get of the space between authorities? :)
                 let $sources := if ($x/@source) then <span class="wit">{ concat(' ',translate(translate(string($x/@source),' ',''),'#','')) }</span> else ""
                 let $witnesses := if ($x/@wit) then <span class="wit">{ concat(' ',translate(translate(string($x/@wit),' ',''),'#','')) }</span> else ""
                 let $resps := if ($x/@resp) then <span class="wit">{ concat(' ',translate(translate(string($x/@resp),' ',''),'#','')) }</span> else ""
@@ -381,6 +383,25 @@ declare function tei-to-html:app($node as element(tei:app),$options) as element(
         else
             ( <span class="app">*{$readings}{$notes}</span> )
         
+};
+declare function tei-to-html:choice($node as element(tei:choice),$options) {
+    let $lemma := $node/tei:sic
+    let $choice :=
+        <span class="appcontainer">
+            <span class="appentry">{ tei-to-html:recurse($lemma,$options) }] <em>sic</em></span>
+            <span class="appentry"><em>read:</em> { tei-to-html:recurse($node/tei:corr,$options) }</span>
+        </span>
+    let $notes := 
+        <span class="appcontainer">
+            {
+                for $x in ($node/tei:note)
+                let $text := tei-to-html:note($x,$options)
+                return 
+                    ( <span class="appentry">{$text}</span> )
+            }
+        </span>
+    return
+        <span class="app">{ tei-to-html:recurse($lemma,$options) }{$choice}{$notes}</span>
 };
 declare function tei-to-html:lb($node as element(tei:lb),$options) {
     let $prebreak := 
