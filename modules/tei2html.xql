@@ -356,10 +356,14 @@ declare function tei-to-html:app($node as element(tei:app),$options) as element(
                 for $x in ($node/tei:lem | $node/tei:rdg)
                 let $text := <span>{ tei-to-html:recurse($x,$options) }</span>
                 let $brack := if ($x/self::tei:lem) then "]" else ""
-                let $witnesses := concat(' ',translate(translate(string($x/@wit),' ',''),'#',''))
-                let $wit := if ($x/@wit) then <span class="wit">{$ witnesses }</span> else ""
+                (: change as of 12/16: use @source for bibliographical sources,
+                   @wit for documentary witnesses,
+                   and @resp for persons :)
+                let $sources := if ($x/@source) then <span class="wit">{ concat(' ',translate(translate(string($x/@source),' ',''),'#','')) }</span> else ""
+                let $witnesses := if ($x/@wit) then <span class="wit">{ concat(' ',translate(translate(string($x/@wit),' ',''),'#','')) }</span> else ""
+                let $resps := if ($x/@resp) then <span class="wit">{ concat(' ',translate(translate(string($x/@resp),' ',''),'#','')) }</span> else ""
                 return 
-                    ( <span class="appentry">{$text}{$wit}{$brack}</span> )
+                    ( <span class="appentry">{$text}{$sources}{$witnesses}{$resps}{$brack}</span> )
             }
         </span>
     let $notes := 
