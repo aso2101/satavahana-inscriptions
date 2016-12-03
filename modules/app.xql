@@ -492,6 +492,7 @@ declare function app:view-map($node as node(), $model as map(*)) {
 declare function app:query($node as node()*, $model as map(*), $query as xs:string?) as map(*) {
     (:If there is no query string, fill up the map with existing values:)
     if (empty(request:get-parameter-names()))
+    (:if (empty($query)):)
         then
             map {
                 "hits" := session:get-attribute("apps.sai"),
@@ -581,6 +582,9 @@ function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-
     if ($min-hits < 0 or count($model("hits")) >= $min-hits) then
         let $count := xs:integer(ceiling(count($model("hits"))) div $per-page) + 1
         let $middle := ($max-pages + 1) idiv 2
+        (: get all parameters to pass to paging function, strip start parameter :)
+        let $url-params := replace(replace(request:get-query-string(), '&amp;start=\d+', ''),'start=\d+','')
+        let $param-string := if($url-params != '') then concat('?',$url-params,'&amp;start=') else '?start='
         return (
             if ($start = 1) then (
                 <li class="disabled">
@@ -594,7 +598,7 @@ function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-
                     <a href="?start=1"><i class="glyphicon glyphicon-fast-backward"/></a>
                 </li>,
                 <li>
-                    <a href="?start={max( ($start - $per-page, 1 ) ) }"><i class="glyphicon glyphicon-backward"/></a>
+                    <a href="{$param-string}{max( ($start - $per-page, 1 ) ) }"><i class="glyphicon glyphicon-backward"/></a>
                 </li>
             ),
             let $startPage := xs:integer(ceiling($start div $per-page))
@@ -604,15 +608,15 @@ function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-
             for $i in $lowerBound to $upperBound
             return
                 if ($i = ceiling($start div $per-page)) then
-                    <li class="active"><a href="?start={max( (($i - 1) * $per-page + 1, 1) )}">{$i}</a></li>
+                    <li class="active"><a href="{$param-string}{max( (($i - 1) * $per-page + 1, 1) )}">{$i}</a></li>
                 else
-                    <li><a href="?start={max( (($i - 1) * $per-page + 1, 1)) }">{$i}</a></li>,
+                    <li><a href="{$param-string}{max( (($i - 1) * $per-page + 1, 1)) }">{$i}</a></li>,
             if ($start + $per-page < count($model("hits"))) then (
                 <li>
                     <a href="?start={$start + $per-page}"><i class="glyphicon glyphicon-forward"/></a>
                 </li>,
                 <li>
-                    <a href="?start={max( (($count - 1) * $per-page + 1, 1))}"><i class="glyphicon glyphicon-fast-forward"/></a>
+                    <a href="{$param-string}{max( (($count - 1) * $per-page + 1, 1))}"><i class="glyphicon glyphicon-fast-forward"/></a>
                 </li>
             ) else (
                 <li class="disabled">
