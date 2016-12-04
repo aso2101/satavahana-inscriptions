@@ -480,9 +480,10 @@ declare function app:view-map($node as node(), $model as map(*)) {
 
 (:
     Search functions
-    Right now these are more or less modelled on SARIT's search function. 
+    Right now these are more or less modelled on SARIT's search function.
 :)
 
+(:  Updated search functions. :)
 (:~
  : Builds query.
  : @param $query from input field
@@ -490,7 +491,8 @@ declare function app:view-map($node as node(), $model as map(*)) {
 :)
 declare function app:query($node as node()*, $model as map(*), $query as xs:string?) as map(*) {
     (:If there is no query string, fill up the map with existing values:)
-    if (empty($query))
+    if (empty(request:get-parameter-names()))
+    (:if (empty($query)):)
         then
             map {
                 "hits" := session:get-attribute("apps.sai"),
@@ -525,18 +527,6 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
                 return $hit                
             else if(request:get-parameter('filter', '') = 'text') then 
                 for $hit in util:eval(concat("$context[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def)))
-                    (:(
-                    $context[ft:query(., $query)],
-                    $context//tei:p[ft:query(., $query)],
-                    $context//tei:head[ft:query(., $query)],
-                    $context//tei:lg[ft:query(., $query)],
-                    $context//tei:trailer[ft:query(., $query)],
-                    $context//tei:l[not(local-name(./..) eq 'lg')][ft:query(., $query)],
-                    $context//tei:quote[ft:query(., $query)],
-                    $context//tei:text[ft:query(.,$query)],
-                    $context//tei:unclear[ft:query(.,$query)],
-                    $context//tei:supplied[ft:query(.,$query)]
-                    ):)
                 order by ft:score($hit) descending
                 return $hit
             else    
@@ -592,6 +582,9 @@ function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-
     if ($min-hits < 0 or count($model("hits")) >= $min-hits) then
         let $count := xs:integer(ceiling(count($model("hits"))) div $per-page) + 1
         let $middle := ($max-pages + 1) idiv 2
+        (: get all parameters to pass to paging function, strip start parameter :)
+        let $url-params := replace(replace(request:get-query-string(), '&amp;start=\d+', ''),'start=\d+','')
+        let $param-string := if($url-params != '') then concat('?',$url-params,'&amp;start=') else '?start='
         return (
             if ($start = 1) then (
                 <li class="disabled">
@@ -605,7 +598,7 @@ function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-
                     <a href="?start=1"><i class="glyphicon glyphicon-fast-backward"/></a>
                 </li>,
                 <li>
-                    <a href="?start={max( ($start - $per-page, 1 ) ) }"><i class="glyphicon glyphicon-backward"/></a>
+                    <a href="{$param-string}{max( ($start - $per-page, 1 ) ) }"><i class="glyphicon glyphicon-backward"/></a>
                 </li>
             ),
             let $startPage := xs:integer(ceiling($start div $per-page))
@@ -615,15 +608,15 @@ function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-
             for $i in $lowerBound to $upperBound
             return
                 if ($i = ceiling($start div $per-page)) then
-                    <li class="active"><a href="?start={max( (($i - 1) * $per-page + 1, 1) )}">{$i}</a></li>
+                    <li class="active"><a href="{$param-string}{max( (($i - 1) * $per-page + 1, 1) )}">{$i}</a></li>
                 else
-                    <li><a href="?start={max( (($i - 1) * $per-page + 1, 1)) }">{$i}</a></li>,
+                    <li><a href="{$param-string}{max( (($i - 1) * $per-page + 1, 1)) }">{$i}</a></li>,
             if ($start + $per-page < count($model("hits"))) then (
                 <li>
                     <a href="?start={$start + $per-page}"><i class="glyphicon glyphicon-forward"/></a>
                 </li>,
                 <li>
-                    <a href="?start={max( (($count - 1) * $per-page + 1, 1))}"><i class="glyphicon glyphicon-fast-forward"/></a>
+                    <a href="{$param-string}{max( (($count - 1) * $per-page + 1, 1))}"><i class="glyphicon glyphicon-fast-forward"/></a>
                 </li>
             ) else (
                 <li class="disabled">
@@ -682,10 +675,13 @@ declare %private function app:get-current($div as element()?) {
             else
                 $div
 };
+
 declare function local:filter-kwic($node as node(), $mode as xs:string) as xs:string? {
+(:
   if ($node/ancestor::tei:div or $node/ancestor::tei:note) then 
       ()
-  else if ($mode eq 'before') then 
+  else:)
+  if ($mode eq 'before') then 
       concat($node, ' ')
   else 
       concat(' ',$node)
@@ -695,6 +691,41 @@ declare function local:filter-kwic($node as node(), $mode as xs:string) as xs:st
     Output the actual search result as a div, using the kwic module to summarize full text matches.
 :)
 
+(:~
+ : Format search results
+ : Display and id/title/path variables all depend on type
+:)
+declare function app:loc($hit-root, $type, $start, $p){
+let $title :=     
+    if($hit-root/descendant::tei:titleStmt/tei:title) then 
+        $hit-root/descendant::tei:titleStmt/tei:title[1]/text()
+    else if($hit-root/descendant::tei:title) then 
+        $hit-root/descendant::tei:title[1]/text()
+    else if($hit-root/tei:persName) then
+        $hit-root/tei:persName[1]/text()
+    else if($hit-root/tei:placeName) then
+        $hit-root/tei:placeName[1]/text()
+    else if($hit-root/descendant::tei:title) then 
+        $hit-root/descendant::tei:title[1]/text()   
+    else (name($hit-root/child::*[1]), ' ', $hit-root/child::*[1]/text())  
+let $id := string($hit-root//@xml:id[1])
+let $path := if($type = 'Bibliography') then 
+                    concat('bibliography.html#',$id)
+             else if($type = 'Person') then 
+                    concat('person.html#',$id)
+             else if($type = 'Place') then 
+                    concat('person.html#',$id)                    
+             else concat('inscriptions/',$id)   
+return
+        <tr class="reference">
+            <td colspan="3">
+                <span class="number">{$start + $p - 1}</span>
+                <span class="number badge">{$type}</span>
+                <a href="{$path}">{ $title }</a>
+            </td>
+        </tr>
+};
+
 (:template function in search.html:)
 declare 
     %templates:wrap
@@ -703,53 +734,136 @@ declare
 function app:show-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
 (
     for $hit at $p in subsequence($model("hits"), $start, $per-page)
-    let $r := root($hit)
+    let $r := $hit
+    let $root-el := root($r)
     let $type := 
-        if(($r/name(.) = ('TEI','teiHeader')) or ($r/child::*/name(.) = ('TEI','teiHeader'))) then 'Inscription'
-        else if($r/child::*/name(.) = ('listBibl','bibl')) then 'Bibliography'
-        else if($r/child::*/name(.) = 'person') then 'Person'
-        else if($r/child::*/name(.) = 'place') then 'Place'
-        else $r/child::*/name(.)
-    let $title := if($r/descendant::tei:titleStmt/tei:title) then 
-                     $r/descendant::tei:titleStmt/tei:title[1]/text()
-                  else if($r/child::tei:person) then
-                     $r/descendant::tei:persName[1]/text()
-                  else if($r/child::tei:place) then
-                     $r/descendant::tei:placeName[1]/text()
-                  else if($r/descendant::tei:title) then 
-                     $r/descendant::tei:title[1]/text()   
-                  else (:$r/child::*[1]:) 'Title'
-    let $id := $r//@xml:id/string()
-    (:pad hit with surrounding siblings:)
-    let $hit-padded := <hit>{($hit/preceding-sibling::*[1], $hit, $hit/following-sibling::*[1])}</hit>
-    let $loc := 
-        <tr class="reference">
-            <td colspan="3">
-                <span class="number">{$start + $p - 1}</span>
-                <span class="number badge">{$type}</span>
-                <a href="inscriptions/{$id}">{ $title }</a>
-            </td>
-        </tr>
+        if(($root-el/name(.) = ('TEI','teiHeader')) or ($root-el/child::*/name(.) = ('TEI','teiHeader'))) then 'Inscription'
+        else if($root-el/child::*/name(.) = ('listBibl','bibl')) then 'Bibliography'
+        else if($root-el/child::*/name(.) = 'person') then 'Person'
+        else if($root-el/child::*/name(.) = 'place') then 'Place'
+        else $root-el/child::*/name(.)
+    let $hit-root := if($type = 'Inscription') then root($r) else  $r    
+    let $hit-padded := <hit>{($hit/preceding-sibling::*[1], $hit, $hit/following-sibling::*[1])}</hit>        
     let $matchId := ($hit/@xml:id, util:node-id($hit))[1]
     let $config := <config width="80" table="yes"/>
     let $kwic := kwic:summarize($hit-padded, $config, util:function(xs:QName("local:filter-kwic"), 2))
     return
-        ($loc, $kwic)
+        (app:loc($hit-root, $type, $start, $p), $kwic)
 )        
 };
 
+(:~
+ : Search facets  
+ : Uses facet definitions in search-facet-def.xml
+ : Used by search.html
+ : @see facet library lib/facet.xqm
+:)
 declare function app:search-facets($node as node(), $model as map(*)) {
-let $hits := $model("hits")
-let $facet-def := doc($config:app-root || '/search-facet-def.xml')
-return facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
-
+    let $hits := $model("hits")
+    let $facet-def := doc($config:app-root || '/search-facet-def.xml')
+    return facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
 };
+
+(:
+ : General facet display. 
+:)
 declare function app:facet($node as node(), $model as map(*)) {
-let $hits := $model("inscriptions")
-let $facet-def := doc($config:app-root || '/facet-def.xml')
+    let $hits := $model("inscriptions")
+    let $facet-def := doc($config:app-root || '/facet-def.xml')
+    return 
+        (facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition)),
+        $facet-def/descendant::facet:facet-definition,
+        $config:remote-data-root
+        )
+};
+
+(: New browse inscriptions functions :)
+(:~
+ : Browse inscriptions  
+ : Group inscriptions by place/@key
+ : @sort  
+:)
+declare function app:browse-inscriptions($node as node(), $model as map(*)) {
+    map {
+        "hits" :=
+            let $facet-def := doc($config:app-root || '/facet-def.xml')
+            for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def)))
+            let $title := $i/descendant::tei:title
+            order by $title
+            return $i
+    }  
+};
+
+(:~
+ : Show browse hits. 
+ : @param $start default 1 
+ : @param $per-page default 10
+:)
+declare 
+    %templates:wrap
+    %templates:default("start", 1)
+    %templates:default("per-page", 10)
+function app:browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
+(
+    for $hit at $p in subsequence($model("hits"), $start, $per-page)
+    let $id := $hit//tei:idno
+    let $title := $hit//tei:titleStmt/tei:title/text()
+    let $lang := string($hit/descendant::tei:text/descendant::tei:div[@type='edition'][1]/@xml:lang)
+    let $date := $hit//tei:origDate/text()
+    return
+        <tr class="reference">
+            <td>{$id}</td>
+            <td>{<a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$id}">{ $title }</a>}</td>
+            <td>{$hit/descendant::tei:teiHeader/tei:profileDesc/tei:textClass/tei:keywords/tei:term/text()}</td>
+            <td>{app:translate-lang($lang)}</td>
+            <td>{$date}</td>
+       </tr>
+)        
+};
+
+(:~
+ : General/Browse facets  
+ : Uses facet definitions in facet-def.xml
+ : Used by browse.html
+ : @see facet library lib/facet.xqm
+:)
+declare function app:browse-facets($node as node(), $model as map(*)) {
+    let $hits := $model("hits")
+    let $facet-def := doc($config:app-root || '/facet-def.xml')
+    return facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
+};
+
+declare function app:map($node as node(), $model as map(*)) {
+let $places := distinct-values($model("hits")//tei:placeName/@key)
+let $place-list :=
+                for $p in $places
+                let $id := 
+                    if (contains($p,'pl:'))
+                    then substring-after($p,'pl:')
+                    else $p
+                for $place in collection(replace($config:remote-data-root,'/data','/contextual/Places'))//@xml:id[. = $id]
+                let $p := root($place)
+                return $p                    
 return 
-(facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition)),
-$facet-def/descendant::facet:facet-definition,
-$config:remote-data-root
-)
+    <div id="map">
+        <script type="text/javascript">
+            L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
+            
+            var geojson = [{ (:smap:create-data($place-list) :) 'temp'}];
+            
+            var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
+                .setView([20.217, 74.083], 8); // centers on Nasik
+        </script>
+        <script type="text/javascript" src="/exist/apps/SAI/resources/js/map.js"/>
+    </div>
+};
+
+(:~
+ : Translate code to text
+:)
+declare function app:translate-lang($lang-code as xs:string*){
+    if($lang-code = ('san-Latn','sa-Latn')) then 'Sanskrit'
+    else if($lang-code = ('pra-Latn','mi-Latn')) then 'Middle Indic'
+    else if($lang-code = ('und','xx')) then 'Unknown'
+    else 'Unspecified'
 };
