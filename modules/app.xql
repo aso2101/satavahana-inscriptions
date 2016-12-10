@@ -124,7 +124,7 @@ declare function app:ruler($node as node(), $model as map(*), $key as xs:string)
 };
 
 declare function app:place-name($node as node(), $model as map(*)) {
-    let $place := $model("place")
+    let $place := $model("place") | $model("browse-places")
     let $text :=
         if ($place//tei:placeName[@type='ancient'])
         then $place//tei:placeName[@type='ancient'][1]/text()
@@ -783,15 +783,38 @@ declare function app:facet($node as node(), $model as map(*)) {
  : Group inscriptions by place/@key
  : @sort  
 :)
-declare function app:browse-inscriptions($node as node(), $model as map(*)) {
+declare function app:browse-get-inscriptions($node as node(), $model as map(*)) {
     map {
-        "hits" :=
-            let $facet-def := doc($config:app-root || '/facet-def.xml')
-            for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def)))
-            let $title := $i/descendant::tei:title
-            order by $title
-            return $i
-    }  
+                "hits" := 
+                    let $facet-def := doc($config:app-root || '/browse-facet-def.xml')
+                    for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def)))
+                    return $i
+        }  
+};
+
+declare function app:browse-get-places($node as node(), $model as map(*)){
+    map {
+                "places" := 
+                    let $places := distinct-values($model("hits")//descendant::tei:origPlace/tei:placeName/@key)
+                    for $p in $places
+                    let $id := 
+                                if (contains($p,'pl:')) then substring-after($p,'pl:')
+                                else $p
+                    for $place in collection(replace($config:remote-data-root,'/data','/contextual/Places'))//@xml:id[. = $id]
+                    let $p := root($place)
+                    return $p
+        }  
+};
+
+(: Trial code, to put  more html in page, may be useful for js also? :)
+declare function app:browse-group-by-places($node as node(), $model as map(*)){
+map {
+    "browse-places" :=
+    for $hit in $model("hits")
+    group by $place-key := $hit/descendant::tei:origPlace[1]/tei:placeName[1]/@key
+    order by $place-key
+    return 
+        $hit}
 };
 
 (:~
@@ -799,28 +822,95 @@ declare function app:browse-inscriptions($node as node(), $model as map(*)) {
  : @param $start default 1 
  : @param $per-page default 10
 :)
-declare 
-    %templates:wrap
-    %templates:default("start", 1)
-    %templates:default("per-page", 10)
-function app:browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
-(
-    for $hit at $p in subsequence($model("hits"), $start, $per-page)
-    let $id := $hit//tei:idno
-    let $title := $hit//tei:titleStmt/tei:title/text()
-    let $lang := string($hit/descendant::tei:text/descendant::tei:div[@type='edition'][1]/@xml:lang)
-    let $date := $hit//tei:origDate/text()
-    return
-        <tr class="reference">
-            <td>{$id}</td>
-            <td>{<a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$id}">{ $title }</a>}</td>
-            <td>{$hit/descendant::tei:teiHeader/tei:profileDesc/tei:textClass/tei:keywords/tei:term/text()}</td>
-            <td>{app:translate-lang($lang)}</td>
-            <td>{$date}</td>
-       </tr>
-)        
+declare function app:browse-hits($node as node()*, $model as map(*)) {
+    for $key in distinct-values($model("hits")//descendant::tei:origPlace/tei:placeName/@key)
+    let $name := 
+        if (contains($key,'pl:')) then substring-after($key,'pl:')
+        else $key
+    let $id := xs:NCName($name)
+    let $inscriptions := $model("hits")[descendant::tei:placeName[@key = $key]]
+    order by $name
+    return 
+     <div id="place-{$key}">
+        <h4>{string(replace($key,'pl:',''))}</h4>
+        {
+                app:view-hits($inscriptions, $key)
+        }
+    </div>     
+
 };
 
+(:
+data-order- custom attribute
+:)
+declare function app:view-hits($inscriptions, $placeId){
+    (<table class="table" id="{$placeId}">
+        <thead>
+            <tr>
+                <th class="col-md-1"><button class="btn-link">ID <span class="caret"/></button></th>
+                <th><button class="btn-link">Name <span class="caret"/></button></th>
+                <th class="col-md-2"><button class="btn-link">Type <span class="caret"/></button></th>
+                <th class="col-md-2"><button class="btn-link">Language <span class="caret"/></button></th>
+                <th class="col-md-2"><button class="btn-link">Date <span class="caret"/></button></th>
+            </tr>
+        </thead>
+        <tbody id="results">
+            {
+                for $i in $inscriptions
+                let $id := string($i/@xml:id)
+                let $title := $i/descendant::tei:title[1]/text()
+                let $type := $i/descendant::tei:profileDesc/tei:textClass/tei:keywords/tei:term/text()
+                let $lang := app:translate-lang(string($i/descendant::tei:div[@type='edition']/@xml:lang))
+                let $date-text := $i/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/text()
+                (: Deal with dates for sorting... if notBefore... :)
+                let $date := $i/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom
+                order by $title
+                return 
+                    <tr>
+                        <td data-sort="{$id}">{$id}</td>
+                        <td data-sort="{$title}"><a href="inscriptions/{$id}">{$title}</a></td>
+                        <td data-sort="{$type}">{$type}</td>
+                        <td data-sort="{$lang}">{$lang}</td>
+                        <td data-sort="{$date}">{$date-text}</td>
+                    </tr>
+                }
+            </tbody>
+    </table>,
+    <script>
+        <![CDATA[
+            $(document).ready(function() {
+               var table = document.getElementById(']]>{$placeId}<![CDATA[')
+                    ,tableHead = table.querySelector('thead')
+                    ,tableHeaders = tableHead.querySelectorAll('th')
+                    ,tableBody = table.querySelector('tbody')
+                ;
+                tableHead.addEventListener('click',function(e){
+                    var tableHeader = e.target
+                        ,textContent = tableHeader.textContent
+                        ,tableHeaderIndex,isAscending,order
+                    ;
+                    if (textContent!=='add row') {
+                        while (tableHeader.nodeName!=='TH') {
+                            tableHeader = tableHeader.parentNode;
+                        }
+                        tableHeaderIndex = Array.prototype.indexOf.call(tableHeaders,tableHeader);
+                        isAscending = tableHeader.getAttribute('data-order')==='asc';
+                        order = isAscending?'desc':'asc';
+                        tableHeader.setAttribute('data-order',order);
+                        tinysort(
+                            tableBody.querySelectorAll('tr')
+                            ,{
+                                selector:'td:nth-child('+(tableHeaderIndex+1)+')'
+                                ,attr:"data-sort"
+                                ,order: order
+                            }
+                        );
+                    }
+                });
+            });
+        ]]>
+    </script>)
+};
 (:~
  : General/Browse facets  
  : Uses facet definitions in facet-def.xml
@@ -829,33 +919,45 @@ function app:browse-hits($node as node()*, $model as map(*), $start as xs:intege
 :)
 declare function app:browse-facets($node as node(), $model as map(*)) {
     let $hits := $model("hits")
-    let $facet-def := doc($config:app-root || '/facet-def.xml')
+    let $facet-def := doc($config:app-root || '/browse-facet-def.xml')
     return facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
 };
 
-declare function app:map($node as node(), $model as map(*)) {
-let $places := distinct-values($model("hits")//tei:placeName/@key)
-let $place-list :=
-                for $p in $places
-                let $id := 
-                    if (contains($p,'pl:'))
-                    then substring-after($p,'pl:')
-                    else $p
-                for $place in collection(replace($config:remote-data-root,'/data','/contextual/Places'))//@xml:id[. = $id]
-                let $p := root($place)
-                return $p                    
-return 
-    <div id="map">
-        <script type="text/javascript">
-            L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
-            
-            var geojson = [{ (:smap:create-data($place-list) :) 'temp'}];
-            
-            var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
-                .setView([20.217, 74.083], 8); // centers on Nasik
-        </script>
-        <script type="text/javascript" src="/exist/apps/SAI/resources/js/map.js"/>
-    </div>
+declare function app:dynamic-map-data($node as node(), $model as map(*)){
+    if($model("hits")//tei:geo) then 
+        for $p in $model("hits")//tei:geo
+        return root($p)
+    else if($model("places")//tei:geo) then 
+        for $p in $model("places")//tei:geo
+        return root($p)        
+    else
+        let $places := distinct-values($model("hits")//tei:placeName/@key)
+        for $p in $places
+        let $id := 
+                if (contains($p,'pl:')) then substring-after($p,'pl:')
+                else $p
+        for $place in collection(replace($config:remote-data-root,'/data','/contextual/Places'))//@xml:id[. = $id]
+        let $p := root($place)
+        return $p
+};
+
+declare function app:map($node as node(), $model as map(*)) { 
+    if(not(empty(app:dynamic-map-data($node, $model)))) then 
+        <div id="map">
+            <script type="text/javascript">
+                L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
+                
+                var geojson = [{smap:create-data(app:dynamic-map-data($node,$model))}];
+                var bounds = L.latLngBounds(geojson);
+                var map = L.mapbox.map('map', 'aso2101.kbbp2nnh'); // centers on Nasik
+                
+                //map.fitBounds(geojson.getBounds());
+
+            </script>
+            <script type="text/javascript" src="/exist/apps/SAI/resources/js/map.js"/>
+        </div>
+    else ()
+
 };
 
 (:~

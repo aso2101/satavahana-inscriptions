@@ -79,58 +79,7 @@ declare function facet:group-by($results as item()*, $facet-definitions as eleme
         if($sort/text() = 'value') then $f[1]
         else count($f)
         descending
-    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$f[1]}"/>
-};
-
-declare function facet:element-type($results as item()*, $facet-definitions as element(facet:facet-definition)?) as element(facet:key)*{
-    let $path := concat('$results/',$facet-definitions/facet:group-by/facet:sub-path/text())
-    let $sort := $facet-definitions/facet:order-by
-    for $f in util:eval($path)
-    let $label := 
-        if($f[1] = ('TEI','teiHeader')) then 'Inscriptions'
-        else if($f[1] = ('listBibl','bibl')) then 'Bibliography'
-        else if($f[1] = 'person') then 'Person'
-        else if($f[1] = 'place') then 'Place'
-        else $f[1]
-    group by $facet-grp := $f
-    order by 
-        if($sort/text() = 'value') then $f[1]
-        else count($f)
-        descending
-    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$label}"/>
-};
-
-declare function facet:lang-type($results as item()*, $facet-definitions as element(facet:facet-definition)?) as element(facet:key)*{
-    let $path := concat('$results/',$facet-definitions/facet:group-by/facet:sub-path/text())
-    let $sort := $facet-definitions/facet:order-by
-    for $f in util:eval($path)
-    let $label := 
-    (:san-Latn is "Sanskrit", pra-Latn is "Middle Indic" [to be converted from mi-Latn], and und is "Unknown":)
-        if($f[1] = 'san-Latn') then 'Sanskrit'
-        else if($f[1] = 'pra-Latn') then 'Middle Indic'
-        else if($f[1] = 'und') then 'Unknown'
-        else $f[1]
-    group by $facet-grp := $f
-    order by 
-        if($sort/text() = 'value') then $f[1]
-        else count($f)
-        descending
-    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$label}"/>
-};
-(:~
- : Syriaca.org specific group-by function for correctly labeling attributes with arrays.
-:)
-declare function facet:group-by-array($results as item()*, $facet-definitions as element(facet:facet-definition)?){
-    let $path := concat('$results/',$facet-definitions/facet:group-by/facet:sub-path/text()) 
-    let $sort := $facet-definitions/facet:order-by
-    let $d := tokenize(string-join(util:eval($path),' '),' ')
-    for $f in $d
-    group by $facet-grp := tokenize($f,' ')
-    order by 
-        if($sort/text() = 'value') then $f[1]
-        else count($f)
-        descending
-    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$f[1]}"/>
+    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{replace($f[1],'pl:','')}"/>
 };
 
 (:~
@@ -152,6 +101,22 @@ declare function facet:group-by-range($results as item()*, $facet-definitions as
         descending
     return 
          <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{string($range/@name)}" label="{string($range/@name)}"/>
+};
+
+(:~
+ : Syriaca.org specific group-by function for correctly labeling attributes with arrays.
+:)
+declare function facet:group-by-array($results as item()*, $facet-definitions as element(facet:facet-definition)?){
+    let $path := concat('$results/',$facet-definitions/facet:group-by/facet:sub-path/text()) 
+    let $sort := $facet-definitions/facet:order-by
+    let $d := tokenize(string-join(util:eval($path),' '),' ')
+    for $f in $d
+    group by $facet-grp := tokenize($f,' ')
+    order by 
+        if($sort/text() = 'value') then $f[1]
+        else count($f)
+        descending
+    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$f[1]}"/>
 };
 
 (:~
@@ -193,27 +158,69 @@ declare function facet:type($value as item()*, $type as xs:string?) as item()*{
  : NOTE: add range handling here. 
 :)
 declare function facet:facet-filter($facet-definitions as node()*)  as item()*{
-    if($facet:fq != '') then
+    if($facet:fq != '') then 
         string-join(
-        for $facet in tokenize($facet:fq,';fq-')
-        let $facet-name := substring-before($facet,':')
-        let $facet-value := normalize-space(substring-after($facet,':'))
-        return 
-            for $facet in $facet-definitions/facet:facet-definition[@name = $facet-name]
-            let $path := 
-                         if(matches($facet/descendant::facet:sub-path/text(), '^/@')) then concat('descendant::*/',substring($facet/descendant::facet:sub-path/text(),2))
-                         else $facet/descendant::facet:sub-path/text()
+            for $facet in tokenize($facet:fq,';fq-')
+            let $facet-name := substring-before($facet,':')
+            let $facet-value := normalize-space(substring-after($facet,':'))
             return 
-            if($facet-value != '') then 
-                if($facet/facet:range) then
-                    concat('[',$path,'[string(.) gt "', facet:type($facet/facet:range/facet:bucket[@name = $facet-value]/@gt, $facet/facet:range/facet:bucket[@name = $facet-value]/@type),'" and string(.) lt "',facet:type($facet/facet:range/facet:bucket[@name = $facet-value]/@lt, $facet/facet:range/facet:bucket[@name = $facet-value]/@type),'"]]')
-                else if($facet/facet:group-by[@function="facet:group-by-array"]) then 
-                    concat('[',$path,'[matches(., "',$facet-value,'(\W|$)")]',']')
-                else if($facet/facet:group-by[@function="facet:spear-type"]) then 
-                    concat('[',substring-before($path,'/name(.)'),'[name(.) = "',$facet-value,'"]',']')                    
-                else concat('[',$path,'[normalize-space(.) = "',replace($facet-value,'"','""'),'"]',']')
-            else(),'')    
+                for $facet in $facet-definitions/descendant-or-self::facet:facet-definition[@name = $facet-name]
+                let $path := 
+                             if(matches($facet/descendant::facet:sub-path/text(), '^/@')) then concat('descendant::*/',substring($facet/descendant::facet:sub-path/text(),2))
+                             else $facet/descendant::facet:sub-path/text()
+                return 
+                if($facet-value != '') then 
+                    if($facet/facet:range) then
+                        concat('[',$path,'[string(.) gt "', facet:type($facet/facet:range/facet:bucket[@name = $facet-value]/@gt, $facet/facet:range/facet:bucket[@name = $facet-value]/@type),'" and string(.) lt "',facet:type($facet/facet:range/facet:bucket[@name = $facet-value]/@lt, $facet/facet:range/facet:bucket[@name = $facet-value]/@type),'"]]')
+                    else if($facet/facet:group-by[@function="facet:group-by-array"]) then 
+                        concat('[',$path,'[matches(., "',$facet-value,'(\W|$)")]',']')
+                    else if($facet/facet:group-by[@function="facet:spear-type"]) then 
+                        concat('[',substring-before($path,'/name(.)'),'[name(.) = "',$facet-value,'"]',']')                    
+                    else concat('[',$path,'[normalize-space(.) = "',replace($facet-value,'"','""'),'"]',']')
+                else(),'')
     else () 
+};
+
+(:~
+ : SAI element type
+:)
+declare function facet:element-type($results as item()*, $facet-definitions as element(facet:facet-definition)?) as element(facet:key)*{
+    let $path := concat('$results/',$facet-definitions/facet:group-by/facet:sub-path/text())
+    let $sort := $facet-definitions/facet:order-by
+    for $f in util:eval($path)
+    let $label := 
+        if($f[1] = ('TEI','teiHeader')) then 'Inscriptions'
+        else if($f[1] = ('listBibl','bibl')) then 'Bibliography'
+        else if($f[1] = 'person') then 'Person'
+        else if($f[1] = 'place') then 'Place'
+        else $f[1]
+    group by $facet-grp := $f
+    order by 
+        if($sort/text() = 'value') then $f[1]
+        else count($f)
+        descending
+    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$label}"/>
+};
+
+(:~
+ : SAI language filter.
+:)
+declare function facet:lang-type($results as item()*, $facet-definitions as element(facet:facet-definition)?) as element(facet:key)*{
+    let $path := concat('$results/',$facet-definitions/facet:group-by/facet:sub-path/text())
+    let $sort := $facet-definitions/facet:order-by
+    for $f in util:eval($path)
+    let $label := 
+    (:san-Latn is "Sanskrit", pra-Latn is "Middle Indic" [to be converted from mi-Latn], and und is "Unknown":)
+        if($f[1] = ('san-Latn','sa-Latn')) then 'Sanskrit'
+        else if($f[1] = ('pra-Latn','mi-Latn')) then 'Middle Indic'
+        else if($f[1] = ('und','xx')) then 'Unknown'
+        else $f[1]
+    group by $facet-grp := $f
+    order by 
+        if($sort/text() = 'value') then $f[1]
+        else count($f)
+        descending
+    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$label}"/>
 };
 
 (:~ 
