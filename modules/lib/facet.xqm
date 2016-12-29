@@ -57,7 +57,7 @@ declare function facet:count($results as item()*, $facet-definitions as element(
 (:  TODO: Handle nested facet-definition  :)
 declare function facet:facet($results as item()*, $facet-definitions as element(facet:facet-definition)?) as item()*{
     if($facet-definitions/facet:range) then
-        facet:group-by-range($results, $facet-definitions)
+            facet:group-by-range($results, $facet-definitions)
     else if ($facet-definitions/facet:group-by/@function) then
         util:eval(concat($facet-definitions/facet:group-by/@function,'($results,$facet-definitions)'))
     else facet:group-by($results, $facet-definitions)

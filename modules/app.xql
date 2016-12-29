@@ -95,7 +95,6 @@ declare function app:list-places-location($node as node(), $model as map(*)) {
     }  
 };
 
-
 (:  This should get everyone in the person authority file who is a King
     Currently ordered by regnal years :) 
 declare function app:list-rulers($node as node(), $model as map(*)) {
@@ -787,9 +786,35 @@ declare function app:browse-get-inscriptions($node as node(), $model as map(*)) 
     map {
                 "hits" := 
                     let $facet-def := doc($config:app-root || '/browse-facet-def.xml')
-                    for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def)))
+                    for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def),app:date-filter()))
                     return $i
         }  
+};
+
+(:
+ : Build date filter for date slider. 
+ : @param $startDate
+ : @param $endDate
+:)
+declare function app:date-filter() {
+let $startDate := 
+               if(request:get-parameter('startDate', '') != '') then
+                    if(request:get-parameter('startDate', '') castable as xs:date) then 
+                      xs:gYear(xs:date(request:get-parameter('startDate', '')))
+                  else request:get-parameter('startDate', '')
+                else()   
+let $endDate := 
+                if(request:get-parameter('endDate', '') != '') then  
+                     if(request:get-parameter('endDate', '') castable as xs:date) then 
+                           xs:gYear(xs:date(request:get-parameter('endDate', '')))
+                      else request:get-parameter('endDate', '')
+                else() 
+return                 
+    if(not(empty($startDate)) and not(empty($endDate))) then 
+        concat('[descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate[
+        (@notBefore-custom gt "', $startDate,'" and @notBefore-custom lt "', $endDate,'")
+        or (@notAfter-custom gt "',$startDate,'" and @notAfter-custom lt "',$endDate,'")]]')
+    else ()
 };
 
 declare function app:browse-get-places($node as node(), $model as map(*)){
@@ -804,17 +829,6 @@ declare function app:browse-get-places($node as node(), $model as map(*)){
                     let $p := root($place)
                     return $p
         }  
-};
-
-(: Trial code, to put  more html in page, may be useful for js also? :)
-declare function app:browse-group-by-places($node as node(), $model as map(*)){
-map {
-    "browse-places" :=
-    for $hit in $model("hits")
-    group by $place-key := $hit/descendant::tei:origPlace[1]/tei:placeName[1]/@key
-    order by $place-key
-    return 
-        $hit}
 };
 
 (:~
@@ -840,8 +854,10 @@ declare function app:browse-hits($node as node()*, $model as map(*)) {
 
 };
 
-(:
-data-order- custom attribute
+(:~
+ : Browse results table
+ : Uses javascript for dynamic sorting.
+ : Called by app:browse-hits 
 :)
 declare function app:view-hits($inscriptions, $placeId){
     (<table class="table" id="{$placeId}">
@@ -871,7 +887,7 @@ declare function app:view-hits($inscriptions, $placeId){
                         <td data-sort="{$title}"><a href="inscriptions/{$id}">{$title}</a></td>
                         <td data-sort="{$type}">{$type}</td>
                         <td data-sort="{$lang}">{$lang}</td>
-                        <td data-sort="{$date}">{$date-text}</td>
+                        <td data-sort="{$date}">{(:$date-text:) string($date)}</td>
                     </tr>
                 }
             </tbody>
@@ -911,6 +927,7 @@ declare function app:view-hits($inscriptions, $placeId){
         ]]>
     </script>)
 };
+
 (:~
  : General/Browse facets  
  : Uses facet definitions in facet-def.xml
@@ -960,6 +977,90 @@ declare function app:map($node as node(), $model as map(*)) {
 
 };
 
+(:
+ : Date slider functions
+:)
+(:~
+ : Check dates for proper formatting, conver negative dates to JavaScript format
+ : @param $dates accepts xs:gYear (YYYY) or xs:date (YYYY-MM-DD)
+:)
+declare function app:expand-dates($date){
+let $year := 
+        if(matches($date, '^\-')) then 
+            if(matches($date, '^\-\d{6}')) then $date
+            else replace($date,'^-','-00')
+        else $date
+return       
+    if($year castable as xs:date) then
+         $year
+    else if($year castable as xs:gYear) then  
+        concat($year, '-01-01')
+    else if(matches($year,'^0000')) then '0001-01-01'
+    else ()
+};
+
+(:~
+ : Build Javascript Date Slider. 
+:)
+declare function app:browse-date-slider($node as node(), $model as map(*)){                  
+let $startDate := request:get-parameter('startDate', '')
+let $endDate := request:get-parameter('endDate', '')
+let $d := 
+    for $dates in collection($config:data-root)/tei:TEI/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom | collection('/db/apps/SAI-data/data')/tei:TEI/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notAfter-custom
+    order by $dates 
+    return $dates   
+let $min := 
+            if($startDate) then 
+                app:expand-dates($startDate) 
+            else app:expand-dates(xs:gYear(xs:date(concat($d[1],'-01-01'))))
+let $max :=
+            if($endDate) then app:expand-dates($endDate) 
+            else app:expand-dates(xs:gYear(xs:date(concat(($d[last()]),'-01-01'))))        
+let $minPadding := app:expand-dates(xs:gYear(xs:date(concat($d[1],'-01-01')) - xs:yearMonthDuration('P10Y')))
+let $maxPadding := app:expand-dates(xs:gYear(xs:date(concat(($d[last()]),'-01-01')) + xs:yearMonthDuration('P10Y')))
+ let $params := 
+    concat(string-join(
+    for $param in request:get-parameter-names()
+    return 
+        if($param = 'startDate') then ()
+        else if($param = 'start') then ()
+        else if(request:get-parameter($param, '') = ' ') then ()
+        else concat('&amp;',$param, '=',request:get-parameter($param, '')),''), "&amp;start=1")
+return 
+<div>
+    <div id="slider"/>
+    <script>
+    <![CDATA[
+        var minPadding = "]]>{$minPadding}<![CDATA["
+        var maxPadding = "]]>{$maxPadding}<![CDATA["
+        var minValue = "]]>{$min}<![CDATA["
+        var maxValue = "]]>{$max}<![CDATA["
+        $("#slider").dateRangeSlider( {  
+                        bounds: {
+                                min:  new Date(minPadding),
+                               	max:  new Date(maxPadding)
+                               	},
+                        defaultValues: {min: new Date(minValue), max: new Date(maxValue)},
+                        //values: {min: new Date(minValue), max: new Date(maxValue)},
+		        		formatter:function(val){
+		        		     var year = val.getFullYear();
+		        		     return year;
+		        		}
+            });
+            
+            $("#slider").bind("valuesChanged", function(e, data){
+                var url = window.location.href.split('?')[0];
+                var minDate = data.values.min.toISOString().split('T')[0]
+                var maxDate = data.values.max.toISOString().split('T')[0]
+                console.log(url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[");
+                //window.location.href = url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[" ;
+                //$('#browse-results').load(window.location.href + "?startDate=" + data.values.min.toISOString() + "&endDate=" + data.values.max.toISOString() + " #browse-results");
+            });
+        ]]>
+    </script>     
+</div>
+};
+                    
 (:~
  : Translate code to text
 :)

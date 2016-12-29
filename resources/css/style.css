@@ -65,3 +65,6 @@ opacity: 0.85 !important;
 filter: alpha(opacity=85) !important;
 background: #ffffff;
 }
+
+/* slider styles */
+.slider-container {display:block; min-height: 25px; margin:2em .5em; padding:1em .5em; float:none;}
