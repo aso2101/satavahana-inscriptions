@@ -876,7 +876,7 @@ declare function app:view-hits($inscriptions, $placeId){
                 let $id := string($i/@xml:id)
                 let $title := $i/descendant::tei:title[1]/text()
                 let $type := $i/descendant::tei:profileDesc/tei:textClass/tei:keywords/tei:term/text()
-                let $lang := app:translate-lang(string($i/descendant::tei:div[@type='edition']/@xml:lang))
+                let $lang := app:translate-lang(string($i/descendant::tei:div[@type='edition'][1]/@xml:lang))
                 let $date-text := $i/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/text()
                 (: Deal with dates for sorting... if notBefore... :)
                 let $date := $i/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom
@@ -887,7 +887,7 @@ declare function app:view-hits($inscriptions, $placeId){
                         <td data-sort="{$title}"><a href="inscriptions/{$id}">{$title}</a></td>
                         <td data-sort="{$type}">{$type}</td>
                         <td data-sort="{$lang}">{$lang}</td>
-                        <td data-sort="{$date}">{(:$date-text:) string($date)}</td>
+                        <td data-sort="{$date}">{$date-text}</td>
                     </tr>
                 }
             </tbody>
@@ -991,11 +991,11 @@ let $year :=
             else replace($date,'^-','-00')
         else $date
 return       
-    if($year castable as xs:date) then
+    if($year castable as xs:date) then 
          $year
     else if($year castable as xs:gYear) then  
         concat($year, '-01-01')
-    else if(matches($year,'^0000')) then '0001-01-01'
+    else if(matches($year,'^0000')) then  '0001-01-01'
     else ()
 };
 
@@ -1005,29 +1005,40 @@ return
 declare function app:browse-date-slider($node as node(), $model as map(*)){                  
 let $startDate := request:get-parameter('startDate', '')
 let $endDate := request:get-parameter('endDate', '')
+(: All Dates 
 let $d := 
     for $dates in collection($config:data-root)/tei:TEI/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom | collection('/db/apps/SAI-data/data')/tei:TEI/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notAfter-custom
-    order by $dates 
-    return $dates   
-let $min := 
-            if($startDate) then 
+    order by xs:date(app:expand-dates($dates))
+    return $dates
+:)    
+(: Dates in current results set :)  
+let $d := 
+    for $dates in $model("hits")/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom | $model("hits")/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notAfter-custom
+    order by xs:date(app:expand-dates($dates)) 
+    return $dates
+    
+let $min := if($startDate) then 
                 app:expand-dates($startDate) 
-            else app:expand-dates(xs:gYear(xs:date(concat($d[1],'-01-01'))))
-let $max :=
+            else app:expand-dates(xs:date(app:expand-dates(string($d[1]))))
+let $max := 
             if($endDate) then app:expand-dates($endDate) 
-            else app:expand-dates(xs:gYear(xs:date(concat(($d[last()]),'-01-01'))))        
-let $minPadding := app:expand-dates(xs:gYear(xs:date(concat($d[1],'-01-01')) - xs:yearMonthDuration('P10Y')))
-let $maxPadding := app:expand-dates(xs:gYear(xs:date(concat(($d[last()]),'-01-01')) + xs:yearMonthDuration('P10Y')))
- let $params := 
+            else app:expand-dates(xs:date(app:expand-dates(string($d[last()]))))        
+let $minPadding := app:expand-dates((xs:date(app:expand-dates(string($d[1]))) - xs:yearMonthDuration('P10Y')))
+let $maxPadding := app:expand-dates((xs:date(app:expand-dates(string($d[last()]))) + xs:yearMonthDuration('P10Y')))
+let $params := 
     concat(string-join(
     for $param in request:get-parameter-names()
     return 
         if($param = 'startDate') then ()
+        else if($param = 'endDate') then ()
         else if($param = 'start') then ()
         else if(request:get-parameter($param, '') = ' ') then ()
         else concat('&amp;',$param, '=',request:get-parameter($param, '')),''), "&amp;start=1")
 return 
 <div>
+    <h4 class="slider">Date range</h4>
+    <!--<div>Min: {$min}, Max: {$max} Min padding: {$minPadding}, Max padding: {$maxPadding}<br/><br/><br/></div>-->
+    <div class="sliderContainer">
     <div id="slider"/>
     <script>
     <![CDATA[
@@ -1048,16 +1059,17 @@ return
 		        		}
             });
             
-            $("#slider").bind("valuesChanged", function(e, data){
+            $("#slider").bind("userValuesChanged", function(e, data){
                 var url = window.location.href.split('?')[0];
                 var minDate = data.values.min.toISOString().split('T')[0]
                 var maxDate = data.values.max.toISOString().split('T')[0]
                 console.log(url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[");
-                //window.location.href = url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[" ;
+                window.location.href = url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[" ;
                 //$('#browse-results').load(window.location.href + "?startDate=" + data.values.min.toISOString() + "&endDate=" + data.values.max.toISOString() + " #browse-results");
             });
         ]]>
     </script>     
+    </div>
 </div>
 };
                     

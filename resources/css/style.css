@@ -67,4 +67,5 @@ background: #ffffff;
 }
 
 /* slider styles */
-.slider-container {display:block; min-height: 25px; margin:2em .5em; padding:1em .5em; float:none;}
+h4.slider {display:block; margin-bottom:1em;padding-bottom:1em;}
+.slider-container {display:block; min-height: 20px; padding:1em 0;}
