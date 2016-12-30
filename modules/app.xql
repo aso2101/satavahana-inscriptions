@@ -812,8 +812,8 @@ let $endDate :=
 return                 
     if(not(empty($startDate)) and not(empty($endDate))) then 
         concat('[descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate[
-        (@notBefore-custom gt "', $startDate,'" and @notBefore-custom lt "', $endDate,'")
-        or (@notAfter-custom gt "',$startDate,'" and @notAfter-custom lt "',$endDate,'")]]')
+        (xs:gYear(xs:date(app:expand-dates(@notBefore-custom))) gt xs:gYear("', $startDate,'") and xs:gYear(xs:date(app:expand-dates(@notBefore-custom))) lt xs:gYear("', $endDate,'"))
+        or (xs:gYear(xs:date(app:expand-dates(@notAfter-custom))) gt xs:gYear("',$startDate,'") and xs:gYear(xs:date(app:expand-dates(@notAfter-custom))) lt xs:gYear("',$endDate,'"))]]')
     else ()
 };
 
