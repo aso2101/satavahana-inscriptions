@@ -7,7 +7,7 @@
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
     <type>application</type>
-    <target>/apps/SAI/</target>
+    <target>SAI/</target>
     <prepare>pre-install.xql</prepare>
     <finish/>
     <permissions xmlns:repo="http://exist-db.org/xquery/repo" password="" user="Χ " group="dba" mode="rw-rw-r--"/>

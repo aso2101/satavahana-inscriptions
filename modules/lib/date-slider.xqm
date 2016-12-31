@@ -17,7 +17,7 @@ xquery version "3.0";
  :)
 
 module namespace slider = "http://localhost/ns/slider";
-declare namespace tei = "http://www.tei-c.org/ns/1.0";
+declare namespace tei="http://www.tei-c.org/ns/1.0";
 
 (:
  : Build date filter for date slider. 
