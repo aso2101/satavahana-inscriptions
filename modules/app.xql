@@ -821,6 +821,7 @@ declare function app:browse-hits($node as node()*, $model as map(*)) {
     order by $name
     return 
      <div id="place-{$key}">
+        <a id="{$name}"></a>
         <h4>{string(replace($key,'pl:',''))}</h4>
         {
                 app:view-hits($inscriptions, $key)
