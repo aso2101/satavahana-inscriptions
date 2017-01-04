@@ -285,7 +285,7 @@ return
                       else $label
         return 
                 <span class="label label-facet" title="Remove {$value}">
-                    {concat($fn,': ', $value)} <a href="{$href}" class="facet icon"> x</a>
+                    {concat($fn,': ', $value)} <a href="{$href}" class="facet icon">&#160;<i class="glyphicon glyphicon-remove-circle"></i></a>
                 </span>
     else(),
 for $f in $facets/facet:facet

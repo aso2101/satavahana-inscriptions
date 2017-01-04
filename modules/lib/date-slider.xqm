@@ -88,20 +88,23 @@ let $max :=
 let $minPadding := slider:expand-dates((xs:date(slider:expand-dates(string($d[1]))) - xs:yearMonthDuration('P10Y')))
 let $maxPadding := slider:expand-dates((xs:date(slider:expand-dates(string($d[last()]))) + xs:yearMonthDuration('P10Y')))
 let $params := 
-    concat(string-join(
+    string-join(
     for $param in request:get-parameter-names()
     return 
         if($param = 'startDate') then ()
         else if($param = 'endDate') then ()
         else if($param = 'start') then ()
         else if(request:get-parameter($param, '') = ' ') then ()
-        else concat('&amp;',$param, '=',request:get-parameter($param, '')),''), "&amp;start=1")
+        else concat('&amp;',$param, '=',request:get-parameter($param, '')),'')
 return 
 <div>
     <h4 class="slider">Date range</h4>
     <!--<div>Min: {$min}, Max: {$max} Min padding: {$minPadding}, Max padding: {$maxPadding}<br/><br/><br/></div>-->
     <div class="sliderContainer">
     <div id="slider"/>
+    {if($startDate != '') then
+            (<br/>,<a href="?start=1{$params}" class="btn btn-warning btn-sm" role="button"><i class="glyphicon glyphicon-remove-circle"></i> Reset Dates</a>,<br/>)
+    else()}
     <script>
     <![CDATA[
         var minPadding = "]]>{$minPadding}<![CDATA["
