@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<facets xmlns="http://expath.org/ns/facet">
+    <!-- Need a local function to browse by data type -->
+    <facet-definition name="Place">
+        <group-by>
+            <sub-path>descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+    <facet-definition name="Type">
+        <group-by>
+            <sub-path>descendant::tei:profileDesc/tei:textClass/tei:keywords/tei:term</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+    <facet-definition name="Language">
+        <group-by function="facet:lang-type">
+            <sub-path>descendant::tei:div[@type='edition']/@xml:lang</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+</facets>
