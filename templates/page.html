@@ -18,9 +18,8 @@
         <script type="text/javascript" src="$shared/resources/scripts/jquery/jquery-1.7.1.min.js"/>
         <script type="text/javascript" src="$shared/resources/scripts/loadsource.js"/>
         <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"/>
-        <script src="/exist/apps/SAI/resources/js/jQDateRangeSlider-min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
-        
+        <script src="/exist/apps/SAI/resources/js/jQDateRangeSlider-min.js"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"/>
         <script type="text/javascript" src="$shared/resources/scripts/bootstrap-3.0.3.min.js"/>
         <script src="https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.js"/>
         <link href="https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.css" rel="stylesheet"/>
@@ -31,57 +30,79 @@
         </script>
     </head>
     <body id="body">
-        <nav class="navbar navbar-default" role="navigation">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"/>
-                    <span class="icon-bar"/>
-                    <span class="icon-bar"/>
-                </button>
-                <a class="navbar-brand" href="/exist/apps/SAI/index.html">Sātavāhana Inscriptions</a>
-            </div>
-            <div class="navbar-collapse collapse" id="navbar-collapse-1">
-                <ul class="nav navbar-nav">
-                    <li class="dropdown" id="inscriptions">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Inscriptions</a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="/exist/apps/SAI/by_place.html">By place</a>
-                                <a href="/exist/apps/SAI/by_date.html">By date</a>
-                                <a href="/exist/apps/SAI/by_ruler.html">By ruler</a>
+        <nav class="navbar navbar-default navbar-inverse" role="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"/>
+                            <span class="icon-bar"/>
+                            <span class="icon-bar"/>
+                        </button>
+                        <a class="navbar-brand" href="/exist/apps/SAI/index.html">Sātavāhana Inscriptions</a>
+                    </div>
+                    <div class="navbar-collapse collapse" id="navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown" id="inscriptions">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Inscriptions</a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="/exist/apps/SAI/by_place.html">By place</a>
+                                        <a href="/exist/apps/SAI/by_date.html">By date</a>
+                                        <a href="/exist/apps/SAI/by_ruler.html">By ruler</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="dropdown" id="inscriptions">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Contexts</a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="/exist/apps/SAI/places.html">Places</a>
+                                        <a href="/exist/apps/SAI/people.html">People</a>
+                                        <a href="/exist/apps/SAI/bibliography.html">Bibliography</a>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
-                    </li>
-                    <li class="dropdown" id="inscriptions">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Contexts</a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="/exist/apps/SAI/places.html">Places</a>
-                                <a href="/exist/apps/SAI/people.html">People</a>
-                                <a href="/exist/apps/SAI/bibliography.html">Bibliography</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-                <form action="/exist/apps/SAI/search.html" class="form-inline">
-                    <span id="freesearch">
-                        <span class="input-group sai-search">
-                            <input name="query" type="search" class="form-control"/>
-                            <select class="form-control" name="filter">
-                                <option value="''"> -- Search Filter -- </option>
-                                <option value="metadata"> Metadata </option>
-                                <option value="text"> Text </option>
-                                <option value="translation"> Translation </option>
-                            </select>
-                            <span class="input-group-btn">
-                                <button id="f-btn-search" type="submit" class="btn btn-primary">
-                                    <span class="glyphicon glyphicon-search"/>
-                                </button>
+                        <form action="/exist/apps/SAI/search.html" class="navbar-form navbar-right">
+                            <div class="input-group input-group-sm" style="width:350px;">
+                                <input type="search" class="form-control" name="query"/>
+                                <select class="form-control" name="filter">
+                                    <option value="''"> - Search Filter - </option>
+                                    <option value="metadata"> Metadata </option>
+                                    <option value="text"> Text </option>
+                                    <option value="translation"> Translation </option>
+                                </select>
+                                <span class="input-group-btn" style="width:50px;">
+                                    <button id="f-btn-search" type="submit" class="btn btn-primary">
+                                        <span class="glyphicon glyphicon-search"/>
+                                    </button>
+                                </span>
+                            </div>
+                        </form>
+                    <!-- 
+                    <form action="/exist/apps/SAI/search.html" class="form-inline">
+                        <span id="freesearch">
+                            <span class="input-group sai-search">
+                                <input name="query" type="search" class="form-control"/>
+                                <select class="form-control" name="filter">
+                                    <option value="''"> - Search Filter - </option>
+                                    <option value="metadata"> Metadata </option>
+                                    <option value="text"> Text </option>
+                                    <option value="translation"> Translation </option>
+                                </select>
+                                <span class="input-group-btn">
+                                    <button id="f-btn-search" type="submit" class="btn btn-primary">
+                                        <span class="glyphicon glyphicon-search"/>
+                                    </button>
+                                </span>
                             </span>
                         </span>
-                    </span>
-                </form>
+                    </form>
+                    !-->
+                    </div>
+                </div>
             </div>
         </nav>
         <div id="content"/>

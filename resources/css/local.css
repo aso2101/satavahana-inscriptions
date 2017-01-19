@@ -1,3 +1,8 @@
+@media (min-width: 1200px) {
+    .container{
+        max-width: 970px;
+    }
+}
 #topbar a {
   text-align:left;
   float:left;
@@ -13,11 +18,7 @@
   padding-right:15px;
 }
 #freesearch {
-  float:right;
-  text-align:right;
-  padding-top:9px;
-  padding-right:9px;
-  width:325px;
+  width:150px;
 }
 #results tr {background:#F8F8F8;}
 #results tr.reference {background:white;}
@@ -29,3 +30,7 @@
 .label-facet {background-color:#eee; color:#666; font-weight:normal; margin:.25em; display:inline-block;}
 .facet-label {margin-left:.5em; display:block; text-align:left; white-space: normal;}
 .facet .icon{margin-left:.25em;}
+
+.navbar-right .form-control {
+  width:auto!important;
+}
