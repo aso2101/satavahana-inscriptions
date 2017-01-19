@@ -67,5 +67,5 @@ background: #ffffff;
 }
 
 /* slider styles */
-h4.slider {display:block; margin-bottom:1em;padding-bottom:1em;}
+h4.slider {display:block; margin:0 0 1em;padding: 0 0 1em;}
 .slider-container {display:block; min-height: 20px; padding:1em 0;}
