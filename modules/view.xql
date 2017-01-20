@@ -15,7 +15,6 @@ import module namespace config="localhost:8080/exist/apps/SAI/config" at "config
 import module namespace app="localhost:8080/exist/apps/SAI/templates" at "app.xql";
 import module namespace smap="localhost:8080/exist/apps/SAI/smap" at "map.xql";
 
-
 declare option exist:serialize "method=html5 media-type=text/html enforce-xhtml=yes";
 
 let $config := map {

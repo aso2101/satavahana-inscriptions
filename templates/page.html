@@ -30,7 +30,7 @@
         </script>
     </head>
     <body id="body">
-        <nav class="navbar navbar-default navbar-inverse" role="navigation">
+        <nav class="navbar navbar-default navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
                 <div class="row">
                     <div class="navbar-header">
@@ -60,14 +60,14 @@
                         </ul>
                         <form action="/exist/apps/SAI/search.html" class="navbar-form navbar-right">
                             <div class="input-group input-group-sm" style="width:350px;">
-                                <input type="search" class="form-control" name="query"/>
+                                <input type="search" class="form-control" name="query" style="margin-left:19px"/>
                                 <select class="form-control" name="filter">
                                     <option value="''"> - Search Filter - </option>
                                     <option value="metadata"> Metadata </option>
                                     <option value="text"> Text </option>
                                     <option value="translation"> Translation </option>
                                 </select>
-                                <span class="input-group-btn" style="width:50px;">
+                                <span class="input-group-btn">
                                     <button id="f-btn-search" type="submit" class="btn btn-primary">
                                         <span class="glyphicon glyphicon-search"/>
                                     </button>

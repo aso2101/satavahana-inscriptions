@@ -35,12 +35,17 @@ else if (contains($exist:path, "/$shared/")) then
             <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
         </forward>
     </dispatch>
-else if (contains($exist:path, "/inscriptions/")) then
+(:  inscriptions, people, and places directed to the appropriate page :)
+else if (contains($exist:path, "/inscriptions/") or contains($exist:path, "/persons/") or contains($exist:path, "/places/")) then
     let $id := replace(xmldb:decode($exist:resource), "^(.*)\.\w+$", "$1")
     let $html := 
         if ($exist:resource = "") then
             "index.html"
-        else
+        else if (contains($exist:path, "/persons/")) then
+            "person.html"
+        else if (contains($exist:path, "/places/")) then
+            "place.html"
+        else 
             "viewer.html"
     return 
         <dispatch xmlns="http://exist.sourceforge.net/NS/exist">

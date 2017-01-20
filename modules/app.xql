@@ -290,17 +290,106 @@ declare function app:list-people($node as node(), $model as map(*)) {
 declare 
     %templates:wrap
 function app:person($node as node(), $model as map(*), $key as xs:string) {
-    let $id := substring-after($key,'pers:')
+    let $id := 
+        if (contains($key,"pers:")) then
+            substring-after($key,'pers:')
+        else $key
     let $person := $model("people")//id($id)
     return
         map { "person" := $person[1] }
+};
+
+declare function app:person-revised($node as node(), $model as map(*), $id as xs:string) {
+    let $person :=
+        if ($config:person-authority//tei:person[@xml:id=$id]) then
+            $config:person-authority//tei:person[@xml:id=$id][1]
+        else if (collection($config:person-authority-dir)//tei:person[@xml:id=$id]) then
+            collection($config:person-authority-dir)//tei:person[@xml:id=$id][1]
+        else ""
+    return
+        map { "person" := $person }
+};
+
+declare function app:determine-language($node as node()) {
+    let $lang := $node/@xml:lang
+    let $language := if ($lang eq 'san-Latn') then 'Sanskrit'
+                   else if ($lang eq 'pra-Latn') then 'Middle Indic'
+                   else if ($lang eq 'mar-Latn') then 'Marathi'
+                   else if ($lang eq 'kan-Latn') then 'Kannada'
+                   else if ($lang eq 'hin-Latn') then 'Hindi'
+                   else if ($lang eq 'und') then 'Unknown'
+                   else '' 
+    return 
+        $language
+};
+
+declare function app:person-name-revised($node as node(), $model as map(*)) {
+    let $person := $model("person")
+    let $id := string($person/@xml:id)
+    let $names :=
+        for $name in ($person/tei:persName)
+        let $lang := <small>{ app:determine-language($name) }</small>
+        return
+            if ($name[1]) then <h1 style="text-align:left!important;">{ $name/text() }{ $lang }</h1>
+            else <h2 class="pull-left">{ $name/text() }{ $lang }</h2>
+    return 
+        <div>
+            <span class="text-muted pull-right">Person ID: { $id }</span>
+            { $names }
+        </div>
+};
+
+declare function app:inscriptions-related-to-person-revised($node as node(), $model as map(*)) {
+    (: first get all inscriptions that mention the person :)
+    let $person := $model("person")
+    let $key := concat('pers:',string($person/@xml:id))
+    (: get the root node of all inscriptions that mention the person :)
+    let $inscriptions := collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
+    let $places := 
+        for $placekey in distinct-values($inscriptions//tei:origPlace/tei:placeName[1]/@key)
+        let $name := 
+            if (contains($placekey,'pl:')) then substring-after($placekey,'pl:')
+            else $placekey
+        let $inscriptions-by-place := $inscriptions[descendant::tei:placeName[@key=$placekey]]
+        order by $name
+        return 
+            <div>
+            <h4>{ $name }</h4>
+                {
+                    app:view-hits($inscriptions-by-place, $placekey)
+                }
+            </div>
+    return
+        <div>
+            <h3>Mentioned in these inscriptions:</h3>
+            { $places }
+        </div>
+};
+declare function app:person-name-orthography($node as node(), $model as map(*)) {
+    let $id := $model("person")/@xml:id
+    let $key := concat('pers:',$id)
+    let $spellings :=
+        for $inscription in collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
+        let $idno := $inscription//tei:idno/text()
+        let $namestring :=
+            for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
+            return 
+                app:flatten-app($name)
+        where $inscription//tei:persName[@key=$key]
+        return 
+            <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}">{$idno}</a>)</li>
+    return
+        <div>
+            <h3>Spellings of the name:</h3>
+            <ul>{ $spellings }</ul>
+        </div>
 };
 
 declare function app:person-name($node as node(), $model as map(*)) {
     let $person := $model("person")
     let $anchor := $person/@xml:id
     return 
-        <h4><a name="{$person/@xml:id}"/>{ $person/tei:persName/text() }</h4>
+        <h4><a name="{$person/@xml:id}" href="/exist/apps/SAI/persons/{ $anchor }">{ $person/tei:persName/text() }</a></h4>
 };
 
 declare function app:inscriptions-related-to-person($node as node(), $model as map(*), $type as xs:string?) {
