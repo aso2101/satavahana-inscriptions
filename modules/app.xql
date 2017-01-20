@@ -211,7 +211,7 @@ declare function app:inscription-title($node as node(), $model as map(*), $type 
     let $inscription := $model("inscription")
     let $title := $inscription//tei:titleStmt/tei:title/text()
     return
-        <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $title }</a>
+        <a xmlns="http://www.w3.org/1999/xhtml" href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}{$suffix}">{ $title }</a>
 };
 
 declare function app:inscription-regnal_year($node as node(), $model as map(*)) {
@@ -383,6 +383,78 @@ declare function app:person-name-orthography($node as node(), $model as map(*)) 
             <h3>Spellings of the name:</h3>
             <ul>{ $spellings }</ul>
         </div>
+};
+
+declare function app:person-relations($node as node(), $model as map(*)) {
+    let $id :=  string($model("person")/@xml:id)
+    let $hashname := concat('#',string($id))
+    (: is there a way to get relations without going to every single <relation> element? :)
+    let $relations :=
+        if (collection($config:person-authority-dir)//tei:person[@xml:id=$id]) then
+            collection($config:person-authority-dir)//tei:relation[contains(@active,$id) or contains(@passive,$id) or contains(@mutual,$id)]
+        else if ($config:person-authority//tei:person[@xml:id=$id]) then
+            $config:person-authority//tei:relation[contains(@active,$id) or contains(@passive,$id) or contains(@mutual,$id)]
+        else ""
+    let $list := 
+        for $relation in $relations
+        let $type := $relation/@name
+        let $label := ""
+        let $data :=
+            switch($type)
+            case "parent" return
+                (: if the person is a parent of another person :)
+                if (contains($relation/@active,$hashname)) then
+                    <data>
+                        <label>Child</label>
+                        <otherPerson>{ translate($relation/@passive,'#','') }</otherPerson>
+                    </data>
+                (: otherwise the other person is a parent of this person :)
+                else 
+                    <data>
+                        <label>Parent</label>
+                        <otherPerson>{ translate($relation/@active,'#','') }</otherPerson>
+                    </data>
+            case "teacher" return
+                (: if the person is the teacher of another person :)
+                if (contains($relation/@active,$hashname)) then
+                    <data>
+                        <label>Student</label>
+                        <otherPerson>{ translate($relation/@passive,'#','') }</otherPerson>
+                    </data>
+                (: otherwise the other person is the teacher of this person :)
+                else
+                    <data>
+                        <label>Teacher</label>
+                        <otherPerson>{ translate($relation/@active,'#','') }</otherPerson>
+                    </data>
+            case "sibling" return
+                <data>
+                    <label>Sibling</label>
+                    <otherPerson>{ translate(translate(translate($relation/@mutual,$hashname,''),' ',''),'#','') }</otherPerson>
+                </data>
+            case "spouse" return
+                <data>
+                    <label>Spouse</label>
+                    <otherPerson>{ translate(translate(translate($relation/@mutual,$hashname,''),' ',''),'#','') }</otherPerson>
+                </data>
+            default return ""
+        let $label := $data/label/text()
+        let $otherperson := $data/otherPerson/text()
+        let $otherpersonName :=
+            if (collection($config:person-authority-dir)//tei:person[@xml:id=$otherperson])
+                then collection($config:person-authority-dir)//tei:person[@xml:id=$otherperson][1]/tei:persName/text()
+            else if ($config:person-authority//tei:person[@xml:id=$otherperson])
+                then config:person-authority//tei:person[@xml:id=$otherperson][1]/tei:persName/text()
+            else $otherperson
+        order by $type
+        return <li><b>{ $label }</b>: <a href="/exist/apps/SAI/persons/{ $otherperson }">{ $otherpersonName }</a></li>
+    return
+        if (empty($list)) then ""
+        else
+            <div>
+                <h3>Relations with other persons:</h3>
+                <ul>{ $list }</ul>
+            </div>
 };
 
 declare function app:person-name($node as node(), $model as map(*)) {
@@ -949,7 +1021,7 @@ declare function app:view-hits($inscriptions, $placeId){
                 return 
                     <tr>
                         <td data-sort="{$id}">{$id}</td>
-                        <td data-sort="{$title}"><a href="inscriptions/{$id}">{$title}</a></td>
+                        <td data-sort="{$title}"><a href="/exist/apps/SAI/inscriptions/{$id}">{$title}</a></td>
                         <td data-sort="{$type}">{$type}</td>
                         <td data-sort="{$lang}">{$lang}</td>
                         <td data-sort="{$date}">{$date-text}</td>
