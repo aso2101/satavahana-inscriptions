@@ -299,17 +299,19 @@ function app:person($node as node(), $model as map(*), $key as xs:string) {
         map { "person" := $person[1] }
 };
 
+(:
+ : Retrieve person node by xml:id from remote context root directory. 
+:)
 declare function app:person-revised($node as node(), $model as map(*), $id as xs:string) {
-    let $person :=
-        if ($config:person-authority//tei:person[@xml:id=$id]) then
-            $config:person-authority//tei:person[@xml:id=$id][1]
-        else if (collection($config:person-authority-dir)//tei:person[@xml:id=$id]) then
-            collection($config:person-authority-dir)//tei:person[@xml:id=$id][1]
-        else ""
+    let $person := collection($config:remote-context-root)//@xml:id[. = $id]/parent::tei:person
     return
         map { "person" := $person }
 };
 
+(:~ 
+ : @depreciated
+ : NOTE this duplicates app:translate-lang() function, these values could be added to the translate-lang function.  
+:)
 declare function app:determine-language($node as node()) {
     let $lang := $node/@xml:lang
     let $language := if ($lang eq 'san-Latn') then 'Sanskrit'
@@ -328,7 +330,7 @@ declare function app:person-name-revised($node as node(), $model as map(*)) {
     let $id := string($person/@xml:id)
     let $names :=
         for $name in ($person/tei:persName)
-        let $lang := <small>{ app:determine-language($name) }</small>
+        let $lang := <small> { app:translate-lang($name/@xml:lang) }</small>
         return
             if ($name[1]) then <h1 style="text-align:left!important;">{ $name/text() }{ $lang }</h1>
             else <h2 class="pull-left">{ $name/text() }{ $lang }</h2>
@@ -360,11 +362,14 @@ declare function app:inscriptions-related-to-person-revised($node as node(), $mo
                 }
             </div>
     return
-        <div>
-            <h3>Mentioned in these inscriptions:</h3>
-            { $places }
-        </div>
+        if($places) then 
+            <div>
+                <h3>Mentioned in these inscriptions:</h3>
+                { $places }
+            </div>
+        else ()
 };
+
 declare function app:person-name-orthography($node as node(), $model as map(*)) {
     let $id := $model("person")/@xml:id
     let $key := concat('pers:',$id)
@@ -375,14 +380,18 @@ declare function app:person-name-orthography($node as node(), $model as map(*)) 
             for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
             return 
                 app:flatten-app($name)
-        where $inscription//tei:persName[@key=$key]
+        (:where $inscription//tei:persName[@key=$key]:)
         return 
-            <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}">{$idno}</a>)</li>
+            if($inscription) then 
+                <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}">{$idno}</a>)</li>
+            else ()
     return
-        <div>
-            <h3>Spellings of the name:</h3>
-            <ul>{ $spellings }</ul>
-        </div>
+        if($spellings) then 
+            <div>
+                <h3>Spellings of the name:</h3>
+                <ul>{ $spellings }</ul>
+            </div>
+        else ()
 };
 
 declare function app:person-relations($node as node(), $model as map(*)) {
@@ -390,11 +399,9 @@ declare function app:person-relations($node as node(), $model as map(*)) {
     let $hashname := concat('#',string($id))
     (: is there a way to get relations without going to every single <relation> element? :)
     let $relations :=
-        if (collection($config:person-authority-dir)//tei:person[@xml:id=$id]) then
-            collection($config:person-authority-dir)//tei:relation[contains(@active,$id) or contains(@passive,$id) or contains(@mutual,$id)]
-        else if ($config:person-authority//tei:person[@xml:id=$id]) then
-            $config:person-authority//tei:relation[contains(@active,$id) or contains(@passive,$id) or contains(@mutual,$id)]
-        else ""
+        if (collection($config:remote-context-root)//tei:person[@xml:id=$id]) then
+            collection($config:remote-context-root)//tei:relation[contains(@active,$id) or contains(@passive,$id) or contains(@mutual,$id)]
+        else ()
     let $list := 
         for $relation in $relations
         let $type := $relation/@name
@@ -441,15 +448,13 @@ declare function app:person-relations($node as node(), $model as map(*)) {
         let $label := $data/label/text()
         let $otherperson := $data/otherPerson/text()
         let $otherpersonName :=
-            if (collection($config:person-authority-dir)//tei:person[@xml:id=$otherperson])
-                then collection($config:person-authority-dir)//tei:person[@xml:id=$otherperson][1]/tei:persName/text()
-            else if ($config:person-authority//tei:person[@xml:id=$otherperson])
-                then config:person-authority//tei:person[@xml:id=$otherperson][1]/tei:persName/text()
+            if (collection($config:remote-context-root)//tei:person[@xml:id=$otherperson])
+                then collection($config:remote-context-root)//tei:person[@xml:id=$otherperson][1]/tei:persName/text()
             else $otherperson
         order by $type
         return <li><b>{ $label }</b>: <a href="/exist/apps/SAI/persons/{ $otherperson }">{ $otherpersonName }</a></li>
     return
-        if (empty($list)) then ""
+        if (empty($list)) then ()
         else
             <div>
                 <h3>Relations with other persons:</h3>
@@ -471,13 +476,13 @@ declare function app:inscriptions-related-to-person($node as node(), $model as m
     return
         <div>
         Mentioned in these inscriptions:
-        {   for $inscription in collection($config:remote-data-root)//tei:TEI
+        {   for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key=$key]]
             let $idno := $inscription//tei:idno
             let $namestring :=
                 for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
                 return 
                     app:flatten-app($name)
-            where $inscription//tei:persName[@key=$key]
+            (:where $inscription//tei:persName[@key=$key]:)
             return 
                 <span>
                     <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
@@ -1125,11 +1130,15 @@ slider:browse-date-slider($model("hits"))
 };
                     
 (:~
- : Translate code to text
+ : Translate language code to text value, accepts langague code string
 :)
 declare function app:translate-lang($lang-code as xs:string*){
     if($lang-code = ('san-Latn','sa-Latn')) then 'Sanskrit'
     else if($lang-code = ('pra-Latn','mi-Latn')) then 'Middle Indic'
     else if($lang-code = ('und','xx')) then 'Unknown'
-    else 'Unspecified'
+    else if ($lang-code eq 'mar-Latn') then 'Marathi'
+    else if ($lang-code eq 'kan-Latn') then 'Kannada'
+    else if ($lang-code eq 'hin-Latn') then 'Hindi'
+    else if ($lang-code eq 'und') then 'Unknown'
+    else ''
 };
