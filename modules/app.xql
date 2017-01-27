@@ -471,13 +471,13 @@ declare function app:inscriptions-related-to-person($node as node(), $model as m
     return
         <div>
         Mentioned in these inscriptions:
-        {   for $inscription in collection($config:remote-data-root)//tei:TEI
+        {   for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key=$key]]
             let $idno := $inscription//tei:idno
             let $namestring :=
                 for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
                 return 
                     app:flatten-app($name)
-            where $inscription//tei:persName[@key=$key]
+            (:where $inscription//tei:persName[@key=$key]:)
             return 
                 <span>
                     <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
