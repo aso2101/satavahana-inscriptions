@@ -28,6 +28,9 @@ a { font-weight:normal }
 	padding:10px;
     z-index:100;
 }
+small {
+    margin-left:10px;
+}
 /* For the KWIC results */
 div.hit-count { 
     margin-top:20px;

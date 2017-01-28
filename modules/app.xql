@@ -277,10 +277,8 @@ declare function app:list-people($node as node(), $model as map(*)) {
                 else $key
             let $nid := xs:NCName($id)
             let $name := 
-                if ($config:person-authority//tei:person[@xml:id=$id]/tei:persName/text())
-                    then $config:person-authority//tei:person[@xml:id=$id][1]/tei:persName/text()
-                else if (collection($config:person-authority-dir)//tei:person[@xml:id=$id]/tei:persName/text())
-                    then collection($config:person-authority-dir)//tei:person[@xml:id=$id]/tei:persName/text()
+                if (collection($config:remote-context-root)//tei:person[@xml:id=$id]/tei:persName[1]/text())
+                then collection($config:remote-context-root)//tei:person[@xml:id=$id]/tei:persName[1]/text()
                 else $id
             order by $name
             return app:generate-person-entry($nid,$name)
@@ -308,32 +306,18 @@ declare function app:person-revised($node as node(), $model as map(*), $id as xs
         map { "person" := $person }
 };
 
-(:~ 
- : @depreciated
- : NOTE this duplicates app:translate-lang() function, these values could be added to the translate-lang function.  
-:)
-declare function app:determine-language($node as node()) {
-    let $lang := $node/@xml:lang
-    let $language := if ($lang eq 'san-Latn') then 'Sanskrit'
-                   else if ($lang eq 'pra-Latn') then 'Middle Indic'
-                   else if ($lang eq 'mar-Latn') then 'Marathi'
-                   else if ($lang eq 'kan-Latn') then 'Kannada'
-                   else if ($lang eq 'hin-Latn') then 'Hindi'
-                   else if ($lang eq 'und') then 'Unknown'
-                   else '' 
-    return 
-        $language
-};
-
 declare function app:person-name-revised($node as node(), $model as map(*)) {
     let $person := $model("person")
     let $id := string($person/@xml:id)
     let $names :=
         for $name in ($person/tei:persName)
-        let $lang := <small> { app:translate-lang($name/@xml:lang) }</small>
+        let $lang := <small class="text-muted">{ app:translate-lang($name/@xml:lang) }</small>
+        let $cert := 
+            if ($name/@cert = "low") then "*"
+            else ""
         return
-            if ($name[1]) then <h1 style="text-align:left!important;">{ $name/text() }{ $lang }</h1>
-            else <h2 class="pull-left">{ $name/text() }{ $lang }</h2>
+            if ($name = $person/tei:persName[1]) then <h1 class="text-left">{ $name/text() }{ $lang }</h1>
+            else <h4 class="text-left">{ $cert }{ $name/text() }{ $lang }</h4>
     return 
         <div>
             <span class="text-muted pull-right">Person ID: { $id }</span>
