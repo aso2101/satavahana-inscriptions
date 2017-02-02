@@ -952,7 +952,7 @@ declare function app:browse-get-persons($node as node(), $model as map(*)){
                                     let $i := 
                                         for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key= $person]]
                                         return 
-                                        <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{$inscription/tei:teiHeader}</TEI> 
+                                        <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI> 
                                     return ($p,$i)
                                 }
                             </person>  
