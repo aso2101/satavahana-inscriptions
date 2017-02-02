@@ -949,7 +949,10 @@ declare function app:browse-get-persons($node as node(), $model as map(*)){
                             <person id="{$person}">
                                 {
                                     let $p := collection($config:remote-context-root)//tei:person[@xml:id= replace($person,'pers:','')]
-                                    let $i := collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key= $person]]/tei:teiHeader 
+                                    let $i := 
+                                        for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key= $person]]
+                                        return 
+                                        <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{$inscription/tei:teiHeader}</TEI> 
                                     return ($p,$i)
                                 }
                             </person>  
@@ -1010,7 +1013,7 @@ function app:person-browse-hits($node as node()*, $model as map(*), $start as xs
             else()
         )}
         <p>Mentioned in these inscriptions:</p>
-        {app:view-hits($p/descendant::tei:teiHeader, $id)}
+        {app:view-hits($p/descendant::tei:TEI, $id)}
     </div>     
 };
 
