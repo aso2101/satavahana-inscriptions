@@ -985,7 +985,7 @@ function app:person-browse-hits($node as node()*, $model as map(*), $start as xs
     let $name := 
         if ($p/tei:person/tei:persName[1]) then $p/tei:person/tei:persName[1]/text()
         else $id
-    order by $name
+    order by $id
     return 
      <div id="pers-{$id}">
         <h4><a href="person.html?id={$id}">{$name}</a>
