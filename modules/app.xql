@@ -316,11 +316,7 @@ declare function app:person-name-revised($node as node(), $model as map(*)) {
             if ($name/@cert = "low") then "*"
             else ""
         return
-<<<<<<< HEAD
-            if ($name = $person/tei:persName[1]) then <h1 class="text-left">{ $name/text() }{ $lang }</h1>
-=======
             if ($name = $person/tei:persName[1]) then <h1 class="text-left">{ $cert }{ $name/text() }{ $lang }</h1>
->>>>>>> bc164721b389f136ba461bbaf35be181ce5a3b72
             else <h4 class="text-left">{ $cert }{ $name/text() }{ $lang }</h4>
     return 
         <div>
