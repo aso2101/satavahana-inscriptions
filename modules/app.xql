@@ -1124,7 +1124,11 @@ declare function app:abc-filter(){
 :)
 declare %templates:wrap function app:browse-abc-menu($node as node(), $model as map(*)){
     for $letter in tokenize('A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ALL', ' ')
-    return <li class="{if(request:get-parameter('abc-filter', '') = string($letter)) then 'active' else 'clickable'}"><a href="?abc-filter={$letter}">{$letter}</a></li>
+    return 
+        <li role="presentation"
+            class="{if(request:get-parameter('abc-filter', '') = string($letter)) then 'active' else 'clickable'}">
+            <a href="?abc-filter={$letter}">{$letter}</a>
+        </li>
 };
 (:~
  : @depreciated use app:display-facets
