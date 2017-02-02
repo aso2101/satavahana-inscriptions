@@ -976,14 +976,16 @@ declare
     %templates:default("per-page", 10)
 function app:person-browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
     for $p in subsequence($model("hits"), $start, $per-page)
+    let $id := 
+        if (contains($p/@id,'pers:')) then xs:NCName(substring-after($p/@id,'pers:'))
+        else xs:NCName($p)
     let $name := 
-        if (contains($p/@id,'pers:')) then substring-after($p/@id,'pers:')
-        else $p
-    let $id := xs:NCName($name)
+        if ($p/tei:person/tei:persName[1]) then $p/tei:person/tei:persName[1]/text()
+        else $id
     order by $name
     return 
      <div id="pers-{$id}">
-        <h4><a href="person.html?id={$id}">{replace($id,'pers:','')}</a>
+        <h4><a href="person.html?id={$id}">{$name}</a>
             {
             if($p/tei:person/tei:sex/@value) then  concat(' (',string-join($p/tei:person/tei:sex/@value,' '),') ')
             else()
