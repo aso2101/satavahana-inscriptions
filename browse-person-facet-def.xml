@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<facets xmlns="http://expath.org/ns/facet">
+    <!-- Need a local function to browse by data type -->
+    <facet-definition name="Place">
+        <group-by>
+            <sub-path>descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+    <facet-definition name="Sex">
+        <group-by>
+            <sub-path>tei:person/tei:sex/@value</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+    <facet-definition name="State">
+        <group-by>
+            <sub-path>tei:person/descendant::tei:state</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+    <facet-definition name="Trait">
+        <group-by>
+            <sub-path>tei:person/descendant::tei:trait</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+    <facet-definition name="Faith">
+        <group-by>
+            <sub-path>tei:person/descendant::tei:faith</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+</facets>

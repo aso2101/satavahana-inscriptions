@@ -277,10 +277,8 @@ declare function app:list-people($node as node(), $model as map(*)) {
                 else $key
             let $nid := xs:NCName($id)
             let $name := 
-                if ($config:person-authority//tei:person[@xml:id=$id]/tei:persName/text())
-                    then $config:person-authority//tei:person[@xml:id=$id][1]/tei:persName/text()
-                else if (collection($config:person-authority-dir)//tei:person[@xml:id=$id]/tei:persName/text())
-                    then collection($config:person-authority-dir)//tei:person[@xml:id=$id]/tei:persName/text()
+                if (collection($config:remote-context-root)//tei:person[@xml:id=$id]/tei:persName[1]/text())
+                then collection($config:remote-context-root)//tei:person[@xml:id=$id]/tei:persName[1]/text()
                 else $id
             order by $name
             return app:generate-person-entry($nid,$name)
@@ -308,32 +306,18 @@ declare function app:person-revised($node as node(), $model as map(*), $id as xs
         map { "person" := $person }
 };
 
-(:~ 
- : @depreciated
- : NOTE this duplicates app:translate-lang() function, these values could be added to the translate-lang function.  
-:)
-declare function app:determine-language($node as node()) {
-    let $lang := $node/@xml:lang
-    let $language := if ($lang eq 'san-Latn') then 'Sanskrit'
-                   else if ($lang eq 'pra-Latn') then 'Middle Indic'
-                   else if ($lang eq 'mar-Latn') then 'Marathi'
-                   else if ($lang eq 'kan-Latn') then 'Kannada'
-                   else if ($lang eq 'hin-Latn') then 'Hindi'
-                   else if ($lang eq 'und') then 'Unknown'
-                   else '' 
-    return 
-        $language
-};
-
 declare function app:person-name-revised($node as node(), $model as map(*)) {
     let $person := $model("person")
     let $id := string($person/@xml:id)
     let $names :=
         for $name in ($person/tei:persName)
-        let $lang := <small> { app:translate-lang($name/@xml:lang) }</small>
+        let $lang := <small class="text-muted">{ app:translate-lang($name/@xml:lang) }</small>
+        let $cert := 
+            if ($name/@cert = "low") then "*"
+            else ""
         return
-            if ($name[1]) then <h1 style="text-align:left!important;">{ $name/text() }{ $lang }</h1>
-            else <h2 class="pull-left">{ $name/text() }{ $lang }</h2>
+            if ($name = $person/tei:persName[1]) then <h1 class="text-left">{ $name/text() }{ $lang }</h1>
+            else <h4 class="text-left">{ $cert }{ $name/text() }{ $lang }</h4>
     return 
         <div>
             <span class="text-muted pull-right">Person ID: { $id }</span>
@@ -643,7 +627,6 @@ declare function app:view-map($node as node(), $model as map(*)) {
         else ()
 };
 
-
 (:
     Search functions
     Right now these are more or less modelled on SARIT's search function.
@@ -919,6 +902,7 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
 };
 
 (:~
+ : @depreciated use app:display-facets
  : Search facets  
  : Uses facet definitions in search-facet-def.xml
  : Used by search.html
@@ -966,10 +950,80 @@ declare function app:browse-get-places($node as node(), $model as map(*)){
                     let $id := 
                                 if (contains($p,'pl:')) then substring-after($p,'pl:')
                                 else $p
-                    for $place in collection(replace($config:remote-data-root,'/data','/contextual/Places'))//@xml:id[. = $id]
+                    for $place in collection($config:remote-context-root || '/Places')//@xml:id[. = $id]
                     let $p := root($place)
                     return $p
         }  
+};
+
+declare function app:browse-get-persons($node as node(), $model as map(*)){
+    map {
+                "hits" := 
+                    let $pids := distinct-values(collection($config:remote-data-root)//tei:persName/@key)
+                    let $persons := 
+                        for $person in $pids
+                        return 
+                            <person id="{$person}">
+                                {
+                                    let $p := collection($config:remote-context-root)//tei:person[@xml:id= replace($person,'pers:','')]
+                                    let $i := collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key= $person]]/tei:teiHeader 
+                                    return ($p,$i)
+                                }
+                            </person>                            
+                    let $facet-def := doc($config:app-root || '/browse-person-facet-def.xml')
+                    for $i in util:eval(concat("$persons",facet:facet-filter($facet-def)))
+                    let $name := 
+                        if (contains($i/@id,'pers:')) then substring-after($i/@id,'pers:')
+                        else $i
+                    order by $name
+                    return $i
+        }     
+};
+
+(:~
+ : Show browse hits. 
+ : @param $start default 1 
+ : @param $per-page default 10
+:)
+declare
+    %templates:default("start", 1)
+    %templates:default("per-page", 10)
+function app:person-browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
+    for $p in subsequence($model("hits"), $start, $per-page)
+    let $name := 
+        if (contains($p/@id,'pers:')) then substring-after($p/@id,'pers:')
+        else $p
+    let $id := xs:NCName($name)
+    order by $name
+    return 
+     <div id="pers-{$id}">
+        <h4><a href="person.html?id={$id}">{replace($id,'pers:','')}</a>
+            {
+            if($p/tei:person/tei:sex/@value) then  concat(' (',string-join($p/tei:person/tei:sex/@value,' '),') ')
+            else()
+            }
+        </h4>
+        {(
+            if($p/tei:person/tei:residence/tei:placeName) then
+                    <p>{concat('From ', $p/tei:person/tei:residence/tei:placeName/text(), '. ')}</p>
+            else(),
+            if($p/tei:person/descendant::tei:state or $p/tei:person/descendant::tei:trait or $p/tei:person/descendant::tei:faith) then
+                <p>Identifiers: 
+                    {
+                        let $identifiers := $p/tei:person/descendant::tei:state | 
+                                  $p/tei:person/descendant::tei:trait |
+                                  $p/tei:person/descendant::tei:faith
+                        let $last := count($identifiers)
+                        for $i at $pos in $identifiers
+                        return 
+                        (<span class="person-identifiers">{$i/text()} {if($i/@type) then concat(' [',string($i/@type),'] ') else ()}</span>, if($i[$pos != $last]) then ', ' else())                                 
+                    }
+                </p>
+            else()
+        )}
+        <p>Mentioned in these inscriptions:</p>
+        {app:view-hits($p/descendant::tei:teiHeader, $id)}
+    </div>     
 };
 
 (:~
@@ -993,7 +1047,6 @@ declare function app:browse-hits($node as node()*, $model as map(*)) {
                 app:view-hits($inscriptions, $key)
         }
     </div>     
-
 };
 
 (:~
@@ -1005,7 +1058,7 @@ declare function app:view-hits($inscriptions, $placeId){
     (<table class="table" id="{$placeId}">
         <thead>
             <tr>
-                <th class="col-md-1"><button class="btn-link">ID <span class="caret"/></button></th>
+                <th class="col-md-2"><button class="btn-link">ID <span class="caret"/></button></th>
                 <th><button class="btn-link">Name <span class="caret"/></button></th>
                 <th class="col-md-2"><button class="btn-link">Type <span class="caret"/></button></th>
                 <th class="col-md-2"><button class="btn-link">Language <span class="caret"/></button></th>
@@ -1071,6 +1124,7 @@ declare function app:view-hits($inscriptions, $placeId){
 };
 
 (:~
+ : @depreciated use app:display-facets
  : General/Browse facets  
  : Uses facet definitions in facet-def.xml
  : Used by browse.html
@@ -1080,6 +1134,23 @@ declare function app:browse-facets($node as node(), $model as map(*)) {
     let $hits := $model("hits")
     let $facet-def := doc($config:app-root || '/browse-facet-def.xml')
     return facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
+};
+
+(:~
+ : General/Browse facets  
+ : Uses facet definitions in facet-def.xml
+ : Used by browse.html
+ : @see facet library lib/facet.xqm
+ : @param $node nodes to be faceted on, passed from search and browse
+ : @param $facet-def facet-definition file, passed from html page. 
+:)
+declare function app:display-facets($node as node(), $model as map(*), $facet-def as xs:string?) {
+    let $hits := $model("hits")
+    let $facet-def := doc($config:app-root || '/' || $facet-def)
+    return
+        if($facet-def) then 
+            facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
+        else 'No matching definition'
 };
 
 declare function app:dynamic-map-data($node as node(), $model as map(*)){

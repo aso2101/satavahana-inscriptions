@@ -5,18 +5,18 @@
             <div class="hit-count">
                 <p>Found <span id="hit-count" data-template="app:hit-count"/> hits for query <span id="query-name" data-template="app:query-name"/>:</p>
             </div>
-        <!-- pagination for small device -->
+            <!-- pagination for small device -->
             <div class="hidden-md hidden-lg hidden-sm">
                 <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="5" data-template-min-hits="21"/>
             </div>
-        <!-- pagination for larger device -->
-            <div class="hidden-xs">
+            <!-- pagination for larger device -->
+            <div class="hidden-xs pull-right">
                 <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="9" data-template-min-hits="21"/>
             </div>
-        <!-- query results -->
+            <!-- query results -->
             <div class="row">
                 <div class="col-md-3">
-                    <div data-template="app:search-facets"/>
+                    <div data-template="app:display-facets" data-template-facet-def="search-facet-def.xml"/>
                 </div>
                 <div class="col-md-7">
                     <table id="results" class="col-md-12 table">
@@ -30,11 +30,11 @@
                 </div>
             </div>
             
-        <!-- bottom pagination for small device -->
+            <!-- bottom pagination for small device -->
             <div class="hidden-md hidden-lg hidden-sm">
                 <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="5" data-template-min-hits="21"/>
             </div>
-        <!-- bottom pagination for larger device -->
+            <!-- bottom pagination for larger device -->
             <div class="hidden-xs">
                 <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="9" data-template-min-hits="21"/>
             </div>
