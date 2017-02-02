@@ -72,4 +72,8 @@ background: #ffffff;
 /* slider styles */
 h4.slider {display:block; margin:0 0 1em;padding: 0 0 1em;}
 .slider-container {display:block; min-height: 20px; padding:1em 0;}
+
+/* Browse page styles */
 .person-identifiers {font-weight:600;}
+.abc {text-align:center;}
+.pagination li a {font-size:.85em;}

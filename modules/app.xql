@@ -901,31 +901,6 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
 )        
 };
 
-(:~
- : @depreciated use app:display-facets
- : Search facets  
- : Uses facet definitions in search-facet-def.xml
- : Used by search.html
- : @see facet library lib/facet.xqm
-:)
-declare function app:search-facets($node as node(), $model as map(*)) {
-    let $hits := $model("hits")
-    let $facet-def := doc($config:app-root || '/search-facet-def.xml')
-    return facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
-};
-
-(:
- : General facet display. 
-:)
-declare function app:facet($node as node(), $model as map(*)) {
-    let $hits := $model("inscriptions")
-    let $facet-def := doc($config:app-root || '/facet-def.xml')
-    return 
-        (facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition)),
-        $facet-def/descendant::facet:facet-definition,
-        $config:remote-data-root
-        )
-};
 
 (: New browse inscriptions functions :)
 (:~
@@ -942,6 +917,11 @@ declare function app:browse-get-inscriptions($node as node(), $model as map(*)) 
         }  
 };
 
+(:~
+ : Browse inscriptions group by places  
+ : Group inscriptions by place/@key
+ : @sort  
+:)
 declare function app:browse-get-places($node as node(), $model as map(*)){
     map {
                 "places" := 
@@ -956,6 +936,9 @@ declare function app:browse-get-places($node as node(), $model as map(*)){
         }  
 };
 
+(:~
+ : Browse persons with inscriptions 
+:)
 declare function app:browse-get-persons($node as node(), $model as map(*)){
     map {
                 "hits" := 
@@ -969,9 +952,12 @@ declare function app:browse-get-persons($node as node(), $model as map(*)){
                                     let $i := collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key= $person]]/tei:teiHeader 
                                     return ($p,$i)
                                 }
-                            </person>                            
+                            </person>  
+                            (:
+                            $hit[matches(substring(global:build-sort-string(.,$browse:computed-lang),1,1),browse:get-sort(),'i')]
+                            :)
                     let $facet-def := doc($config:app-root || '/browse-person-facet-def.xml')
-                    for $i in util:eval(concat("$persons",facet:facet-filter($facet-def)))
+                    for $i in util:eval(concat("$persons",app:abc-filter(),facet:facet-filter($facet-def)))
                     let $name := 
                         if (contains($i/@id,'pers:')) then substring-after($i/@id,'pers:')
                         else $i
@@ -1123,6 +1109,23 @@ declare function app:view-hits($inscriptions, $placeId){
     </script>)
 };
 
+(:
+ : May need to add filters for accented letters?
+:)
+declare function app:abc-filter(){
+ if(request:get-parameter('abc-filter', '') != '') then
+    if(request:get-parameter('abc-filter', '') = 'ALL') then () 
+    else 
+     concat('[tei:person[starts-with(@xml:id, "',request:get-parameter('abc-filter', ''),'")]]')
+ else()
+};
+(:~
+ : Browse Alphabetical Menu
+:)
+declare %templates:wrap function app:browse-abc-menu($node as node(), $model as map(*)){
+    for $letter in tokenize('A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ALL', ' ')
+    return <li class="{if(request:get-parameter('abc-filter', '') = string($letter)) then 'active' else 'clickable'}"><a href="?abc-filter={$letter}">{$letter}</a></li>
+};
 (:~
  : @depreciated use app:display-facets
  : General/Browse facets  
@@ -1150,7 +1153,7 @@ declare function app:display-facets($node as node(), $model as map(*), $facet-de
     return
         if($facet-def) then 
             facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
-        else 'No matching definition'
+        else 'No matching facet definition file.'
 };
 
 declare function app:dynamic-map-data($node as node(), $model as map(*)){
@@ -1190,10 +1193,8 @@ declare function app:map($node as node(), $model as map(*)) {
 
 };
 
-(:
- : Date slider pulls functions from lib/date-slider.xqm
-:)
 (:~
+ : Date slider pulls functions from lib/date-slider.xqm
  : Build Javascript Date Slider. 
 :)
 declare function app:browse-date-slider($node as node(), $model as map(*)){   
