@@ -3,6 +3,10 @@
         max-width: 970px;
     }
 }
+.w:after {
+  content: "\00a0";
+}
+
 #topbar a {
   text-align:left;
   float:left;

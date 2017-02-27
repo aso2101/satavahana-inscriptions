@@ -39,6 +39,7 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             
             (: Core block elements :)
             case element(tei:p) return tei-to-html:p($node, $options)
+            case element(tei:w) return tei-to-html:w($node, $options)
             case element(tei:lg) return tei-to-html:lg($node,$options)
             case element(tei:l) return tei-to-html:l($node,$options)
             case element(tei:caesura) return tei-to-html:caesura($node,$options)
@@ -63,8 +64,9 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             case element(tei:supplied) return tei-to-html:supplied($node,$options)
             case element(tei:unclear) return tei-to-html:unclear($node,$options)
             
-            (: Bibliography elements :)
+            (: Bibliography and apparatus elements :)
             case element(tei:bibl) return tei-to-html:bibl($node)
+            case element(tei:listApp) return tei-to-html:listApp($node,$options)
             
             default return tei-to-html:recurse($node, $options)
 };
@@ -188,7 +190,10 @@ declare function tei-to-html:div($node as element(tei:div),$options) {
 
 (:  Apparatus division: we don't use this, so it is blank now. :)
 declare function tei-to-html:apparatus($node as element(tei:div),$options) as element()* {
-    tei-to-html:recurse($node,$options)
+    <div class="epidoc" id="bibliography">
+        <h2>Critical apparatus</h2>
+        { tei-to-html:recurse($node,$options) }
+    </div>
 };
 
 (: Bibliography division: just contains <bibl> elements :)
@@ -261,6 +266,17 @@ declare function tei-to-html:p($node as element(tei:p), $options) as element()+ 
         else 
             <p class="p">{tei-to-html:recurse($node, $options)}</p>
 };
+
+declare function tei-to-html:w($node as element(tei:w), $options) as element()+ {
+    let $rend := $node/@rend
+    return 
+        if ($rend = ('right', 'center', 'first', 'indent') ) 
+        then
+            <seg class="{concat('p', '-', data($rend))}" id="{$node/@xml:id}">{ tei-to-html:recurse($node, $options) }</seg>
+        else 
+            <seg class="w">{tei-to-html:recurse($node, $options)}</seg>
+};
+
 declare function tei-to-html:lg($node as element(tei:lg), $options) as element()+ {
     (: we want line breaks after every pāda, but
        that should be taken care of by tei-to-html:l. :)
@@ -492,6 +508,11 @@ declare function tei-to-html:ref($node as element(tei:ref),$options) {
             <a href="/exist/apps/SAI/bibliography.html#{$target}">{$text}</a>
         else tei-to-html:recurse($node,$options)  
 };
+
+declare function tei-to-html:listApp($node as element(tei:listApp),$options) {
+    tei-to-html:recurse($node,$options)    
+};
+
 declare function tei-to-html:bibl($node as element(tei:bibl)) {
     let $type := $node/@type
     return 
