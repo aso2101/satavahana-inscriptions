@@ -3,20 +3,23 @@ xquery version "3.0";
 (:~
  : A set of helper functions to access the application context from
  : within a module.
- : This is the config.xqm for the SAI project, and it tells us
- : where the data repository is (in this case SAI-data). 
  :)
-module namespace config="localhost:8080/exist/apps/SAI/config";
+module namespace config="http://www.tei-c.org/tei-simple/config";
+
+import module namespace http="http://expath.org/ns/http-client" at "java:org.exist.xquery.modules.httpclient.HTTPClientModule";
 
 declare namespace templates="http://exist-db.org/xquery/templates";
 
 declare namespace repo="http://exist-db.org/xquery/repo";
 declare namespace expath="http://expath.org/ns/pkg";
+declare namespace jmx="http://exist-db.org/jmx";
 
-(: 
+declare variable $config:default-view := "div";
+
+(:
     Determine the application root collection from the current module load path.
 :)
-declare variable $config:app-root := 
+declare variable $config:app-root :=
     let $rawPath := system:get-module-load-path()
     let $modulePath :=
         (: strip the xmldb: part :)
@@ -31,6 +34,8 @@ declare variable $config:app-root :=
         substring-before($modulePath, "/modules")
 ;
 
+declare variable $config:data-root := "/db/apps/SAI-data/data/";
+
 declare variable $config:remote-root:= substring-before($config:app-root,"SAI") || "SAI-data";
 declare variable $config:remote-data-root:= $config:remote-root || "/data";
 declare variable $config:remote-context-root:= $config:remote-root || "/contextual";
@@ -43,7 +48,16 @@ declare variable $config:bibl-authority:= doc(concat($config:remote-context-root
 declare variable $config:inventory := doc(concat($config:remote-root, "/textInventory.xml"));
 declare variable $config:remote-download-root:= $config:remote-root || "/download";
 
-declare variable $config:data-root := $config:app-root || "/data";
+declare variable $config:odd := "saiepidoc.odd";
+
+declare variable $config:odd-root := $config:app-root || "/resources/odd";
+declare variable $config:compiled-odd-root := $config:odd-root || "/compiled";
+
+declare variable $config:output := "transform";
+
+declare variable $config:output-root := $config:app-root || "/" || $config:output;
+
+declare variable $config:module-config := doc($config:odd-root || "/configuration.xml")/*;
 
 declare variable $config:repo-descriptor := doc(concat($config:app-root, "/repo.xml"))/repo:meta;
 
@@ -111,4 +125,39 @@ declare function config:app-info($node as node(), $model as map(*)) {
                 <td>{ request:get-attribute("$exist:controller") }</td>
             </tr>
         </table>
+};
+
+(: Try to dynamically determine data directory by calling JMX. :)
+declare function config:get-data-dir() as xs:string? {
+    try {
+        let $request := <http:request method="GET" href="http://localhost:{request:get-server-port()}/{request:get-context-path()}/status?c=disk"/>
+        let $response := http:send-request($request)
+        return
+            if ($response[1]/@status = "200") then
+                $response[2]//jmx:DataDirectory/string()
+            else
+                ()
+    } catch * {
+        ()
+    }
+};
+
+declare function config:get-repo-dir() {
+    let $dataDir := config:get-data-dir()
+    let $pkgRoot := $config:expath-descriptor/@abbrev || "-" || $config:expath-descriptor/@version
+    return
+        if ($dataDir) then
+            $dataDir || "/expathrepo/" || $pkgRoot
+        else
+            ()
+};
+
+
+declare function config:get-fonts-dir() as xs:string? {
+    let $repoDir := config:get-repo-dir()
+    return
+        if ($repoDir) then
+            $repoDir || "/resources/fonts"
+        else
+            ()
 };

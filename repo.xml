@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <meta xmlns="http://exist-db.org/xquery/repo">
-    <description>Prototype for a database of South Asian Inscriptions, starting with the Sātavāhana period (1st c. BCE-3rd c. CE).</description>
-    <author>Andrew Ollett</author>
+    <description>Sātavāhana Inscriptions</description>
     <website/>
-    <status>alpha</status>
+    <status/>
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
     <type>application</type>
-    <target>SAI/</target>
+    <target>SAI</target>
     <prepare>pre-install.xql</prepare>
-    <finish/>
-    <permissions xmlns:repo="http://exist-db.org/xquery/repo" password="" user="Χ " group="dba" mode="rw-rw-r--"/>
+    <finish>post-install.xql</finish>
+    <permissions xmlns:repo="http://exist-db.org/xquery/repo" password="" user="sai-admin" group="sai-admin" mode="rw-rw-r--"/>
+
 </meta>

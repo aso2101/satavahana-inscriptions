@@ -1,0 +1,1719 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xml:lang="en">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title>Merged TEI PM Spec</title>
+            </titleStmt>
+            <publicationStmt>
+                <p>Automatically generated, do not modify.</p>
+            </publicationStmt>
+            <sourceDesc>
+                <p>Generated from input ODD: /db/apps/SAI/resources/odd/saiepidoc.odd</p>
+            </sourceDesc>
+        </fileDesc>
+    </teiHeader>
+    <text>
+        <body>
+            <elementSpec mode="change" ident="text">
+                    <model behaviour="body">
+                        <outputRendition> max-width: 100%; margin: auto; font-family: Noto, Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif; </outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="ab">                  
+                    <model predicate="ancestor::div[@type='edition'] and $parameters?break='XML'" behaviour="xml-tab"/>
+                    <model behaviour="block">
+                        <!--<outputRendition>color:red;</outputRendition>-->
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="ab">
+                    <model behaviour="block"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="abbr">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="actor">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="add">
+                            <model behaviour="inline">
+                                <outputRendition>color: green; text-decoration: underline;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="address">
+                            <model behaviour="block">
+                                <outputRendition>margin-top: 2em; margin-left: 2em; margin-right: 2em; margin-bottom:
+            2em;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="addrLine">
+                            <model behaviour="block">
+                                <outputRendition>white-space: nowrap;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="addSpan">
+                            <model behaviour="anchor">
+                                <param name="id">@xml:id</param>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="am">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="anchor">
+                            <model behaviour="anchor">
+                                <param name="id">@xml:id</param>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="argument">
+                            <model behaviour="block">
+                                <outputRendition>margin-bottom: 0.5em;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="back">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="bibl">
+                    <constraintSpec mode="add" ident="noEmptyBibl" scheme="isoschematron">
+                        <constraint>
+                            <assert xmlns="http://purl.oclc.org/dsdl/schematron" test="child::* or child::text()[normalize-space()]" role="ERROR"> Element "<name/>" may not be empty. </assert>
+                        </constraint>
+                    </constraintSpec>
+                    <model predicate="parent::listBibl[@type='photo']" behaviour="listItemImage">
+                        <param name="material-icons">'photo_camera'</param>
+                        <outputRendition>list-style:none;</outputRendition>
+                    </model>
+                    <model predicate="parent::listBibl[@type='estampage']" behaviour="listItemImage">
+                        <param name="material-icons">'monochrome_photos'</param>
+                        <outputRendition>list-style:none;</outputRendition>
+                    </model>
+                    <model predicate="parent::listBibl and ancestor::div[@type='bibliography']" behaviour="listItemImage">
+                        <param name="material-icons">'bookmark'</param>
+                        <outputRendition>list-style:none;</outputRendition>
+                    </model>
+                    <model predicate="parent::listBibl" behaviour="listItem"/>
+                    <model behaviour="inline" cssClass="bibl">
+                        <outputRendition> display:inline-block; </outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="body">
+                    <modelSequence>
+                        <model behaviour="index">
+                            <param name="type">'toc'</param>
+                        </model>
+                        <model behaviour="block"/>
+                    </modelSequence>
+                </elementSpec>
+            <elementSpec mode="change" ident="byline">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="c">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="castGroup">
+                            <model predicate="child::*" behaviour="list">
+                                <desc>Insert list. </desc>
+                                <param name="content">castItem|castGroup</param>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="castItem">
+                            <model behaviour="listItem">
+                                <desc>Insert item, rendered as described in parent list rendition. </desc>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="castList">
+                            <model predicate="child::*" behaviour="list" useSourceRendition="true">
+                                <param name="content">castItem</param>
+                                <outputRendition>list-style: ordered;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="cb">
+                            <model behaviour="break">
+                                <param name="type">'column'</param>
+                                <param name="label">@n</param>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="cell">
+                            <model behaviour="cell">
+                                <desc>Insert table cell. </desc>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="choice">
+                            <constraintSpec ident="choiceSize" scheme="isoschematron" mode="add">
+                                <constraint>
+                                    <assert xmlns="http://purl.oclc.org/dsdl/schematron" test="count(*) &gt; 1" role="ERROR">
+                    Element "<name/>" must have at least two child
+		    elements.</assert>
+                                </constraint>
+                            </constraintSpec>
+                            <constraintSpec ident="choiceContent" scheme="isoschematron" mode="add">
+                                <constraint>
+                                    <assert xmlns="http://purl.oclc.org/dsdl/schematron" test="(tei:corr or tei:sic or tei:expan or     tei:abbr or tei:reg or tei:orig) and ((tei:corr and tei:sic) or (tei:expan     and tei:abbr) or (tei:reg and tei:orig))" role="ERROR">
+                    Element "<name/>" must have corresponding corr/sic, expand/abbr, reg/orig </assert>
+                                </constraint>
+                            </constraintSpec>
+                            <model output="plain" predicate="sic and corr" behaviour="inline">
+                                <param name="content">corr[1]</param>
+                            </model>
+                            <model output="plain" predicate="abbr and expan" behaviour="inline">
+                                <param name="content">expan[1]</param>
+                            </model>
+                            <model output="plain" predicate="orig and reg" behaviour="inline">
+                                <param name="content">reg[1]</param>
+                            </model>
+                            <model predicate="sic and corr" behaviour="alternate">
+                                <param name="default">corr[1]</param>
+                                <param name="alternate">sic[1]</param>
+                            </model>
+                            <model predicate="abbr and expan" behaviour="alternate">
+                                <param name="default">expan[1]</param>
+                                <param name="alternate">abbr[1]</param>
+                            </model>
+                            <model predicate="orig and reg" behaviour="alternate">
+                                <param name="default">reg[1]</param>
+                                <param name="alternate">orig[1]</param>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="cit">
+                            <model predicate="child::quote and child::bibl" behaviour="cit">
+                                <desc>Insert citation </desc>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="closer">
+                            <model behaviour="block">
+                                <outputRendition>margin-top: 1em; margin-left: 1em; margin-left: 1em;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="corr">
+                            <model predicate="parent::choice and count(parent::*/*) gt 1" behaviour="inline">
+                                <desc>simple inline, if in parent choice. </desc>
+                            </model>
+                            <model behaviour="inline">
+                                <outputRendition scope="before">content: '[';</outputRendition>
+                                <outputRendition scope="after">content: ']';</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec ident="date" mode="change">
+                  <model output="print" predicate="text()" behaviour="inline"/>
+                  <model output="print" predicate="@when and not(text())" behaviour="inline">
+                    <param name="content" value="@when"/>
+                  </model>
+                  <model output="web" predicate="@when" behaviour="inline">
+                    <desc>desactive le comportement alternate de tei_simplePrint</desc>
+                  </model>
+                  <model predicate="text()" behaviour="inline"/>
+            </elementSpec>
+            <elementSpec mode="change" ident="dateline">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="del">
+                    <model predicate="@rend='erasure'" behaviour="inline">
+                        <outputRendition scope="before">content:"{{";</outputRendition>
+                        <outputRendition scope="after">content:"}}";</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="desc">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="div">
+                    <attList>
+                        <attDef ident="type" mode="replace" usage="req">
+                            <valList type="closed">
+                                <valItem ident="apparatus">
+                                    <desc>to contain apparatus criticus or textual notes</desc>
+                                </valItem>
+                                <valItem ident="bibliography">
+                                    <desc>to contain bibliographical information, previous publications, etc.</desc>
+                                </valItem>
+                                <valItem ident="commentary">
+                                    <desc>to contain all editorial commentary, historical/prosopographical discussion, etc.</desc>
+                                </valItem>
+                                <valItem ident="edition">
+                                    <desc>to contain the text of the edition itself; may include multiple text-parts</desc>
+                                </valItem>
+                                <valItem ident="textpart">
+                                    <desc>used to divide a div[type=edition] into multiple parts (fragments, columns, faces, etc.)</desc>
+                                </valItem>
+                                <valItem ident="translation">
+                                    <desc>to contain a translation of the text into one or more modern languages</desc>
+                                </valItem>
+                            </valList>
+                        </attDef>
+                    </attList>                   
+                    <model predicate="ancestor::TEI[@type='general-biblio']" behaviour="section">
+                            <param name="content">.</param>
+                            <cssClass>bibliography-top</cssClass>
+                    </model>
+                    <modelSequence predicate="@type='bibliography'">
+                        <model behaviour="heading">
+                            <param name="level">3</param>
+                            <param name="content">'Secondary bibliography'</param>
+                        </model>
+                        <model behaviour="section" cssClass="bibliography-secondary">
+                            <param name="content">listBibl</param>
+                        </model>
+                    </modelSequence> 
+                    <modelSequence predicate="not((@type='textpart') or (@type='apparatus'))">
+                        <model behaviour="heading">
+                            <param name="level">3</param>
+                            <param name="content">concat(upper-case(substring(@type,1,1)),substring(@type,2))</param>
+                            <cssClass>@type</cssClass>
+                        </model>
+                        <model behaviour="section">
+                            <cssClass>@type</cssClass>
+                        </model>
+                    </modelSequence>
+                    <modelSequence predicate="@type='apparatus'">
+                        <model behaviour="section">
+                            <param name="content">.</param>
+                            <cssClass>@type</cssClass>
+                            <param name="hr">'yes'</param>
+                        </model>
+                    </modelSequence>
+                    <modelSequence predicate="@type='edition'">
+                <!-- à verifier -->
+                        <model behaviour="section">
+                            <param name="content">.</param>
+                            <cssClass>@type</cssClass>
+                            <outputRendition>background-color:red !important;</outputRendition>
+                        </model>
+                    </modelSequence>
+                  <!-- ancien emplacement modelSequence xml -->                    
+                    <model predicate="@type='textpart'" behaviour="block"/>
+                    <model behaviour="block"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="docAuthor">
+                            <model predicate="ancestor::teiHeader" behaviour="omit">
+                                <desc>Omit if located in teiHeader. </desc>
+                            </model>
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="docDate">
+                            <model predicate="ancestor::teiHeader" behaviour="omit">
+                                <desc>Omit if located in teiHeader. </desc>
+                            </model>
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="docEdition">
+                            <model predicate="ancestor::teiHeader" behaviour="omit">
+                                <desc>Omit if located in teiHeader. </desc>
+                            </model>
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="docImprint">
+                            <model predicate="ancestor::teiHeader" behaviour="omit">
+                                <desc>Omit if located in teiHeader. </desc>
+                            </model>
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="docTitle">
+                            <model predicate="ancestor::teiHeader" behaviour="omit">
+                                <desc>Omit if located in teiHeader. </desc>
+                            </model>
+                            <model behaviour="block" useSourceRendition="true">
+                                <outputRendition>font-size: larger;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="epigraph">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="ex">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="expan">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="figDesc">
+                            <model behaviour="inline">
+                                <outputRendition scope="before">content: '[..';</outputRendition>
+                                <outputRendition scope="after">content: '..]';</outputRendition>
+                                <outputRendition>color: grey;font-style:italic;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="figure">
+                            <model predicate="head" behaviour="figure">
+                                <param name="title">head/node()</param>
+                                <param name="content">*[not(self::head)]</param>
+                            </model>
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="floatingText">
+                            <model behaviour="block">
+                                <outputRendition>
+	  margin: 6pt;
+	  border: solid black 1pt;
+	</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="foreign">
+                            <model behaviour="inline">
+                                <outputRendition>font-style:italic;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="formula">
+                            <model predicate="@rendition='simple:display'" behaviour="block"/>
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="front">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="fw">
+                            <model predicate="ancestor::p or ancestor::ab" behaviour="inline"/>
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="g">
+                    <model predicate="@type" behaviour="inline">
+                        <param name="content">@type</param>
+                        <outputRendition> font-style: italic; </outputRendition>
+                        <outputRendition scope="before"> content:"("; </outputRendition>
+                        <outputRendition scope="after"> content:")"; </outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="gap">
+                    <model predicate="(@reason='lost' and @unit='line' and @quantity=1) and not(child::certainty)" behaviour="inline" cssClass="italic">
+                        <outputRendition scope="before"> content:"(line lost"; </outputRendition>
+                        <outputRendition scope="after"> content:")"; </outputRendition>
+                    </model>
+                    <model predicate="(@reason='lost' and @unit='line' and child::certainty[@locus='name']) and not(@quantity=1)" behaviour="inline" cssClass="italic">
+                        <outputRendition scope="before">content:"(lines lost?";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                    <model predicate="(@reason='lost' and @unit='line' and not(@quantity=1)) and not(child::certainty[@locus='name'])" behaviour="inline" cssClass="italic">
+                        <outputRendition scope="before">content:"(lines lost";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                    <model predicate="@reason='lost' and @unit='line' and child::certainty[@locus] and @quantity=1" behaviour="inline" cssClass="italic">
+                        <outputRendition scope="before">content:"(line lost?";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                    <!-- à revoir avec AG -->
+                    <model predicate="(@reason='illegible' and @unit='line' and @quantity=1) and not(child::certainty)" behaviour="inline" cssClass="italic">
+                        <outputRendition scope="before">content:"(line illegible";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                    <model predicate="(@reason='illegible' and @unit='line' and child::certainty[@locus='name']) and not(@quantity=1)" behaviour="inline" cssClass="italic">
+                        <outputRendition scope="before">content:"(lines illebible";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                    <model predicate="(@reason='illegible' and @unit='line' and not(@quantity=1)) and not(child::certainty[@locus='name'])" behaviour="inline" cssClass="italic">
+                        <outputRendition scope="before">content:"(lines illegible?";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                    <model predicate="@reason='illegible' and @unit='line' and child::certainty[@locus] and @quantity=1" behaviour="inline" cssClass="italic">
+                        <outputRendition scope="before">content:"(line illegible?";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                    <!-- -->
+                    <model predicate="@reason='illegible' and @unit='character' and @quantity" behaviour="repeat-string">
+                        <param name="content"/>
+                        <param name="count">xs:integer(@quantity)</param>
+                        <param name="stringToRepeat">'?'</param>
+                    </model>
+                    <model predicate="@reason='lost' and @unit='character' and @quantity" behaviour="repeat-string">
+                        <param name="content"/>
+                        <param name="count">xs:integer(@quantity)</param>
+                        <param name="stringToRepeat">'+'</param>
+                        <outputRendition>font-weight:bold;</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="gi">
+                            <model behaviour="inline">
+                                <outputRendition scope="before">content:"&lt;";</outputRendition>
+                                <outputRendition scope="after">content:"&gt;";</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="graphic">
+                    <model predicate="parent::facsimile and $parameters?teiHeader-type='epidoc'" behaviour="link"/>
+                    <model behaviour="graphic">
+                        <param name="url">@url</param>
+                        <param name="scale">0.5</param>
+                        <param name="title">desc</param>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="group">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="handShift">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec ident="head" mode="change">
+                    <model predicate="$parameters?header='short'" behaviour="inline">
+                        <param name="content" value="replace(string-join(.//text()[not(parent::ref)]), '^(.*?)[^\w]*$', '$1')"/>
+                    </model>
+                    <model predicate="parent::figure" behaviour="block">
+                        <outputRendition>font-style: italic;</outputRendition>
+                    </model>
+                    <model predicate="parent::table" behaviour="block">
+                        <outputRendition>font-style: italic;</outputRendition>
+                    </model>
+                    <model predicate="parent::lg" behaviour="block">
+                        <outputRendition>font-style: italic;</outputRendition>
+                    </model>
+                    <model predicate="parent::list" behaviour="block">
+                        <outputRendition>font-weight: bold;</outputRendition>
+                    </model>
+                    <model predicate="parent::div" behaviour="heading">
+                        <param name="level" value="count(ancestor::div)"/>
+                    </model>
+                    <model behaviour="block"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="hi">
+                            <model predicate="@rendition" behaviour="inline" useSourceRendition="true">
+                                <outputRendition>font-style: italic;</outputRendition>
+                            </model>
+                            <model predicate="not(@rendition)" behaviour="inline">
+                                <outputRendition>font-style: italic;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="imprimatur">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="item">
+                    <model behaviour="listItem">
+                        <desc>Insert item, rendered as described in parent list rendition. </desc>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="l">
+                    <model predicate="$parameters?break='Logical'" behaviour="breakPyu">
+                        <param name="type">'element'</param>
+                        <param name="break">'yes'</param>
+                    </model>
+                    <model predicate="$parameters?break='Physical'" behaviour="breakPyu">
+                        <param name="type">'element'</param>
+                        <param name="break">'no'</param>
+                        <param name="label">let $prefix := 'v. '
+                                            let $num := if (@n) then @n else count(preceding-sibling::l) + 1
+                                            return $prefix || $num
+                        </param>
+                    </model>
+                    <model behaviour="block"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="label">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="lb">
+                    <!-- la transmission de la class à revoir car pas dans pmf:apply...-->
+                    <!--
+                    <model predicate="parent::ab[@rend='break-none'] or ancestor::lg[1][@rend='break-none']" behaviour="line-epidoc">
+                        <param name="class2">'linenumber'</param>
+                        <param name="type">'line'</param>
+                        <param name="label">@n</param>
+                    </model>
+                    <model behaviour="line-epidoc">
+                        <param name="class2">'linenumber'</param>
+                        <param name="type">'line'</param>
+                        <param name="label">@n</param>
+                        <param name="break">'yes'</param>
+                    </model>
+                    -->
+                    <model predicate="$parameters?break='Physical'" behaviour="breakPyu">
+                        <param name="type">'line'</param>
+                        <param name="break">'yes'</param>
+                        <param name="label">if (@n) then @n else count(preceding-sibling::lb) + 1</param>
+                    </model>
+                    <model predicate="$parameters?break='Logical'" behaviour="breakPyu">
+                        <param name="type">'line'</param>
+                        <param name="break">'no'</param>
+                        <param name="label">if (@n) then @n else count(preceding-sibling::lb) + 1</param>
+                    </model>
+                    <model behaviour="inline" cssClass="lineNumber">
+                        <modelSequence>
+                            <model behaviour="text">
+                                <param name="content">' ('</param>
+                            </model>
+                            <model behaviour="inline">
+                                <param name="content">if (@n) then @n else count(preceding-sibling::lb) + 1</param>
+                            </model>
+                            <model behaviour="text">
+                                 <param name="content">') '</param>
+                            </model>
+                        </modelSequence>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="lg">
+                    <modelSequence predicate="@met or @n" behaviour="block" cssClass="verse-part">
+                        <model behaviour="inline" cssClass="verse-number">
+                            <param name="content">@n</param>
+                        </model>
+                        <model behaviour="block" cssClass="verse-meter">
+                            <param name="content">@met</param>
+                        </model>
+                        <model behaviour="inline" cssClass="verse-block"/>
+                    </modelSequence>
+                    <model behaviour="block" cssClass="block"/>
+                </elementSpec>
+            <elementSpec ident="list" mode="change">
+                    <model predicate="@rendition" behaviour="list" useSourceRendition="true">
+                        <param name="content">item</param>
+                    </model>
+                    <model predicate="not(@rendition)" behaviour="list">
+                        <param name="content">item</param>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="listBibl">
+                    <model predicate="ancestor::div[@type='genBibliography'] and child::biblStruct" behaviour="xsl-biblio" cssClass="general-bibliography">
+                        <param name="content">biblStruct</param>
+                        <!--<param name="stylesheet">puy-biblio-controle.xsl</param>-->
+                    </model>
+                    <model predicate="child::biblStruct" behaviour="list" cssClass="list-group">
+                        <param name="content">biblStruct</param>
+                    </model>
+                    <model predicate="ancestor::surrogates or ancestor::div[@type='bibliography']">
+                        <outputRendition> margin-bottom: 0; </outputRendition>
+                    </model>
+                    <model predicate="bibl" behaviour="list">
+                        <param name="content">bibl</param>
+                    </model>
+<!--                    <model behaviour="block"/>-->
+                </elementSpec>
+            <elementSpec mode="change" ident="measure">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="milestone">
+                    <model predicate="@unit='fragment'" behaviour="milestone">
+                        <param name="unit">'fragment'</param>
+                        <param name="label">'///'</param>
+                    </model>
+                    <model predicate="@unit='face'" behaviour="milestone">
+                        <param name="unit">'face'</param>
+                        <param name="label">if (@n) then @n else (count(preceding-sibling::milestone[@unit='face']) + 1)</param>
+                    </model>
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="name">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="note">
+                    <model predicate="ancestor::div[@type='apparatus'] or ancestor::div[@type='commentary']" behaviour="inline"/>
+                    <model predicate="ancestor::teiHeader and text()[normalize-space(.)]" behaviour="listItem"/>
+                    <model predicate="@type='tags' and ancestor::biblStruct" behaviour="omit"/>
+                    <model predicate="@type='accessed' and ancestor::biblStruct" behaviour="omit"/>
+                    <modelSequence predicate="ancestor::biblStruct">
+                        <model behaviour="inline">
+                            <param name="content" value="', '"/>
+                            <outputRendition>color:silver;</outputRendition>
+                        </model>
+                        <model value="./text()[normalize-space(.)]">
+                            <outputRendition>color:silver;</outputRendition>
+                        </model>
+                    </modelSequence>
+                    <model behaviour="inline">
+                        <outputRendition>color:silver;</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="num">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="opener">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="orig">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="p">
+                    <!--<model predicate="@type='editions' or @type='studies'" behaviour="block"/>-->
+                    <model predicate="parent::div[@type='bibliography']" behaviour="inline"/>
+                    <model predicate="parent::support" behaviour="inline"/>
+                    <model predicate="parent::provenance" behaviour="inline"/>
+                    <model behaviour="block"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="pb">
+                            <constraintSpec ident="pbposition" scheme="isoschematron">
+                                <constraint>
+                                    <report xmlns="http://purl.oclc.org/dsdl/schematron" test="parent::*/text() and not           (preceding-sibling::text() and           following-sibling::text())">please make sure pb elements are not at the start or end of mixed content </report>
+                                </constraint>
+                            </constraintSpec>
+                            <model behaviour="break" useSourceRendition="true">
+                                <param name="type">'page'</param>
+                                <param name="label">(concat(if(@n) then     concat(@n,' ') else '',if(@facs) then     concat('@',@facs) else ''))</param>
+                                <outputRendition>
+	  display: block;
+	  margin-left: 4pt;
+	  color: grey;
+	  float: right;
+	</outputRendition>
+                                <outputRendition scope="before">content: '[Page ';</outputRendition>
+                                <outputRendition scope="after">content: ']';</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="pc">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="postscript">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="q">
+                            <model predicate="l" behaviour="block" useSourceRendition="true">
+                                <outputRendition>margin-left: 10px; margin-right: 10px;
+		</outputRendition>
+                            </model>
+                            <model predicate="ancestor::p or ancestor::cell" behaviour="inline" useSourceRendition="true">
+                                <outputRendition scope="before">content: '‘';</outputRendition>
+                                <outputRendition scope="after">content: '’';</outputRendition>
+                            </model>
+                            <model behaviour="block" useSourceRendition="true">
+                                <outputRendition>margin-left: 10px; margin-right: 10px;
+		</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec ident="quote" mode="change">
+                  <model predicate="ancestor::p or ancestor::note" behaviour="inline" useSourceRendition="true">
+                    <desc>If it is inside a paragraph or a note then it is inline, otherwise it is block
+                      level</desc>
+                    <outputRendition scope="before">content: '‘';</outputRendition>
+                    <outputRendition scope="after">content: '’';</outputRendition>
+                  </model>
+                  <model behaviour="block" useSourceRendition="true">
+                    <desc>If it is inside a paragraph then it is inline, otherwise it is block
+                      level</desc>
+                    <outputRendition>margin-left: 10px; margin-right: 10px; </outputRendition>
+                  </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="ref">
+                    <model behaviour="inline" predicate="not(@target)"/>
+                    <model predicate="not(text())" behaviour="link">
+                        <param name="content">@target</param>
+                        <param name="link">@target</param>
+                    </model>
+                    <model behaviour="link">
+                        <param name="link"> if (starts-with(@target, "#")) then request:get-parameter("doc", ()) || "?odd=" || request:get-parameter("odd", ()) || "&amp;amp;view=" || request:get-parameter("view", ()) || "&amp;amp;id=" ||
+                            substring-after(@target, '#') else @target </param>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="reg">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="rhyme">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="role">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="roleDesc">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="row">
+                            <model predicate="@role='label'" behaviour="row">
+                                <outputRendition>font-weight: bold;</outputRendition>
+                            </model>
+                            <model behaviour="row">
+                                <desc>Insert table row. </desc>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="rs">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="s">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="salute">
+                            <model predicate="parent::closer" behaviour="inline"/>
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="seg">
+                    <model predicate="@type='check'" behaviour="inline">
+                        <outputRendition>color:red; background-color:yellow;</outputRendition>
+                    </model>
+                    <model predicate="@type='graphemic'" behaviour="inline">
+                        <outputRendition scope="before">content:"&lt;";</outputRendition>
+                        <outputRendition scope="after">content:"&gt;";</outputRendition>
+                    </model>
+                    <model predicate="@type='phonetic'" behaviour="inline">
+                        <outputRendition scope="before">content:"[";</outputRendition>
+                        <outputRendition scope="after">content:"]";</outputRendition>
+                    </model>
+                    <model predicate="@type='phonemic'" behaviour="inline">
+                         <outputRendition scope="before">content:"/";</outputRendition>
+                        <outputRendition scope="after">content:"/";</outputRendition>
+                    </model>
+                    <model predicate="@type='t1'" behaviour="inline">
+                    <outputRendition>background:yellow; color:red</outputRendition>
+                        <outputRendition scope="before">content:"***";</outputRendition>
+                        <outputRendition scope="after">content:"***";</outputRendition>
+                    </model>
+                     <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec ident="sic" mode="change">
+                            <model predicate="parent::choice and count(parent::*/*) gt 1" behaviour="inline"/>
+                            <model behaviour="inline">
+                                <outputRendition scope="before">content: '{';</outputRendition>
+                                <outputRendition scope="after">content: '}';</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="signed">
+                            <model behaviour="block" predicate="parent::closer">
+                                <outputRendition>
+		  text-align: right;
+		</outputRendition>
+                            </model>
+                            <model behaviour="inline">
+                                <outputRendition>
+		 font-style: italic;
+		</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="sp">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="space">
+                    <model predicate="@type='horizontal'" behaviour="inline">
+                        <param name="content">'◊'</param>
+                    </model>
+                    <model predicate="@type='binding-hole'" behaviour="inline">
+                        <param name="content">'◯'</param>
+                    </model>
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="speaker">
+                            <model behaviour="block">
+                                <outputRendition> font-style:italic; </outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="spGrp">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="stage">
+                            <model behaviour="block">
+                                <outputRendition>font-style: italic;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="subst">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="supplied">
+                    <model predicate="parent::choice" behaviour="inline"/>
+                    <model predicate="@reason='omitted'" behaviour="inline">
+                        <outputRendition scope="before">content:"⟨";</outputRendition>
+                        <outputRendition scope="after">content:"⟩";</outputRendition>
+                    </model>
+                    <model behaviour="inline">
+                        <outputRendition scope="before">content:"(";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="supplied">
+                    <model behaviour="inline">
+                        <outputRendition scope="before">content:"(";</outputRendition>
+                        <outputRendition scope="after">content:")";</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="table">
+                            <model behaviour="table">
+                                <outputRendition>
+		  font-size: smaller;
+		  background-color: #F0F0F0;
+		</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="profileDesc">
+                            <model behaviour="omit"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="revisionDesc">
+                    <!--<modelSequence predicate="ancestor::TEI[@type='general-biblio']">-->
+                    <modelSequence>
+                        <model behaviour="block">
+                            <param name="content">concat('Last modified on: ',change[position()=last()]/@when)</param>
+                            <outputRendition> font-size:small; </outputRendition>
+                        </model>
+                    </modelSequence>
+                    <model predicate="$parameters?teiHeader-type='epidoc'" behaviour="omit"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="encodingDesc">
+                            <model behaviour="omit"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="teiHeader">
+                    <model output="latex" behaviour="metadata"/>
+                    <model output="fo" behaviour="omit"/>
+                    <model output="web" predicate="$parameters?header='short'" behaviour="block"/>
+                    <model output="web" predicate="$parameters?teiHeader-type='epidoc'" behaviour="block"/>
+                   <!-- <model output="web" behaviour="metadata"/>-->
+                </elementSpec>
+            <elementSpec mode="change" ident="author">
+                    <model predicate="ancestor::teiHeader" behaviour="block">
+                        <outputRendition scope="before">content: 'By ';</outputRendition>
+                    </model>
+                    <model predicate="ancestor::biblStruct" behaviour="inline">
+                        <modelGrp>
+                            <modelSequence predicate="surname or forename">
+                                <model behaviour="text">
+                                    <param name="content" value="surname"/>
+                                </model>
+                                <model behaviour="text">
+                                    <param name="content">', '</param>
+                                </model>
+                                <model behaviour="text">
+                                    <param name="content" value="forename"/>
+                                </model>
+                            </modelSequence>
+                            <model predicate="name" behaviour="text">
+                                <param name="content">name</param>
+                            </model>
+                        </modelGrp>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="availability">
+                            <model behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="edition">
+                            <model predicate="ancestor::teiHeader" behaviour="block">
+                                <outputRendition scope="before">content: 'Edition: ';</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="idno">
+                <model predicate="ancestor::biblStruct" behaviour="omit"/>
+                    <model predicate="$parameters?header='short' and @type='filename'" behaviour="inline"/>
+                    <model predicate="ancestor::publicationStmt" behaviour="inline"/>
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="publicationStmt">
+                    <model predicate="$parameters?header='short'" behaviour="inline"/>
+                </elementSpec>
+            <elementSpec ident="publisher" mode="change">
+                    <modelSequence>
+                        <model predicate="ancestor::biblStruct" behaviour="text">
+                            <param name="content">': '</param>
+                        </model>
+                        <model predicate="ancestor::biblStruct" behaviour="inline">
+                            <param name="content" value="."/>
+                            <!-- <outputRendition>color:silver;</outputRendition> -->
+                        </model>
+                    </modelSequence>
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec ident="pubPlace" mode="change">
+                    <model predicate="ancestor::biblStruct" behaviour="inline">
+                        <param name="content" value="."/>
+                        <!-- <outputRendition>color:red;</outputRendition>-->
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="seriesStmt">
+                            <model behaviour="block">
+                                <outputRendition scope="before">content: 'Series: ';</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="fileDesc">
+                    <modelSequence predicate="$parameters?header='short'">
+                        <model behaviour="inline" cssClass="header-short">
+                            <param name="content" value="publicationStmt"/>
+                           <outputRendition scope="after"> content:" - "; </outputRendition>
+                        </model>
+                        <model behaviour="inline" cssClass="header-short">
+                            <param name="content" value="titleStmt"/>
+                        </model>
+                        <!--
+                        <model behaviour="block" cssClass="header-short">
+                            <param name="content" value="editionStmt"/>
+                        </model>
+                        <model behaviour="block" cssClass="header-short">
+                            <param name="content" value="publicationStmt"/>
+                        </model>
+                        -->
+                    </modelSequence>
+                    <model predicate="ancestor::TEI[@type='general-biblio']" behaviour="paragraph">
+                        <param name="content">sourceDesc</param>
+                    </model>
+                    <model predicate="$parameters?teiHeader-type='epidoc'" behaviour="dl" output="web">
+                        <modelSequence>
+                                <modelSequence>
+                                    <model behaviour="heading">
+                                        <param name="level">3</param>
+                                        <param name="content">'Metadata '</param>
+                                    </model>
+                                    <model behaviour="dt">
+                                        <param name="content">'Support '</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content">sourceDesc/msDesc/physDesc/objectDesc/supportDesc/support</param>
+                                    </model>
+                                    <model behaviour="dt">
+                                        <param name="content">'Text '</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content">sourceDesc/msDesc/msContents/msItem/textLang</param>
+                                    </model>                                   
+                                    <model behaviour="dt">
+                                        <param name="content">'Date '</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content">let $finale := if (ends-with(normalize-space(sourceDesc/msDesc/history/origin/origDate),'.')) then () else '. '
+                                        return
+                                            concat(sourceDesc/msDesc/history/origin/origDate,$finale)</param>
+                                    </model>
+                                    <model behaviour="dt">
+                                        <param name="content">'Origin '</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content">let $finale := if (ends-with(sourceDesc/msDesc/history/origin/origPlace,'.')) then () else '. '
+                                        return
+                                            concat(sourceDesc/msDesc/history/origin/origPlace,$finale)</param>
+                                    </model>
+                                    <model behaviour="dt">
+                                        <param name="content">'Provenance'</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content">sourceDesc/msDesc/history/provenance</param>
+                                    </model>
+                                    <model behaviour="dt">
+                                        <param name="content">'Visual Documentation'</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content">sourceDesc/msDesc/additional</param>
+                                    </model>
+                                    <model predicate="notesStmt/note[text()[normalize-space(.)]]" behaviour="dt">
+                                        <param name="content">'Note '</param>
+                                    </model>
+                                    <model predicate="notesStmt/note[text()[normalize-space(.)]]" behaviour="dd">
+                                        <param name="content">notesStmt</param>
+                                    </model>
+                                    <model behaviour="dt">
+                                        <param name="content">'Editors '</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content">titleStmt/respStmt</param>
+                                    </model>
+                                </modelSequence>
+                            
+                            <modelSequence behaviour="dl">
+                                <model behaviour="dt">
+                                    <param name="content">'Publication history'</param>
+                                </model>
+                                <model behaviour="dd">
+                                    <param name="content">../..//div[@type='bibliography']/p</param>
+                                </model>
+                            </modelSequence>
+                        </modelSequence>
+                    </model>
+                </elementSpec>
+            <elementSpec ident="titleStmt" mode="change">
+                            <model output="latex" behaviour="meta">
+                                <param name="content">.</param>
+                            </model>
+                            <model output="fo" behaviour="heading"/>
+                            <modelSequence output="web" predicate="$parameters?header='short'">
+                                <model behaviour="link">
+                                    <param name="content">title</param>
+                                    <param name="link">$parameters?doc</param>
+                                </model>
+                                <model behaviour="block">
+                                    <param name="content">author</param>
+                                </model>
+                            </modelSequence>
+                            <model output="web" behaviour="block"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="TEI">
+                            <model behaviour="document"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="text">
+                    <model behaviour="body">
+                        <outputRendition> max-width: 100%; margin: auto; font-family: Noto, Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif; </outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="time">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="title">
+                    <model predicate="$parameters?header='short'" behaviour="inline">
+                        <outputRendition> text-transform: capitalize;</outputRendition>
+                    </model>
+                    <modelSequence predicate="parent::titleStmt/parent::fileDesc">
+                        <model predicate="preceding-sibling::title" behaviour="text">
+                            <param name="content">' — '</param>
+                        </model>
+                        <model behaviour="inline"/>
+                    </modelSequence>
+                    <model predicate="(@level='a' or @level='s') and ancestor::biblStruct" behaviour="inline">
+                        <outputRendition>font-style:normal;</outputRendition>
+                    </model>
+                    <model predicate="(@level='j' or @level='m')  and ancestor::biblStruct" behaviour="inline">
+                        <outputRendition>font-style:italic;</outputRendition>
+                    </model>
+                    <model predicate="not(@level) and parent::bibl" behaviour="inline"/>
+                    <!--<modelSequence predicate="@level='m' or not(@level)">
+                        <model predicate="ancestor::biblStruct" behaviour="inline">
+                            <outputRendition>font-style: italic;</outputRendition>
+                            <outputRendition scope="before">content:"TITLE: ";</outputRendition>
+                        </model>
+                        <model predicate="ancestor::biblStruct or ancestor::biblFull" behaviour="text">
+                            <param name="content">', '</param>
+                        </model>
+                    </modelSequence>-->
+                    <!--<modelSequence predicate="@level='s' or @level='j'">
+                        <model behaviour="inline">
+                            <outputRendition>font-style: italic;</outputRendition>
+                        </model>
+                        <model predicate="following-sibling::* and     (ancestor::biblStruct  or     ancestor::biblFull)" behaviour="text">
+                            <param name="content">', '</param>
+                        </model>
+                    </modelSequence>-->
+                    <!--<modelSequence predicate="@level='u' or @level='a'">
+                        <model behaviour="inline">
+                            <outputRendition>font-style: italic;</outputRendition>
+                        </model>
+                        <model predicate="following-sibling::* and     (ancestor::biblStruct  or     ancestor::biblFull)" behaviour="text">
+                            <param name="content">'. '</param>
+                        </model>
+                    </modelSequence>-->
+                    <model predicate="@type='short' and ancestor::biblStruct" behaviour="inline" cssClass="vedette">
+                        <outputRendition>font-style: normal;</outputRendition>
+                    </model>
+                    <model behaviour="inline">
+                        <outputRendition>font-style: italic;</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="titlePage">
+                            <model behaviour="block" useSourceRendition="true">
+                                <outputRendition>    text-align: center;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="titlePart">
+                            <model behaviour="block" useSourceRendition="true"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="trailer">
+                            <model behaviour="block">
+                                <outputRendition>color: green;</outputRendition>
+                            </model>
+                        </elementSpec>
+            <elementSpec mode="change" ident="unclear">
+                    <model behaviour="inline">
+                        <outputRendition scope="before">content:"[";</outputRendition>
+                        <outputRendition scope="after">content:"]";</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="w">
+                            <model behaviour="inline"/>
+                        </elementSpec>
+            <elementSpec mode="change" ident="additional">
+                    <model predicate="$parameters?teiHeader-type='epidoc'" behaviour="block"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="app">
+                    <modelSequence predicate="ancestor::div[@type='edition']">
+                        <model predicate="lem" behaviour="inline">
+                            <param name="content">lem</param>
+                        </model>
+                        <model behaviour="popover">
+                            <param name="note-ref">'v'</param>
+                            <param name="pop-title">concat('Variant(s) for ','&lt;i&gt;',lem,'&lt;/i&gt;')</param>
+                            <param name="pop-content">rdg</param>
+                        </model>
+                    </modelSequence>
+                    <model predicate="ancestor::listApp" behaviour="listItem-app">
+                        <modelSequence>
+                            <model behaviour="inline">
+                                    <param name="content">@loc</param>
+                                    <outputRendition> font-weight:bold; </outputRendition>
+                                    <outputRendition scope="before"> content: "(" </outputRendition>
+                                    <outputRendition scope="after"> content: ") " </outputRendition>
+                                    <outputRendition>list-style:none; margin-left:-2em; </outputRendition>
+                                </model>
+                            <model behaviour="inline">
+                                <param name="content">lem</param>
+                                <outputRendition>font-style: italic; color: green;</outputRendition>
+                            </model>
+                            <model predicate="ancestor::div[@type='commentary']" behaviour="inline">
+                                <model behaviour="inline">
+                                    <param name="content">note</param>
+                                </model>
+                            </model>
+                            <model predicate="ancestor::div[@type='apparatus']" behaviour="block">
+                                <param name="content">note</param>
+                            </model>
+                        </modelSequence>
+                        <outputRendition>margin-bottom:1em;</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="authority">
+                    <model behaviour="omit"/>
+                </elementSpec>
+            <elementSpec ident="biblScope" mode="change">
+                    <modelGrp>
+                        <modelSequence predicate="ancestor::biblStruct and @unit='series'">
+                            <model predicate="@unit='series'" behaviour="inline">
+                                <param name="content" value="."/>
+                                <!--                                <outputRendition>color:red;</outputRendition>-->
+                            </model>
+                            <!-- <model predicate="@unit='page'" behaviour="text">
+                            <param name="content">', '</param>
+                        </model>-->
+                        </modelSequence>
+                        <modelSequence predicate="ancestor::biblStruct and @unit='volume'">
+                            <model predicate="monogr/author or monogr/editor" behaviour="text">
+                                <param name="content">', '</param>
+                            </model>
+                            <model predicate="@unit='volume'" behaviour="inline">
+                                <param name="content" value="."/>
+                                <!--                                <outputRendition>color:red;</outputRendition>-->
+                            </model>
+                            <model predicate="@unit='volume'" behaviour="text">
+                                <param name="content">', '</param>
+                            </model>
+                        </modelSequence>
+                        <modelSequence predicate="ancestor::biblStruct and @unit='page'">
+                            <model predicate="@unit='page'" behaviour="inline">
+                                <param name="content" value="."/>
+                                <!--                                <outputRendition>color:red;</outputRendition>-->
+                            </model>
+                            <!-- <model predicate="@unit='page'" behaviour="text">
+                            <param name="content">', '</param>
+                        </model>-->
+                        </modelSequence>
+                    </modelGrp>
+                </elementSpec>
+            <elementSpec mode="change" ident="biblStruct">
+                        <!-- todo : factorize imprint ? -->
+                        <model predicate="parent::listBibl" behaviour="listItem">
+                            
+                            <modelSequence>
+                                <model behaviour="block">
+                                    <modelSequence>
+                                        <!-- le type pour info -->
+                                        <model predicate="./@type" behaviour="inline">
+                                            <param name="content" value="@type"/>
+                                            <outputRendition scope="before">content:'[';</outputRendition>
+                                            <outputRendition scope="after">content:']';</outputRendition>
+                                            <!--                                        <outputRendition>color:silver;</outputRendition>-->
+                                        </model>
+                                        <!-- l'identifiant -->
+                                        <model predicate="./@xml:id" behaviour="inline">
+                                            <param name="content" value="@xml:id"/>
+                                            <outputRendition scope="before">content:'[';</outputRendition>
+                                            <outputRendition scope="after">content:']';</outputRendition>
+                                            <outputRendition/>
+                                        </model>
+                                    </modelSequence>
+                                    <outputRendition>font-size:.75em</outputRendition>
+                                </model>
+                                <!-- le titre court en vedette -->
+                                <modelSequence>
+                                    <model behaviour="block">
+                                        <!-- le titre court -->
+                                        <model predicate=".//title[@type='short']" behaviour="inline">
+                                            <param name="content" value=".//title[@type='short']"/>
+                                            <outputRendition> font-weight:bold; font-style:normal;
+                                            </outputRendition>
+                                        </model>
+                                        <!-- sinon on le construit -->
+                                        <modelSequence behaviour="inline">
+                                            <modelGrp>
+                                                <model predicate=".//author/surname" behaviour="text">
+                                                    <param name="content">.//author/surname</param>
+                                                </model>
+                                                <model predicate=".//author/name" behaviour="text">
+                                                    <param name="content">.//author/name</param>
+                                                </model>
+                                            </modelGrp>
+                                            <model behaviour="text">
+                                                <param name="content">' '</param>
+                                            </model>
+                                            <model behaviour="inline">
+                                                <param name="content">monogr/imprint/date</param>
+                                                <!--<outputRendition>color:green;</outputRendition>-->
+                                            </model>
+                                        </modelSequence>
+                                        <outputRendition>font-weight:bold;</outputRendition>
+                                    </model>
+                                </modelSequence>
+                                <!-- la référence -->
+                                <modelSequence behaviour="block">
+                                    <modelGrp>
+                                        <!-- case 1 -->
+                                        <modelSequence predicate="@type='journalArticle' or @type='bookSection' or @type='encyclopediaArticle'">
+                                            <!-- author -->
+                                            <model behaviour="inline">
+                                                <param name="content">analytic/author</param>
+                                            </model>
+                                            <model behaviour="text">
+                                                <param name="content">', '</param>
+                                            </model>
+                                            <!-- title article -->
+                                            <model behaviour="inline">
+                                                <param name="content">analytic/title[@level='a']</param>
+                                                <outputRendition scope="before">content:'"'; </outputRendition>
+                                                <outputRendition scope="after">content:'"';
+                                                </outputRendition>
+                                            </model>
+                                            <model behaviour="text">
+                                                <param name="content">', '</param>
+                                            </model>
+                                            <!-- if bookSection  or encyclopediaArticle-->
+                                            <modelSequence predicate="@type='bookSection' or @type='encyclopediaArticle'">
+                                                <model predicate="@type='bookSection' or @type='encyclopediaArticle'" behaviour="text">
+                                                    <param name="content">'in '</param>
+                                                </model>
+                                                <model behaviour="inline">
+                                                    <param name="content">monogr/title[@level='m']</param>
+                                                </model>
+                                                <model behaviour="text">
+                                                    <param name="content">', '</param>
+                                                </model>
+                                                <model predicate="monogr/author" behaviour="text">
+                                                    <param name="content">'by '</param>
+                                                </model>
+                                                <model behaviour="inline">
+                                                    <param name="content">monogr/author</param>
+                                                    <!--<outputRendition>color:pink;</outputRendition>-->
+                                                </model>
+                                                <model predicate="monogr/editor" behaviour="text">
+                                                    <param name="content">'edited by '</param>
+                                                </model>
+                                                <model behaviour="inline">
+                                                    <param name="content">monogr/editor</param>
+                                                </model>
+                                            </modelSequence>
+                                            <!-- if journal  -->
+                                            <modelSequence predicate="@type='journalArticle'">
+                                                <model behaviour="inline">
+                                                    <param name="content">monogr/title[@level='j']</param>
+                                                </model>
+                                                <model behaviour="text">
+                                                    <param name="content">', '</param>
+                                                </model>
+                                            </modelSequence>
+                                            <!-- series  -->
+                                            <model predicate=".//series" behaviour="inline">
+                                                <param name="content">series</param>
+                                                <!--                                            <ouputRendition>background-color:yellow;</ouputRendition>-->
+                                            </model>
+                                            <!-- imprint  -->
+                                            <model predicate=".//monogr/imprint" behaviour="inline">
+                                                <param name="content">monogr/imprint</param>
+                                            </model>
+                                            <!-- note  -->
+                                            <modelSequence predicate=".//note">
+                                                <model predicate="./note" behaviour="inline">
+                                                    <param name="content">./note</param>
+                                                    <!--                                                <outputRendition>color:orange; </outputRendition>-->
+                                                </model>
+                                                <model predicate=".//imprint/note" behaviour="inline">
+                                                    <param name="content">./note</param>
+                                                    <!--                                                <outputRendition>color:pink; </outputRendition>-->
+                                                </model>
+                                                <!-- end dot -->
+                                                <model predicate="not(ends-with(.//note,'.'))" behaviour="inline">
+                                                    <!-- maybe too general: to be confirmed-->
+                                                    <param name="content">'.'</param>
+                                                    <!--<outputRendition> color:red; </outputRendition>-->
+                                                </model>
+                                            </modelSequence>
+                                        </modelSequence>
+                                        <!-- case 2 -->
+                                        <modelSequence predicate="@type='book'">
+                                            <!-- author -->
+                                            <model behaviour="inline">
+                                                <param name="content">monogr/author</param>
+                                            </model>
+                                            <model behaviour="text">
+                                                <param name="content">', '</param>
+                                            </model>
+                                            <!-- title book -->
+                                            <model behaviour="inline">
+                                                <param name="content">monogr/title[@level='m']</param>
+                                                <outputRendition scope="before">content:'"'; </outputRendition>
+                                                <outputRendition scope="after">content:'"';
+                                                </outputRendition>
+                                            </model>
+                                            <model behaviour="text">
+                                                <param name="content">', '</param>
+                                            </model>
+                                            <!-- imprint  -->
+                                            <modelSequence predicate="monogr/imprint">
+                                                <model behaviour="inline">
+                                                    <param name="content">monogr/imprint</param>
+                                                </model>
+                                            </modelSequence>
+                                            <!-- note  -->
+                                            <modelSequence predicate="note">
+                                                <model behaviour="inline">
+                                                    <param name="content">note</param>
+                                                    <!--                                                <outputRendition>color:orange</outputRendition>-->
+                                                </model>
+                                                <!-- end dot -->
+                                                <model predicate="not(ends-with(note,'.'))" behaviour="inline">
+                                                    <!-- maybe too general: to be confirmed-->
+                                                    <param name="content">'.'</param>
+                                                    <!--<outputRendition>color:DarkMagenta;</outputRendition>-->
+                                                </model>
+                                            </modelSequence>
+                                        </modelSequence>
+                                    </modelGrp>
+                                </modelSequence>
+                                
+                            </modelSequence>
+                            <outputRendition>margin-bottom:1em;</outputRendition>
+                        </model>
+                    </elementSpec>
+            <elementSpec mode="change" ident="dimensions">
+                    <modelSequence>
+                        <model predicate="ancestor::support" behaviour="inline">
+                            <param name="content">.</param>
+                        </model>
+                        <model predicate="@unit" behaviour="inline">
+                            <param name="content">@unit</param>
+                        </model>
+                    </modelSequence>
+                </elementSpec>
+            <elementSpec mode="change" ident="editor">
+                    <model predicate="ancestor::teiHeader" behaviour="block">
+                        <outputRendition scope="before">content: 'Edited by ';</outputRendition>
+                    </model>
+                    <model predicate="ancestor::biblStruct" behaviour="inline">
+                        <modelGrp>
+                            <modelSequence predicate="surname or forename">
+                                <model behaviour="text">
+                                    <param name="content" value="surname"/>
+                                </model>
+                                <model behaviour="text">
+                                    <param name="content">', '</param>
+                                </model>
+                                <model behaviour="text">
+                                    <param name="content" value="forename"/>
+                                </model>
+                            </modelSequence>
+                            <model predicate="name" behaviour="text">
+                                <param name="content">name</param>
+                            </model>
+                        </modelGrp>
+                        
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="height">
+                    <model predicate="parent::dimensions and following-sibling::*" behaviour="inline">
+                        <outputRendition scope="before">content:"h. ";</outputRendition>    
+                        <outputRendition scope="after">content:" × ";</outputRendition>
+                    </model>
+                    <model predicate="parent::dimensions and not(following-sibling::*)" behaviour="inline">
+                        <outputRendition scope="before">content:"h. ";</outputRendition>    
+                    </model>
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="width">
+                    <model predicate="parent::dimensions and count(following-sibling::*) &gt;= 1" behaviour="inline">
+                        <outputRendition scope="before">content:"w. ";</outputRendition>    
+                        <outputRendition scope="after">content:" × ";</outputRendition>
+                    </model>
+                    <model predicate="parent::dimensions" behaviour="inline">
+                        <outputRendition scope="before">content:"w. ";</outputRendition>    
+                    </model>
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="depth">
+                    <model predicate="parent::dimensions and following-sibling::*" behaviour="inline">
+                        <outputRendition scope="before">content:"d. ";</outputRendition>    
+                        <outputRendition scope="after">content:" × ";</outputRendition>
+                    </model>
+                    <model predicate="parent::dimensions" behaviour="inline">
+                        <outputRendition scope="before">content:"d. ";</outputRendition>    
+                    </model>
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="dim">
+                    <model predicate="@type='diameter' and (parent::dimensions and following-sibling::*)" behaviour="inline">
+                        <outputRendition scope="before">content:"dia. ";</outputRendition>    
+                        <outputRendition scope="after">content:" × ";</outputRendition>
+                    </model>
+                    <model predicate="@type='diameter' and (parent::dimensions and not(following-sibling::*))" behaviour="inline">
+                        <outputRendition scope="before">content:"dia. ";</outputRendition>    
+                    </model>
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec ident="imprint" mode="change">
+                    <!-- seq1-->
+                    <modelSequence predicate="ancestor::biblStruct[@type='book']">
+                        <model predicate="pubPlace" behaviour="inline">
+                            <param name="content" value="pubPlace"/>
+                        </model>
+                        <model predicate="publisher" behaviour="inline">
+                            <param name="content" value="publisher"/>
+                        </model>
+                        <model predicate="(pubPlace or publisher) and (date)" behaviour="text">
+                            <param name="content">', '</param>
+                        </model>
+                        <model predicate="date" behaviour="inline">
+                            <param name="content" value="date"/>
+                        </model>
+                        <model predicate="note" behaviour="inline">
+                            <param name="content" value="note"/>
+                        </model>
+                        <!-- end dot -->
+                        <model predicate="not(ancestor::biblStruct//note)" behaviour="inline">
+                            <!-- too general? -->
+                            <param name="content">'.'</param>
+                            <!--<outputRendition>color:red;</outputRendition>-->
+                        </model>
+                    </modelSequence>
+                    <!-- seq2-->
+                    <modelSequence predicate="ancestor::biblStruct[@type='journalArticle']">
+                        <model predicate="biblScope[@unit='volume']" behaviour="inline">
+                            <param name="content" value="biblScope[@unit='volume']"/>
+                        </model>
+                        <model predicate="biblScope[@unit='issue']" behaviour="inline">
+                            <param name="content" value="biblScope[@unit='issue']"/>
+                        </model>
+                        <model predicate="date" behaviour="inline">
+                            <param name="content" value="date"/>
+                        </model>
+                        <model predicate="../biblScope[@unit='page']" behaviour="text">
+                            <param name="content">': '</param>
+                        </model>
+                        <model predicate="note" behaviour="inline">
+                            <param name="content" value="note"/>
+                        </model>
+                        <!-- end dot -->
+                        <model predicate="not(ancestor::biblStruct//note)" behaviour="inline">
+                            <!-- too general? -->
+                            <param name="content">'.'</param>
+                            <!--                            <outputRendition>color:red;</outputRendition>-->
+                        </model>
+                    </modelSequence>
+                    <!-- seq3-->
+                    <modelSequence predicate="ancestor::biblStruct[@type='encyclopediaArticle'] or ancestor::biblStruct[@type='bookSection']">
+                        <model predicate="biblScope[@unit='volume']" behaviour="inline">
+                            <param name="content" value="biblScope[@unit='volume']"/>
+                        </model>
+                        <model predicate="following-sibling::*" behaviour="text">
+                            <!-- à mettre dans biblScope ? -->
+                            <param name="content">', '</param>
+                        </model>
+                        <model predicate="pubPlace" behaviour="inline">
+                            <param name="content" value="pubPlace"/>
+                        </model>
+                        <model predicate="following-sibling::biblScope[@unit='page']" behaviour="text">
+                            <param name="content">': '</param>
+                        </model>
+                        <model predicate="publisher" behaviour="inline">
+                            <param name="content" value="publisher"/>
+                        </model>
+                        <model predicate="date" behaviour="text">
+                            <param name="content">', '</param>
+                        </model>
+                        <model predicate="date" behaviour="inline">
+                            <param name="content" value="date"/>
+                        </model>
+                        <model predicate="biblScope[@unit='page']" behaviour="text">
+                            <param name="content">': '</param>
+                        </model>
+                        <model predicate="biblScope[@unit='page']" behaviour="inline">
+                            <param name="content" value="biblScope[@unit='page']"/>
+                        </model>
+                        <model predicate="note" behaviour="inline">
+                            <param name="content" value="note"/>
+                        </model>
+                        <!-- end dot -->
+                        <model predicate="not(ancestor::biblStruct//note)" behaviour="inline">
+                            <!-- too general? -->
+                            <param name="content">'.'</param>
+                            <!--                            <outputRendition>color:red;</outputRendition>-->
+                        </model>
+                    </modelSequence>
+                </elementSpec>
+            <elementSpec mode="change" ident="layout">
+                    <model behaviour="inline">
+                        <param name="content">p</param>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="licence">
+                    <model behaviour="omit"/>
+                </elementSpec>
+            <elementSpec ident="listApp" mode="change">
+                <!-- vérifier la pertinence de useSourceRendition -->
+                    <model predicate="@rendition" behaviour="list" useSourceRendition="true">
+                        <param name="content">app</param>
+                    </model>
+                    <model predicate="not(@rendition)" behaviour="list">
+                        <param name="content">app</param>
+                        <outputRendition>list-style:none;</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="msDesc" predicate="$parameters?teiHeader-type='epidoc'">
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="notesStmt">
+                    <model behaviour="list"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="objectDesc">
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="persName">
+                <!--
+                    <model predicate="ancestor::titleStmt and parent::respStmt/following-sibling::respStmt" behaviour="text">
+                        <param name="content">.</param>
+                        <outputRendition scope="after">content:", ";</outputRendition>
+                        <outputRendition> color: green; </outputRendition>
+                    </model>
+                    <model predicate="ancestor::titleStmt and not(parent::respStmt/following-sibling::respStmt)" behaviour="inline">
+                        <param name="content">.</param>
+                        <outputRendition scope="after">content:". ";</outputRendition>
+                        <outputRendition> color: orange; </outputRendition>
+                    </model>
+                    <modelSequence predicate="ancestor::titleStmt and parent::respStmt/following-sibling::respStmt">
+                        <model behaviour="text">
+                            <param name="content">.</param>
+                        </model>
+                        <model behaviour="text">
+                            <param name="content">', '</param>
+                        </model>
+                    </modelSequence>
+                    <modelSequence predicate="ancestor::titleStmt and not(parent::respStmt/following-sibling::respStmt)">
+                        <model behaviour="text">
+                            <param name="content">.</param>
+                        </model>
+                        <model behaviour="text">
+                            <param name="content">'. '</param>
+                        </model>
+                    </modelSequence>
+                    
+                -->
+                    <model predicate="ancestor::titleStmt and parent::respStmt/following-sibling::respStmt" behaviour="inline">
+                        <param name="content">(concat(normalize-space(.),', '))</param>
+                    </model>
+                    <model predicate="ancestor::titleStmt and not(parent::respStmt/following-sibling::respStmt)" behaviour="inline">
+                        <param name="content">(concat(normalize-space(.),'. '))</param>
+                    </model>
+                    <model behaviour="inline">
+                        <!--<outputRendition> color: blue; </outputRendition>-->
+                    </model>
+                    
+                    <!--
+                    <modelSequence>
+                        <modelGrp>
+                            <model predicate="not(following-sibling::*)" behaviour="text">
+                                <param name="content">'. '</param>
+                            </model>
+                            <model predicate="following-sibling::*" behaviour="text">
+                                <param name="content">'- '</param>
+                            </model>
+                        </modelGrp>
+                        <model behaviour="inline">
+                            <param name="content">@ref</param>
+                        </model>
+                    </modelSequence>
+                    -->
+                </elementSpec>
+            <elementSpec mode="change" ident="physDesc">
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="provenance">
+                    <model predicate="parent::history" behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="ptr">
+                    <model predicate="parent::bibl" behaviour="refbibl">
+                        <param name="content">@target</param>
+                        <param name="link">@target</param>
+                        <param name="file">'Pyu-Bibliography.xml'</param>
+                        <param name="prefix">'pyu-bibl'</param>
+                    </model>
+                    <model predicate="ancestor::provenance and not(text())" behaviour="inline">
+                        <param name="content">let $target := substring-after(@target, '#') return ancestor::teiHeader//msIdentifier//idno[@xml:id=$target]</param>
+                    </model>
+                    <model predicate="not(text())" behaviour="link">
+                        <param name="content" value="@target"/>
+                        <param name="uri" value="@target"/>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="rdg">
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="respStmt">
+                    <model predicate="ancestor::titleStmt and count(child::resp[@type='editor'] &gt;= 1)" behaviour="inline">
+                        <param name="content">persName</param>
+                    </model>
+                    <model behaviour="inline">
+                       <!-- <outputRendition> color: red;</outputRendition> -->
+                    </model>
+                </elementSpec>
+            <elementSpec ident="series" mode="change">
+                    <model predicate="ancestor::biblStruct" behaviour="inline">
+                        <modelSequence predicate="series">
+                            <model behaviour="text">
+                                <param name="content">', '</param>
+                            </model>
+                            <model behaviour="text">
+                                <param name="content" value="title[@level='s']"/>
+                            </model>
+                            <model behaviour="text">
+                                <param name="content">', '</param>
+                            </model>
+                            <model behaviour="text">
+                                <param name="content" value="biblScope"/>
+                            </model>
+                        </modelSequence>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="supportDesc">
+                    <model behaviour="inline"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="surrogates">
+                    <model behaviour="block"/>
+                </elementSpec>
+            <elementSpec mode="change" ident="surplus">
+                    <model behaviour="inline">
+                        <outputRendition scope="before">content:"{";</outputRendition>
+                        <outputRendition scope="after">content:"}";</outputRendition>
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="textLang">
+                    <model behaviour="inline">                       
+                        <param name="content">let $finale := if (ends-with(normalize-space(.),'.')) then () else '. ' 
+                            return 
+                            concat(normalize-space(.),$finale)
+                        </param>                     
+                    </model>
+                </elementSpec>
+            <elementSpec mode="change" ident="term">
+                    <model behaviour="inline">
+                        <outputRendition> font-family:"Noto Serif", serif; background-color:#e0f7fa;</outputRendition>
+                    </model>
+                </elementSpec>
+            <outputRendition xml:id="allcaps">text-transform: uppercase;</outputRendition>
+            <outputRendition xml:id="blackletter">font-family: fantasy;</outputRendition>
+            <outputRendition xml:id="bold">font-weight: bold;</outputRendition>
+            <outputRendition xml:id="bottombraced">padding-bottom: 2pt; border-bottom: dashed gray 2pt;</outputRendition>
+            <outputRendition xml:id="block">display:block;</outputRendition>
+            <outputRendition xml:id="boxed">padding: 2pt; border: solid black 1pt;</outputRendition>
+            <outputRendition xml:id="centre">text-align: center;</outputRendition>
+            <outputRendition xml:id="cursive">font-family: cursive;</outputRendition>
+            <outputRendition xml:id="doublestrikethrough">text-decoration: line-through;    color: red;</outputRendition>
+            <outputRendition xml:id="doubleunderline">text-decoration: underline;    color: red;</outputRendition>
+            <outputRendition xml:id="dropcap">font-size : 6em;
+    font-family: cursive;
+    font-weight : bold;
+    vertical-align: top;
+    height: 1em;
+    line-height: 1em;
+    float : left;
+    width : 1em;
+    color : #c00;
+    margin: 0em;
+    padding: 0px;</outputRendition>
+            <outputRendition xml:id="float">float:right;    display: block;
+    font-size: smaller;
+    clear: right;
+    padding: 4pt;
+    width: 15%;
+</outputRendition>
+            <outputRendition xml:id="hyphen"/>
+            <outputRendition xml:id="inline">display:inline;</outputRendition>
+            <outputRendition xml:id="italic">font-style: italic;</outputRendition>
+            <outputRendition xml:id="justify">text-align: justify;</outputRendition>
+            <outputRendition xml:id="larger">font-size: larger;</outputRendition>
+            <outputRendition xml:id="left">text-align: left;</outputRendition>
+            <outputRendition xml:id="leftbraced">padding-left: 2pt; border-left: dotted gray 2pt; </outputRendition>
+            <outputRendition xml:id="letterspace">letter-spacing: 0.5em;</outputRendition>
+            <outputRendition xml:id="literal">font-family:monospace;    white-space:pre;</outputRendition>
+            <outputRendition xml:id="normalstyle">font-style:roman;</outputRendition>
+            <outputRendition xml:id="normalweight">font-weight:normal;</outputRendition>
+            <outputRendition xml:id="right">text-align: right;</outputRendition>
+            <outputRendition xml:id="rightbraced">padding-right: 2pt; border-right: dotted gray 2pt; </outputRendition>
+            <outputRendition xml:id="rotateleft">-webkit-transform: rotate(90deg);    transform: rotate(90deg);</outputRendition>
+            <outputRendition xml:id="rotateright">-webkit-transform: rotate(-90deg);    transform: rotate(-90deg);</outputRendition>
+            <outputRendition xml:id="rules">border: 1px solid black; padding: 2px;border-collapse:collapse;border-spacing:0;</outputRendition>
+            <outputRendition xml:id="smallcaps">font-variant: small-caps;</outputRendition>
+            <outputRendition xml:id="smaller">font-size: smaller;</outputRendition>
+            <outputRendition xml:id="strikethrough">text-decoration: line-through;</outputRendition>
+            <outputRendition xml:id="subscript">vertical-align: bottom;    font-size: smaller;</outputRendition>
+            <outputRendition xml:id="superscript">vertical-align: super;    font-size: smaller;</outputRendition>
+            <outputRendition xml:id="topbraced">padding-top: 2pt;  border-top: dotted gray 2pt; </outputRendition>
+            <outputRendition xml:id="typewriter">font-family:monospace;</outputRendition>
+            <outputRendition xml:id="underline">text-decoration: underline;</outputRendition>
+            <outputRendition xml:id="wavyunderline">text-decoration: underline;       text-decoration-style: wavy;</outputRendition>
+        </body>
+    </text>
+</TEI>

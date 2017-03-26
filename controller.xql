@@ -1,10 +1,15 @@
 xquery version "3.0";
 
+import module namespace login="http://exist-db.org/xquery/login" at "resource:org/exist/xquery/modules/persistentlogin/login.xql";
+
 declare variable $exist:path external;
 declare variable $exist:resource external;
 declare variable $exist:controller external;
 declare variable $exist:prefix external;
 declare variable $exist:root external;
+
+declare variable $logout := request:get-parameter("logout", ());
+declare variable $login := request:get-parameter("user", ());
 
 if ($exist:path eq '') then
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
@@ -14,10 +19,99 @@ if ($exist:path eq '') then
 else if ($exist:path eq "/") then
     (: forward root path to index.xql :)
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <redirect url="index.html"/>
+        <redirect url="works/"/>
     </dispatch>
     
-else if (ends-with($exist:resource, ".html")) then
+else if (contains($exist:path, "/$shared/")) then
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="/shared-resources/{substring-after($exist:path, '/$shared/')}"/>
+    </dispatch>
+    
+else if (contains($exist:path, "/resources")) then
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/resources/{substring-after($exist:path, '/resources/')}"/>
+    </dispatch>
+
+else if (contains($exist:path, "/components")) then
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/components/{substring-after($exist:path, '/components/')}"/>
+    </dispatch>
+
+else if (ends-with($exist:resource, ".xql")) then (
+    login:set-user("org.exist.tei-simple", (), false()),
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/modules/{$exist:resource}"/>
+        <cache-control cache="no"/>
+    </dispatch>
+
+) else if ($logout or $login) then (
+    login:set-user("org.exist.tei-simple", (), false()),
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <redirect url="{replace(request:get-uri(), "^(.*)\?", "$1")}"/>
+    </dispatch>
+    
+) else if (starts-with($exist:path, "/works/")) then (
+    login:set-user("org.exist.tei-simple", (), false()),
+    let $id := replace(xmldb:decode($exist:resource), "^(.*)\..*$", "$1")
+    let $html :=
+        if ($exist:resource = "") then
+            "index.html"
+        else if ($exist:resource = ("browse.html", "search.html", "toc.html", "doc-table.html")) then
+            $exist:resource
+        else
+            "view.html"
+    return
+        if (ends-with($exist:resource, ".epub")) then
+            <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+                <forward url="{$exist:controller}/modules/get-epub.xql">
+                    <add-parameter name="id" value="{$id}"/>
+                </forward>
+                <error-handler>
+                    <forward url="{$exist:controller}/error-page.html" method="get"/>
+                    <forward url="{$exist:controller}/modules/view.xql"/>
+                </error-handler>
+            </dispatch>
+        else if (ends-with($exist:resource, ".tex")) then
+            <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+                <forward url="{$exist:controller}/modules/latex.xql">
+                    <add-parameter name="id" value="{$id}"/>
+                </forward>
+                <error-handler>
+                    <forward url="{$exist:controller}/error-page.html" method="get"/>
+                    <forward url="{$exist:controller}/modules/view.xql"/>
+                </error-handler>
+            </dispatch>
+        else if (ends-with($exist:resource, ".pdf")) then
+            <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+                <forward url="{$exist:controller}/modules/pdf.xql">
+                    <add-parameter name="doc" value="{$id}.xml"/>
+                </forward>
+                <error-handler>
+                    <forward url="{$exist:controller}/error-page.html" method="get"/>
+                    <forward url="{$exist:controller}/modules/view.xql"/>
+                </error-handler>
+            </dispatch>
+        else
+            <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+                <forward url="{$exist:controller}/{$html}"></forward>
+                <view>
+                    <forward url="{$exist:controller}/modules/view.xql">
+                    {
+                        if ($exist:resource != "toc.html") then
+                            <add-parameter name="doc" value="{$id}.xml"/>
+                        else
+                            ()
+                    }
+                        <set-header name="Cache-Control" value="no-cache"/>
+                    </forward>
+                </view>
+                <error-handler>
+                    <forward url="{$exist:controller}/error-page.html" method="get"/>
+                    <forward url="{$exist:controller}/modules/view.xql"/>
+                </error-handler>
+            </dispatch>
+) else if (ends-with($exist:resource, ".html")) then (
+    login:set-user("org.exist.tei-simple", (), false()),
     (: the html page is run through view.xql to expand templates :)
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <view>
@@ -28,39 +122,8 @@ else if (ends-with($exist:resource, ".html")) then
 			<forward url="{$exist:controller}/modules/view.xql"/>
 		</error-handler>
     </dispatch>
-(: Resource paths starting with $shared are loaded from the shared-resources app :)
-else if (contains($exist:path, "/$shared/")) then
-    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="/shared-resources/{substring-after($exist:path, '/$shared/')}">
-            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
-        </forward>
-    </dispatch>
-(:  inscriptions, people, and places directed to the appropriate page :)
-else if (contains($exist:path, "/inscriptions/") or contains($exist:path, "/persons/") or contains($exist:path, "/places/")) then
-    let $id := replace(xmldb:decode($exist:resource), "^(.*)\.\w+$", "$1")
-    let $html := 
-        if ($exist:resource = "") then
-            "index.html"
-        else if (contains($exist:path, "/persons/")) then
-            "person.html"
-        else if (contains($exist:path, "/places/")) then
-            "place.html"
-        else 
-            "viewer.html"
-    return 
-        <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-            <forward url="{$exist:controller}/{$html}"></forward>
-                <view>
-                    <forward url="{$exist:controller}/modules/view.xql">
-                        <add-parameter name="id" value="{$id}"/>
-                    </forward>
-                </view>
-                <error-handler>
-                    <forward url="{$exist:controller}/error-page.html" method="get"/>
-                    <forward url="{$exist:controller}/modules/view.xql"/>
-                </error-handler>
-        </dispatch>
-else
+    
+) else
     (: everything else is passed through :)
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <cache-control cache="yes"/>

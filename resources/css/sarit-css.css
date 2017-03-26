@@ -376,3 +376,4 @@ p {
 
 
 /* General: Styling of links */
+.facet-label {display:block; font-size:1em; margin-left:1em; text-align:left !important;}

@@ -76,10 +76,10 @@ declare function facet:group-by($results as item()*, $facet-definitions as eleme
     for $f in util:eval($path)
     group by $facet-grp := $f
     order by 
-        if($sort/text() = 'value') then $f[1]
+        if($sort/text() = 'value') then $facet-grp[1]
         else count($f)
         descending
-    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{replace($f[1],'pl:','')}"/>
+    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$facet-grp}" label="{replace($facet-grp,'pl:','')}"/>
 };
 
 (:~
@@ -113,10 +113,10 @@ declare function facet:group-by-array($results as item()*, $facet-definitions as
     for $f in $d
     group by $facet-grp := tokenize($f,' ')
     order by 
-        if($sort/text() = 'value') then $f[1]
+        if($sort/text() = 'value') then $facet-grp[1]
         else count($f)
         descending
-    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$f[1]}"/>
+    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$facet-grp[1]}" label="{$facet-grp[1]}"/>
 };
 
 (:~
@@ -209,18 +209,18 @@ declare function facet:lang-type($results as item()*, $facet-definitions as elem
     let $path := concat('$results/',$facet-definitions/facet:group-by/facet:sub-path/text())
     let $sort := $facet-definitions/facet:order-by
     for $f in util:eval($path)
+    group by $facet-grp := $f
     let $label := 
     (:san-Latn is "Sanskrit", pra-Latn is "Middle Indic" [to be converted from mi-Latn], and und is "Unknown":)
-        if($f[1] = ('san-Latn','sa-Latn')) then 'Sanskrit'
-        else if($f[1] = ('pra-Latn','mi-Latn')) then 'Middle Indic'
-        else if($f[1] = ('und','xx')) then 'Unknown'
-        else $f[1]
-    group by $facet-grp := $f
+        if($facet-grp = ('san-Latn','sa-Latn')) then 'Sanskrit'
+        else if($facet-grp = ('pra-Latn','mi-Latn')) then 'Middle Indic'
+        else if($facet-grp = ('und','xx')) then 'Unknown'
+        else $facet-grp
     order by 
-        if($sort/text() = 'value') then $f[1]
+        if($sort/text() = 'value') then $facet-grp
         else count($f)
         descending
-    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$label}"/>
+    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$facet-grp}" label="{$label}"/>
 };
 
 (:~ 

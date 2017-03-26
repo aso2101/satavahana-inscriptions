@@ -5,17 +5,21 @@
  :)
 xquery version "3.0";
 
-import module namespace templates="http://exist-db.org/xquery/templates" ;
+import module namespace templates="http://exist-db.org/xquery/templates";
 
-(: 
- : The following modules provide functions which will be called by the 
+(:
+ : The following modules provide functions which will be called by the
  : templating.
  :)
-import module namespace config="localhost:8080/exist/apps/SAI/config" at "config.xqm";
-import module namespace app="localhost:8080/exist/apps/SAI/templates" at "app.xql";
-import module namespace smap="localhost:8080/exist/apps/SAI/smap" at "map.xql";
+import module namespace config="http://www.tei-c.org/tei-simple/config" at "config.xqm";
+import module namespace app="http://www.tei-c.org/tei-simple/templates" at "app.xql";
+import module namespace pages="http://www.tei-c.org/tei-simple/pages" at "pages.xql";
+import module namespace sai="http://localhost/sai/ext" at "ext-sai.xql";
 
-declare option exist:serialize "method=html5 media-type=text/html enforce-xhtml=yes";
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+
+declare option output:method "html5";
+declare option output:media-type "text/html";
 
 let $config := map {
     $templates:CONFIG_APP_ROOT := $config:app-root,
