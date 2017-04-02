@@ -480,12 +480,12 @@ declare function app:inscriptions-related-to-person($node as node(), $model as m
 declare function app:list-bibitems($node as node(), $model as map(*)) {
     map {
         "bibitems" :=
-            for $bibitem in $config:bibl-authority//tei:bibl
+            for $bibitem in collection($config:bibl-authority-dir)//tei:biblStruct
             let $orderkey :=
-                if ($bibitem/tei:author) then $bibitem/tei:author[1]/tei:name/tei:surname/text()
-                else if ($bibitem/tei:editor) then $bibitem/tei:editor[1]/tei:name/tei:surname/text()
-                else $bibitem/tei:title[1]/text()
-            order by $orderkey,$bibitem/tei:date
+                if ($bibitem//tei:author) then $bibitem//tei:author[1]/tei:name/tei:surname/text()
+                else if ($bibitem//tei:editor) then $bibitem//tei:editor[1]/tei:name/tei:surname/text()
+                else $bibitem//tei:title[1]/text()
+            order by $orderkey,$bibitem//tei:date
             return $bibitem 
     }
 };
@@ -498,7 +498,7 @@ declare function app:bibl-shortname($node as node(), $model as map(*)) {
 
 declare function app:bibitem($node as node(), $model as map(*)) {
     let $bibitem := $model("bibitem")
-    return tei-to-html:bibl($bibitem)
+    return tei-to-html:biblStruct($bibitem)
 };
 
 declare function app:places-inscriptions-located($node as node(), $model as map(*), $type as xs:string?) {
@@ -661,7 +661,7 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
                 let $persons-data := collection(replace($config:remote-data-root,'/data','/contextual/Persons'))//tei:person
                 let $places-data := collection(replace($config:remote-data-root,'/data','/contextual/Places'))//tei:place
                 (: Change to contextual/Bibliography when data has been moved :)
-                let $bibl-data := collection(replace($config:remote-data-root,'/data','/contextual'))//tei:bibl
+                let $bibl-data := collection(replace($config:remote-data-root,'/data','/contextual'))//tei:biblStruct
                 let $path := concat(
                         "($persons-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
                         ",$places-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
@@ -887,7 +887,7 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
     let $root-el := root($r)
     let $type := 
         if(($root-el/name(.) = ('TEI','teiHeader')) or ($root-el/child::*/name(.) = ('TEI','teiHeader'))) then 'Inscription'
-        else if($root-el/child::*/name(.) = ('listBibl','bibl')) then 'Bibliography'
+        else if($root-el/child::*/name(.) = 'biblStruct') then 'Bibliography'
         else if($root-el/child::*/name(.) = 'person') then 'Person'
         else if($root-el/child::*/name(.) = 'place') then 'Place'
         else $root-el/child::*/name(.)

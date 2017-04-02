@@ -40,6 +40,7 @@ declare variable $config:person-authority-dir:= $config:remote-context-root || "
 declare variable $config:place-authority:= doc(concat($config:remote-context-root, "/listPlace.xml"));
 declare variable $config:place-authority-dir:= $config:remote-context-root || "/Places";
 declare variable $config:bibl-authority:= doc(concat($config:remote-context-root, "/listBibl.xml"));
+declare variable $config:bibl-authority-dir:= $config:remote-context-root || "/Bibliography";
 declare variable $config:inventory := doc(concat($config:remote-root, "/textInventory.xml"));
 declare variable $config:remote-download-root:= $config:remote-root || "/download";
 

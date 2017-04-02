@@ -65,7 +65,7 @@ declare function tei-to-html:dispatch($nodes as node()*, $options) as item()* {
             case element(tei:unclear) return tei-to-html:unclear($node,$options)
             
             (: Bibliography and apparatus elements :)
-            case element(tei:bibl) return tei-to-html:bibl($node)
+            case element(tei:biblStruct) return tei-to-html:biblStruct($node)
             case element(tei:listApp) return tei-to-html:listApp($node,$options)
             
             default return tei-to-html:recurse($node, $options)
@@ -203,7 +203,7 @@ declare function tei-to-html:bibliography($node as element(tei:div),$options) as
         { 
             for $x in $node/tei:bibl
             let $id := substring-after($x/tei:ptr/@target,"bibl:")
-            let $target := $config:bibl-authority//tei:bibl[@xml:id=$id]
+            let $target := $config:bibl-authority-dir//tei:biblStruct[@xml:id=$id]
             let $shortname := 
                 if ($x/tei:ptr/text()) 
                 then $x/tei:ptr/text()
@@ -513,7 +513,7 @@ declare function tei-to-html:listApp($node as element(tei:listApp),$options) {
     tei-to-html:recurse($node,$options)    
 };
 
-declare function tei-to-html:bibl($node as element(tei:bibl)) {
+declare function tei-to-html:biblStruct($node as element(tei:biblStruct)) {
     let $type := $node/@type
     return 
         if ($node/ancestor::tei:div[@type='bibliography']) then ()
@@ -533,53 +533,53 @@ declare function tei-to-html:bibl($node as element(tei:bibl)) {
             else "null"
 };
 
-declare function tei-to-html:bibl-book($node as element(tei:bibl)) {
+declare function tei-to-html:bibl-book($node as element(tei:biblStruct)) {
     let $id := string($node/@xml:id)
     let $space := " "
     let $authors :=
-        if ($node/tei:author) then $node/tei:author
-        else $node/tei:editor
+        if ($node//tei:author) then $node//tei:author
+        else $node//tei:editor
     let $authorstring := tei-to-html:author-string($authors)
     let $edstring := 
-        if ($node/tei:editor[2]) then " (eds.)."
-        else if ($node/tei:editor[1]) then " (ed.)."
+        if ($node//tei:editor[2]) then " (eds.)."
+        else if ($node//tei:editor[1]) then " (ed.)."
         else 
             if (ends-with($authorstring,'.')) then " "
             else ". "
-    let $notestring := if ($node/tei:note) then concat(" ",$node/tei:note,".") else ""
-    let $titlestring := $node/tei:title/text()
-    let $pubstring := concat($node/tei:pubPlace/text(),": ",$node/tei:publisher/text(),", ",$node/tei:date/text())
+    let $notestring := if ($node//tei:note) then concat(" ",$node//tei:note,".") else ""
+    let $titlestring := $node//tei:title/text()
+    let $pubstring := concat($node//tei:pubPlace/text(),": ",$node//tei:publisher/text(),", ",$node//tei:date/text())
     return
         <div id="{$id}" type="bibitem">
             {$authorstring}{$edstring}{$space}<em>{$titlestring}.</em>{$space}{$pubstring}.{$notestring}
         </div>
 };
-declare function tei-to-html:bibl-article($node as element(tei:bibl)) {
+declare function tei-to-html:bibl-article($node as element(tei:biblStruct)) {
     let $id := $node/@xml:id
     let $space := " "
     let $authors :=
-        if ($node/tei:author) then $node/tei:author
-        else $node/tei:editor
+        if ($node//tei:author) then $node//tei:author
+        else $node//tei:editor
     let $authorstring := tei-to-html:author-string($authors)
     let $edstring := 
-        if ($node/tei:editor[2]) then " (eds.)."
-        else if ($node/tei:editor[1]) then " (ed.)."
+        if ($node//tei:editor[2]) then " (eds.)."
+        else if ($node//tei:editor[1]) then " (ed.)."
         else 
             if (ends-with($authorstring,'.')) then " "
             else ". "
-    let $notestring := if ($node/tei:note) then concat(" ",$node/tei:note,".") else ""
-    let $titlestring := $node/tei:title[@level="a"]/text()
-    let $journalstring := $node/tei:title[@level="j"]/text()
-    let $voletc := concat($node/tei:biblScope[@unit='vol']/text()," (",$node/tei:date/text(),"): ",$node/tei:biblScope[@unit='pp']/text())
+    let $notestring := if ($node//tei:note) then concat(" ",$node//tei:note,".") else ""
+    let $titlestring := $node//tei:title[@level="a"]/text()
+    let $journalstring := $node//tei:title[@level="j"]/text()
+    let $voletc := concat($node//tei:biblScope[@unit='vol']/text()," (",$node//tei:date/text(),"): ",$node//tei:biblScope[@unit='pp']/text())
     return
         <div type="bibitem" id="{$id}">
         {$authorstring}{$edstring} “{$titlestring}.”{$space}<em>{$journalstring}</em>{$space}{$voletc}..{$notestring}
         </div>
 };
-declare function tei-to-html:bibl-incollection($node as element(tei:bibl)) {
+declare function tei-to-html:bibl-incollection($node as element(tei:biblStruct)) {
     let $id := string($node/@xml:id)
-    let $authors := $node/tei:author
-    let $editors := $node/tei:editor
+    let $authors := $node//tei:author
+    let $editors := $node//tei:editor
     let $authorstring := tei-to-html:author-string($authors)
     let $editorstring := tei-to-html:editor-string($editors)
     let $edstring := 
@@ -587,50 +587,50 @@ declare function tei-to-html:bibl-incollection($node as element(tei:bibl)) {
         else if ($editors[1]) then " (ed.), "
         else ""
     let $volstring :=
-        if ($node/tei:biblScope[@unit='vol']) then concat(", vol. ",$node/tei:biblScope[@unit='vol']/text())
+        if ($node//tei:biblScope[@unit='vol']) then concat(", vol. ",$node//tei:biblScope[@unit='vol']/text())
         else ""
-    let $titlestring := $node/tei:title[@level='a']/text()
-    let $notestring := if ($node/tei:note) then concat(" ",$node/tei:note,".") else ""
-    let $bookstring := $node/tei:title[@level='m']/text()
-    let $pagestring := $node/tei:biblScope[@unit='pp']/text()
-    let $pubstring := concat($node/tei:pubPlace/text(),": ",$node/tei:publisher/text(),", ",$node/tei:date/text())
+    let $titlestring := $node//tei:title[@level='a']/text()
+    let $notestring := if ($node//tei:note) then concat(" ",$node//tei:note,".") else ""
+    let $bookstring := $node//tei:title[@level='m']/text()
+    let $pagestring := $node//tei:biblScope[@unit='pp']/text()
+    let $pubstring := concat($node//tei:pubPlace/text(),": ",$node//tei:publisher/text(),", ",$node//tei:date/text())
     return
         <div id="{$id}" type="bibitem">
             {$authorstring}. “{$titlestring}.” pp. {$pagestring} in {$editorstring}{$edstring} <em>{$bookstring}</em>{$volstring}. {$pubstring}.{$notestring}
         </div>
 };
-declare function tei-to-html:bibl-report($node as element(tei:bibl)) {
+declare function tei-to-html:bibl-report($node as element(tei:biblStruct)) {
     let $id := string($node/@xml:id)
-    let $titlestring := $node/tei:title/text()
-    let $pubstring := concat($node/tei:pubPlace/text(),": ",$node/tei:publisher/text())
+    let $titlestring := $node//tei:title/text()
+    let $pubstring := concat($node//tei:pubPlace/text(),": ",$node//tei:publisher/text())
     return
         <div id="{$id}" type="bibitem">
            <em>{$titlestring}. </em> {$pubstring}.
         </div>
 };
-declare function tei-to-html:bibl-dissertation($node as element(tei:bibl)) {
+declare function tei-to-html:bibl-dissertation($node as element(tei:biblStruct)) {
     let $id := string($node/@xml:id)
-    let $authors := $node/tei:author
+    let $authors := $node//tei:author
     let $authorstring := tei-to-html:author-string($authors)
-    let $title := $node/tei:title/text()
-    let $imprint := concat("PhD Dissertation, ",$node/tei:publisher/text()," ",$node/tei:date/text())
+    let $title := $node//tei:title/text()
+    let $imprint := concat("PhD Dissertation, ",$node//tei:publisher/text()," ",$node//tei:date/text())
     return 
         <div id="{$id}" type="bibitem">
            {$authorstring}. <em>{$title}. </em> {$imprint}.
         </div>
 };
-declare function tei-to-html:bibl-inbook($node as element(tei:bibl)) {
+declare function tei-to-html:bibl-inbook($node as element(tei:biblStruct)) {
     let $id := string($node/@xml:id)
-    let $authors := $node/tei:author
+    let $authors := $node//tei:author
     let $authorstring := tei-to-html:author-string($authors)
-    let $titlestring := $node/tei:title[@level='a']/text()
-    let $notestring := if ($node/tei:note) then concat(" ",$node/tei:note,".") else ""
-    let $bookstring := $node/tei:title[@level='m']/text()
-    let $pagestring := $node/tei:biblScope[@unit='pp']/text()
+    let $titlestring := $node//tei:title[@level='a']/text()
+    let $notestring := if ($node//tei:note) then concat(" ",$node//tei:note,".") else ""
+    let $bookstring := $node//tei:title[@level='m']/text()
+    let $pagestring := $node//tei:biblScope[@unit='pp']/text()
     let $volstring :=
-        if ($node/tei:biblScope[@unit='vol']) then concat(", vol. ",$node/tei:biblScope[@unit='vol']/text())
+        if ($node//tei:biblScope[@unit='vol']) then concat(", vol. ",$node//tei:biblScope[@unit='vol']/text())
         else ""
-    let $pubstring := concat($node/tei:pubPlace/text(),": ",$node/tei:publisher/text(),", ",$node/tei:date/text())
+    let $pubstring := concat($node//tei:pubPlace/text(),": ",$node//tei:publisher/text(),", ",$node//tei:date/text())
     return
         <div id="{$id}" type="bibitem">
             {$authorstring}. “{$titlestring}.” pp. {$pagestring} in <em>{$bookstring}</em>{$volstring}. {$pubstring}.{$notestring}
@@ -662,9 +662,9 @@ declare function tei-to-html:editor-string($nodes) {
 };
 declare function tei-to-html:bibl-shortname($nodes) {
     let $authors := 
-        if ($nodes/tei:author) then $nodes/tei:author
-        else if ($nodes/tei:editor) then $nodes/tei:editor
-        else $nodes/tei:title
+        if ($nodes//tei:author) then $nodes//tei:author
+        else if ($nodes//tei:editor) then $nodes//tei:editor
+        else $nodes//tei:title
     let $authorstring :=
         if ($authors[3]) then
             concat($authors[1]//tei:surname/text()," and ",$authors[2]//tei:surname/text()," et al.")
@@ -674,7 +674,7 @@ declare function tei-to-html:bibl-shortname($nodes) {
             $authors[1]//tei:surname/text()
         else $authors/text()
     let $date := 
-        if ($nodes/tei:date) then $nodes/tei:date/text()
+        if ($nodes//tei:date) then $nodes//tei:date/text()
         else ""
     let $label := ""
     let $shortname := concat($authorstring," ",$date,$label)
