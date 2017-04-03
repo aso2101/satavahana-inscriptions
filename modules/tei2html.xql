@@ -203,7 +203,7 @@ declare function tei-to-html:bibliography($node as element(tei:div),$options) as
         { 
             for $x in $node/tei:bibl
             let $id := substring-after($x/tei:ptr/@target,"bibl:")
-            let $target := $config:bibl-authority-dir//tei:biblStruct[@xml:id=$id]
+            let $target := collection($config:bibl-authority-dir)//tei:biblStruct[@xml:id=$id]
             let $shortname := 
                 if ($x/tei:ptr/text()) 
                 then $x/tei:ptr/text()
