@@ -27,10 +27,12 @@
                         <!--<div class="row" data-template="smap:draw-map"/>-->
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h3 class="panel-title">Map</h3>
+                                <h3 class="panel-title">Map
+                                    <a class="pull-right" data-toggle="collapse" data-target="#map-panel" href="#" title="show/hide map">&#160;</a>
+                                </h3>
                             </div>
-                            <div class="panel-body">
-                                <div class="row" data-template="app:map"/>
+                            <div class="panel-collapse collapse in" id="map-panel">
+                                <div data-template="app:map"/>
                                 <ul id="marker-list"/>
                             </div>
                         </div>

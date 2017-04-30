@@ -10,6 +10,14 @@ import module namespace smap="localhost:8080/exist/apps/SAI/smap" at "lib/map.xq
 import module namespace facet="http://expath.org/ns/facet" at "lib/facet.xqm";
 import module namespace slider = "http://localhost/ns/slider" at "lib/date-slider.xqm";
 
+(: For SAI customization of pages.xql which does not handle current data well :)
+import module namespace pages="http://www.tei-c.org/tei-simple/pages" at "lib/pages.xql";
+import module namespace tpu="http://www.tei-c.org/tei-publisher/util" at "lib/util.xql";
+import module namespace search="http://www.tei-c.org/tei-simple/search" at "search.xql";
+import module namespace odd="http://www.tei-c.org/tei-simple/odd2odd";
+import module namespace pmu="http://www.tei-c.org/tei-simple/xquery/util";
+import module namespace console="http://exist-db.org/xquery/console" at "java:org.exist.console.xquery.ConsoleModule";
+
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 (:
  : Much of this code is adapted from the SARIT project,
@@ -1221,4 +1229,65 @@ declare function app:translate-lang($lang-code as xs:string*){
     else if ($lang-code eq 'hin-Latn') then 'Hindi'
     else if ($lang-code eq 'und') then 'Unknown'
     else ''
+};
+
+(: Special handling for SAI - Returns whole TEI record :)
+
+declare
+    %templates:wrap
+function app:load($node as node(), $model as map(*), $doc as xs:string?, $root as xs:string?,
+    $id as xs:string?, $view as xs:string?) {
+    let $doc := xmldb:decode($doc)
+    let $data :=
+        if ($id) then
+            let $node := collection($config:remote-data-root)//id($doc) 
+            let $config := tpu:parse-pi($node, $view)
+            return 
+                map {
+                    "config": $config,
+                    "data": $node       
+                }
+        else app:load-xml($view, $root, $doc)
+    let $node :=
+        if ($data?data) then
+            $data?data
+        else
+            <TEI xmlns="http://www.tei-c.org/ns/1.0">
+                <teiHeader>
+                    <fileDesc>
+                        <titleStmt>
+                            <title>Not found</title>
+                        </titleStmt>
+                    </fileDesc>
+                </teiHeader>
+                <text>
+                    <body>
+                        <div>
+                            <head>Failed to load!</head>
+                            <p>Could not load document {$doc}. Maybe it is not valid TEI or not in the TEI namespace?</p>
+                            
+                        </div>
+                    </body>
+                </text>
+            </TEI>//tei:div
+    return (:collection($config:remote-data-root)//id($doc):)
+        map {
+            "config": $data?config,
+            "data": $node
+        }
+        
+};
+
+declare function app:load-xml($view as xs:string?, $root as xs:string?, $doc as xs:string) {
+    let $data := app:get-document($doc)
+    let $config := tpu:parse-pi(root($data), $view)
+    return
+        map {
+            "config": $config,
+            "data": $data
+        }
+};
+
+declare function app:get-document($idOrName as xs:string) {
+    collection($config:remote-data-root)//id($idOrName)
 };
