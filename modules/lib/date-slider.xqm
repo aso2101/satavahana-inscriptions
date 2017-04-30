@@ -105,13 +105,13 @@ return
     {if($startDate != '') then
             (<br/>,<a href="?start=1{$params}" class="btn btn-warning btn-sm" role="button"><i class="glyphicon glyphicon-remove-circle"></i> Reset Dates</a>,<br/>)
     else()}
-    <script>
+    <script type="text/javascript">
     <![CDATA[
         var minPadding = "]]>{$minPadding}<![CDATA["
         var maxPadding = "]]>{$maxPadding}<![CDATA["
         var minValue = "]]>{$min}<![CDATA["
         var maxValue = "]]>{$max}<![CDATA["
-        $("#slider").dateRangeSlider( {  
+        $("#slider").dateRangeSlider({  
                         bounds: {
                                 min:  new Date(minPadding),
                                	max:  new Date(maxPadding)

@@ -1,43 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
-    <div class="container">
-        <div class="app:query col-md-12">
-            <div class="hit-count">
-                <p>Found <span id="hit-count" data-template="app:hit-count"/> hits for query <span id="query-name" data-template="app:query-name"/>:</p>
-            </div>
-            <!-- pagination for small device -->
-            <div class="hidden-md hidden-lg hidden-sm">
-                <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="5" data-template-min-hits="21"/>
-            </div>
-            <!-- pagination for larger device -->
-            <div class="hidden-xs pull-right">
-                <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="9" data-template-min-hits="21"/>
-            </div>
-            <!-- query results -->
-            <div class="row">
-                <div class="col-md-3">
-                    <div data-template="app:display-facets" data-template-facet-def="search-facet-def.xml"/>
-                </div>
-                <div class="col-md-7">
-                    <table id="results" class="col-md-12 table">
-                        <colgroup>
-                            <col class="previous"/>
-                            <col class="hi"/>
-                            <col class="next"/>
-                        </colgroup>
-                        <tbody data-template="app:show-hits" data-template-per-page="20" id="results"/>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- bottom pagination for small device -->
-            <div class="hidden-md hidden-lg hidden-sm">
-                <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="5" data-template-min-hits="21"/>
-            </div>
-            <!-- bottom pagination for larger device -->
-            <div class="hidden-xs">
-                <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="9" data-template-min-hits="21"/>
+<div xmlns:i18n="http://exist-db.org/xquery/i18n" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div data-template="templates:include" data-template-path="templates/menu.html"/>
+    <section class="container-fluid sai-content" data-template="app:query">
+        <header class="row" style="margin:2em;">
+        <div class="col-md-12">
+            <div class="page-header">
+                <h2>Search</h2>
             </div>
         </div>
-    </div>
+    </header>
+        <main class="row" style="margin:0 2em;">
+            <div class="col-md-3">
+                <div class="well well-sm">
+                    <h3>Narrow</h3>
+                    <div data-template="app:display-facets" data-template-facet-def="search-facet-def.xml"/>
+                </div>    
+            </div>
+            <div class="col-md-9">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Search Results</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="hit-count">
+                            <p>Found <span id="hit-count" data-template="app:hit-count"/> hits for query <span id="query-name" data-template="app:query-name"/>:</p>
+                        </div>
+                        <!-- pagination for small device -->
+                        <div class="hidden-md hidden-lg hidden-sm">
+                            <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="5" data-template-min-hits="21"/>
+                        </div>
+                        <!-- pagination for larger device -->
+                        <div class="hidden-xs pull-right">
+                            <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="9" data-template-min-hits="21"/>
+                        </div>
+                        <!-- query results -->
+                        <div class="row">
+                            <table id="results" class="col-md-12 table">
+                                <colgroup>
+                                    <col class="previous"/>
+                                    <col class="hi"/>
+                                    <col class="next"/>
+                                </colgroup>
+                                <tbody data-template="app:show-hits" data-template-per-page="20" id="results"/>
+                            </table>
+                        </div>
+                        <!-- bottom pagination for small device -->
+                        <div class="hidden-md hidden-lg hidden-sm">
+                            <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="5" data-template-min-hits="21"/>
+                        </div>
+                        <!-- bottom pagination for larger device -->
+                        <div class="hidden-xs">
+                            <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="9" data-template-min-hits="21"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </main>
+  </section>
 </div>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+<div xmlns:i18n="http://exist-db.org/xquery/i18n" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div data-template="templates:include" data-template-path="templates/menu.html"/>
+    <section class="container-fluid sai-content">
     <div class="container">
         <div class="row">
             <div class="page-header">
@@ -18,9 +20,10 @@
         <!-- This calls the (simple) load function from map.xql. !-->
         <!-- map.xql should also be able to create GeoJSON data
              and load it into the map... !-->
-        <div class="row" data-template="smap:draw-map"/>
-        <ul id="marker-list"/>
+        <!--<div class="row" data-template="smap:draw-map"/>-->
         <div data-template="app:list-places">
+            <div class="row" data-template="app:map"/>
+            <ul id="marker-list"/>
             <div data-template="templates:each" data-template-from="places" data-template-to="place">
                 <h3>
                     <a href="" data-template="app:place-name"/>
@@ -30,4 +33,5 @@
             </div>
         </div>
     </div>
+    </section>
 </div>

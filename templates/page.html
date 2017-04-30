@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<html xmlns="http://www.w3.org/1999/xhtml" data-template="pages:app-root">
+<html data-template="pages:app-root">
     <head>
         <title data-template="config:app-title">App Title</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,14 +7,19 @@
         <link rel="shortcut icon" href="$shared/resources/images/exist_icon_16x16.ico"/>
         <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css"/>
         <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-        <link rel="stylesheet" type="text/css" href="resources/css/bootstrap.min.css"/>
-        <link rel="stylesheet" type="text/css" href="resources/css/bootstrap-material-design.min.css"/>
-        <link rel="stylesheet" type="text/css" href="resources/css/ripples.min.css"/>
-        <link rel="stylesheet" type="text/css" href="resources/css/jquery.fileupload.css"/>
+        <link rel="stylesheet" type="text/css" href="resources/css/vendor/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="resources/css/vendor/bootstrap-material-design.min.css"/>
+        <link rel="stylesheet" type="text/css" href="resources/css/vendor/ripples.min.css"/>
+        <link rel="stylesheet" type="text/css" href="resources/css/vendor/jquery.fileupload.css"/>
         <link rel="stylesheet" type="text/css" href="resources/fonts/font.css"/>
         <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
         <link rel="stylesheet" type="text/css" data-template="pages:styles"/>
+        <link rel="stylesheet" type="text/css" href="resources/css/slider.css"/>
+        <link rel="stylesheet" type="text/css" href="resources/css/slider-classic-min.css"/>
         <link rel="stylesheet" type="text/css" href="resources/css/sarit-css.css"/>
+        <script type="text/javascript" src="resources/scripts/scrollTo.js"/>
+        <script src="resources/scripts/tinysort.min.js"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"/>
         <script type="text/javascript" src="resources/scripts/jquery-1.11.3.min.js"/>
         <script type="text/javascript" src="resources/scripts/bootstrap.min.js"/>
         <script type="text/javascript" src="resources/scripts/material.min.js"/>
@@ -22,36 +27,52 @@
         <script type="text/javascript" src="resources/scripts/bootstrap3-typeahead.min.js"/>
         <script type="text/javascript" src="resources/scripts/jquery.fs.macaroon.min.js"/>
         <script type="text/javascript" src="resources/scripts/app.js"/>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"/>
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"/>
+        <script src="resources/scripts/jQDateRangeSlider-min.js"/>
+        <script src="https://api.mapbox.com/mapbox.js/v3.1.0/mapbox.js"/>
+        <link href="https://api.mapbox.com/mapbox.js/v3.1.0/mapbox.css" rel="stylesheet"/>
+        <!--
         <script src="https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.js"/>
         <link href="https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.css" rel="stylesheet"/>
+        -->        
+        <script type="application/javascript">
+            $(document).ready(function(){
+                $('[data-toggle="tooltip"]').tooltip(); 
+            });
+        </script>
     </head>
-    <body id="body">
+    <body xmlns:i18n="http://exist-db.org/xquery/i18n" id="body" data-template="i18n:translate" data-catalogues="resources/i18n">
         <div id="content"/>
         <div id="loginDialog" class="modal fade" tabindex="-1" style="display: none;">
-            <div class="modal-dialog">
+            <div class="modal-dialog" style="z-index: 1080;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title">Login</h4>
+                        <h4 class="modal-title">
+                            <i18n:text key="login"/>
+                        </h4>
                     </div>
                     <form class="form form-horizontal" action="" method="POST">
                         <div class="modal-body">
                             <div class="form-group">
-                                <label class="control-label col-sm-2">User:</label>
+                                <label class="control-label col-sm-2">
+                                    <i18n:text key="user"/>:</label>
                                 <div class="col-sm-10">
                                     <input type="text" name="user" class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label col-sm-2">Password:</label>
+                                <label class="control-label col-sm-2">
+                                    <i18n:text key="password"/>:</label>
                                 <div class="col-sm-10">
                                     <input type="password" name="password" class="form-control"/>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Login</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i18n:text key="login"/>
+                            </button>
                         </div>
                         <input type="hidden" name="duration" value="P7D"/>
                     </form>
@@ -59,7 +80,7 @@
             </div>
         </div>
         <div id="messageDialog" class="modal fade" tabindex="-1" style="display: none;">
-            <div class="modal-dialog">
+            <div class="modal-dialog" style="z-index: 1080;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -69,28 +90,36 @@
                         <div class="message"/>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" data-dismiss="modal">
+                            <i18n:text key="close"/>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal fade" id="pdf-info">
-            <div class="modal-dialog">
+            <div class="modal-dialog" style="z-index: 1080;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">
                             <span class="fa fa-times" aria-hidden="true"/>
-                            <span class="sr-only">Close</span>
+                            <span class="sr-only">
+                                <i18n:text key="close"/>
+                            </span>
                         </button>
-                        <h4 class="modal-title">Generating File...</h4>
+                        <h4 class="modal-title">
+                            <i18n:text key="generating-file"/>
+                        </h4>
                     </div>
                     <div class="modal-body">
-                        <p>Generating a file for download may take up to a few minutes. Please wait.</p>
-                        <p>This dialog should close automatically when the download has completed.</p>
+                        <p>
+                            <i18n:text key="download-message"/>
+                        </p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">
-                            <i class="glyphicon glyphicon-remove"/> Close</button>
+                            <i class="glyphicon glyphicon-remove"/> <i18n:text key="close"/>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -105,6 +134,8 @@
         <script type="text/javascript" src="$shared/resources/scripts/ace/theme-tomorrow_night.js"/>
         <script type="text/javascript" src="$shared/resources/scripts/ace/theme-dawn.js"/>
         <script type="text/javascript" src="$shared/resources/scripts/highlight.js"/>
+        <script type="text/javascript" src="/exist/apps/SAI/resources/scripts/jquery.qtip.min.js"/>
+        <script type="text/javascript" src="/exist/apps/SAI/resources/scripts/hover.js"/>
         <script type="text/javascript">
             $(document).ready(function() {
                 $(".sourcecode").highlight();

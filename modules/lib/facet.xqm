@@ -188,18 +188,18 @@ declare function facet:element-type($results as item()*, $facet-definitions as e
     let $path := concat('$results/',$facet-definitions/facet:group-by/facet:sub-path/text())
     let $sort := $facet-definitions/facet:order-by
     for $f in util:eval($path)
-    let $label := 
-        if($f[1] = ('TEI','teiHeader')) then 'Inscriptions'
-        else if($f[1] = ('listBibl','bibl')) then 'Bibliography'
-        else if($f[1] = 'person') then 'Person'
-        else if($f[1] = 'place') then 'Place'
-        else $f[1]
     group by $facet-grp := $f
+    let $label := 
+        if($facet-grp = ('TEI','teiHeader')) then 'Inscriptions'
+        else if($facet-grp = ('listBibl','bibl')) then 'Bibliography'
+        else if($facet-grp = 'person') then 'Person'
+        else if($facet-grp = 'place') then 'Place'
+        else $facet-grp
     order by 
-        if($sort/text() = 'value') then $f[1]
+        if($sort/text() = 'value') then $facet-grp
         else count($f)
         descending
-    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$f[1]}" label="{$label}"/>
+    return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$facet-grp}" label="{$label}"/>
 };
 
 (:~
@@ -284,7 +284,7 @@ return
                          facet:get-label($label)   
                       else $label
         return 
-                <span class="label label-facet" title="Remove {$value}">
+                <span class="remove facet" title="Remove {$value}">
                     {concat($fn,': ', $value)} <a href="{$href}" class="facet icon">&#160;<i class="glyphicon glyphicon-remove-circle"></i></a>
                 </span>
     else(),
