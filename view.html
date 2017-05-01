@@ -43,6 +43,8 @@
             });
         </script>
         <script type="text/javascript" src="resources/scripts/app.js"/>
+        <script src="https://api.mapbox.com/mapbox.js/v3.1.0/mapbox.js"/>
+        <link href="https://api.mapbox.com/mapbox.js/v3.1.0/mapbox.css" rel="stylesheet"/>
     </head>
     <body xmlns:i18n="http://exist-db.org/xquery/i18n">
         <div data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content" data-template-using="body">
@@ -96,6 +98,7 @@
                                         <!-- Document pane -->
                                         <div id="content-inner">
                                             <div id="content-container">
+                                                <div data-template="app:inscription-map"/>
                                                 <div data-template="pages:view" class="content"/>
                                             </div>
                                         </div>

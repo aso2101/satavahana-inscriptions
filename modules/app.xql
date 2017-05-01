@@ -18,6 +18,8 @@ import module namespace odd="http://www.tei-c.org/tei-simple/odd2odd";
 import module namespace pmu="http://www.tei-c.org/tei-simple/xquery/util";
 import module namespace console="http://exist-db.org/xquery/console" at "java:org.exist.console.xquery.ConsoleModule";
 
+declare namespace json="http://www.json.org";
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 (:
  : Much of this code is adapted from the SARIT project,
@@ -595,38 +597,60 @@ declare function app:view($node as node(), $model as map(*)) {
         else ()
 }; :)
 
-declare function app:view-map($node as node(), $model as map(*)) {
-    let $inscription := $model("inscription")
+declare function app:inscription-map($node as node(), $model as map(*)) {
+    let $inscription := $model("data")
     let $placename := substring-after($inscription//tei:origPlace/tei:placeName[1]/@key,"pl:")
     let $place := 
         if ($config:place-authority//tei:place[@xml:id = $placename]) 
             then $config:place-authority//tei:place[@xml:id = $placename]
         else collection($config:place-authority-dir)//tei:place[@xml:id = $placename]
-
     return
         if ($place/tei:geo)
         then 
             let $lat := substring-before($place/tei:geo,' ')
             let $long := substring-after($place/tei:geo,' ')
             let $latlong := concat($long,", ",$lat)
+            let $feature := 
+                <json:value>
+                    <type>Feature</type>
+                    <geometry>
+                        <place>{$place}</place>
+                        <type>Point</type>
+                        <coordinates json:literal="true">[{$lat},{$long}]</coordinates>
+                    </geometry>
+                    <properties>
+                        <name>{ $place }</name>
+                        <description>{ $place }</description>
+                        <marker-size>large</marker-size>
+                        <marker-color>#A80000</marker-color>
+                    </properties>
+                </json:value> 
+            let $json := 
+                fn:serialize($feature,
+                <output:serialization-parameters>
+                    <output:method value="json"/>
+                    <output:indent value="yes"/>
+                    <output:media-type value="application/json"/>
+                </output:serialization-parameters>)
             return
-                <section class="accordion">
-                    <div class="map-container">
-                        <input id="ac-1" name="accordion-1" type="checkbox"/>
-                        <label for="ac-1">Map of inscription location ({$placename})</label>
-                            <article>
-                                <div id="map" class="row">
-                                    <script type="text/javascript">
-            L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
-            var geojson = [{ smap:create-data() }];
-            var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
-                        .setView([{$latlong}],8);
-                                    </script>
-                                    <script type="text/javascript" src="/exist/apps/SAI/resources/js/map.js"/>
-                                </div>
-                            </article>
+            <section class="accordion map-panel">
+                <div class="map-container">
+                    <input id="ac-1" name="accordion-1" type="checkbox"/>
+                    <label for="ac-1">Map of inscription location ({$placename})</label>
+                    <article>
+                        <div id="map">
+                        <script type="text/javascript">
+                        L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
+                        var geojson = {$json};
+                        var bounds = L.latLngBounds(geojson);
+                        var map = L.mapbox.map('map', 'aso2101.kbbp2nnh').setView([{$latlong}],8);
+                        </script>
+                        <script type="text/javascript" src="resources/scripts/map.js"/>
+                        <ul id="marker-list"/>
                         </div>
-                    </section>
+                    </article>
+               </div>
+            </section>   
         else ()
 };
 
@@ -1182,7 +1206,7 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
        for $p in $model("places")//tei:geo
        return root($p) 
     else 
-        let $data := if($model("places")) then $model("places") else if($model("persons")) then $model("persons") else $model("hits") 
+        let $data := if($model("places")) then $model("places") else if($model("persons")) then $model("persons") else if($model("data")) then $model("data") else $model("hits") 
         let $places := distinct-values($data//tei:placeName/@key | $data/@xml:id)
         for $p in $places
         let $id := 
@@ -1195,17 +1219,23 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
 
 declare function app:map($node as node(), $model as map(*)) { 
     if(not(empty(app:dynamic-map-data($node, $model)))) then 
-        <div>
-            <div id="map"/>
-            <script type="text/javascript">
-                L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
-                var geojson = {smap:create-data(app:dynamic-map-data($node,$model))};
-                var bounds = L.latLngBounds(geojson);
-                var map = L.mapbox.map('map', 'aso2101.kbbp2nnh'); // centers on Nasik
-                //map.fitBounds(geojson.getBounds());
-            </script>
-            <script type="text/javascript" src="resources/scripts/map.js"/>
-        </div>
+        <div class="map panel panel-default">
+           <div class="panel-heading">
+               <h3 class="panel-title">Map<a class="pull-right" data-toggle="collapse" data-target="#map-panel" href="#" title="show/hide map">&#160;</a></h3>
+           </div>
+           <div class="panel-collapse collapse in" id="map-panel">
+               <div id="map"/>
+               <script type="text/javascript">
+                   L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
+                   var geojson = {smap:create-data(app:dynamic-map-data($node,$model))};
+                   var bounds = L.latLngBounds(geojson);
+                   var map = L.mapbox.map('map', 'aso2101.kbbp2nnh'); // centers on Nasik
+                   //map.fitBounds(geojson.getBounds());
+               </script>
+               <script type="text/javascript" src="resources/scripts/map.js"/>
+               <ul id="marker-list"/>
+           </div>
+       </div>
     else ()
 };
 
