@@ -5,6 +5,7 @@
 a.sai-navbar-brand{ margin: .75em; font-size:1.35em; color:white;}
 
 #map { margin:0px; padding:0px; width:100%; height:400px;  }
+section.accordion.map-panel {margin-left:0 !important; margin-bottom:2em;}
 /* Overrides of Bootstrap */
 .navbar { margin-bottom:0px; }
 a:hover { text-decoration:none }

@@ -9,6 +9,7 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 (:declare option output:method "json";
 declare option output:media-type "application/json";
 :)
+
 (:  This function builds the JSON data from the place authority
     file. This means that the geodata needs to be specified in the
     place authority file if it's going to be presented on the map. :)
