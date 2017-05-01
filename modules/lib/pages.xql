@@ -300,9 +300,48 @@ function pages:table-of-contents($node as node(), $model as map(*)) {
         pages:toc-div(root($model?data), $model?config?view, $current, $model?config?odd)
 };
 
+
 declare %private function pages:toc-div($node, $view as xs:string?, $current as element(), $odd as xs:string) {
     let $view := pages:determine-view($view, $node)
     let $divs := $node//tei:div[tei:head] except $node//tei:div[tei:head]//tei:div
+    (: SAI Modification:)
+    let $metadivs := $node//tei:TEI/*[not(local-name()='text')]
+    let $editiondivs := $node//tei:div[@type][not(@type='textpart')]
+    let $divs := $metadivs union $editiondivs
+    return
+        <ul>
+        {
+            for $div in $divs
+            let $html := for-each($div, function($node) {
+                if ($node/(ancestor::tei:note|ancestor::tei:reg|ancestor::tei:sic)) then
+                    ()
+                else
+                    let $nodename := string(node-name($node))
+                    let $type := string($node/@type)
+                    return
+                   switch ($nodename)
+                       case "facsimile" return "Images"
+                       case "teiHeader" return "Metadata"
+                       case "div" 
+                            return concat(upper-case(substring($type,1,1)),substring($type,2))
+                       default return node-name($node)
+            })
+            (:fin modif:)
+            let $root := (
+                if ($view = "page") then
+                    ($div/*[1][self::tei:pb], $div/preceding::tei:pb[1])[1]
+                else
+                    (),
+                $div
+            )[1]
+            return
+                <li>
+                    <a class="toc-link" href="{util:document-name($div)}?root={util:node-id($root)}&amp;odd={$config:odd}">{$html}</a>
+                    {pages:toc-div($div, $view, $current, $odd)}
+                </li>
+        }
+        </ul>
+    (:
     return
         <ul>
         {
@@ -343,6 +382,7 @@ declare %private function pages:toc-div($node, $view as xs:string?, $current as 
                 </li>
         }
         </ul>
+        :)
 };
 
 declare
