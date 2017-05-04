@@ -604,6 +604,10 @@ declare function app:inscription-map($node as node(), $model as map(*)) {
         if ($config:place-authority//tei:place[@xml:id = $placename]) 
             then $config:place-authority//tei:place[@xml:id = $placename]
         else collection($config:place-authority-dir)//tei:place[@xml:id = $placename]
+    let $name := 
+        if ($place/tei:placeName[@type='ancient']) then 
+            $place/tei:placeName[@type='ancient'][1]/text()
+        else $place/tei:placeName[1]/text()
     return
         if ($place/tei:geo)
         then 
@@ -619,8 +623,8 @@ declare function app:inscription-map($node as node(), $model as map(*)) {
                         <coordinates json:literal="true">[{$lat},{$long}]</coordinates>
                     </geometry>
                     <properties>
-                        <name>{ $place }</name>
-                        <description>{ $place }</description>
+                        <name>{$name}</name>
+                        <description>{$name}</description>
                         <marker-size>large</marker-size>
                         <marker-color>#A80000</marker-color>
                     </properties>
