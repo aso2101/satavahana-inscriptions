@@ -1057,7 +1057,9 @@ function app:person-browse-hits($node as node()*, $model as map(*), $start as xs
             else()
         )}
         <p>Mentioned in these inscriptions:</p>
+        <div class="indent">
         {app:view-hits($p/descendant::tei:TEI, $id)}
+        </div>
     </div>     
 };
 

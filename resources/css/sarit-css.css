@@ -157,6 +157,7 @@ div.body {
 p {
   text-indent:0px;
 }
+.indent {margin-left:2em;}
 /* Formats line-groups (verses):
       These are inline so that following
       <ref> elements can be inline with the
