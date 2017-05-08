@@ -604,10 +604,6 @@ declare function app:inscription-map($node as node(), $model as map(*)) {
         if ($config:place-authority//tei:place[@xml:id = $placename]) 
             then $config:place-authority//tei:place[@xml:id = $placename]
         else collection($config:place-authority-dir)//tei:place[@xml:id = $placename]
-    let $name := 
-        if ($place/tei:placeName[@type='ancient']) then 
-            $place/tei:placeName[@type='ancient'][1]/text()
-        else $place/tei:placeName[1]/text()
     return
         if ($place/tei:geo)
         then 
@@ -623,8 +619,8 @@ declare function app:inscription-map($node as node(), $model as map(*)) {
                         <coordinates json:literal="true">[{$lat},{$long}]</coordinates>
                     </geometry>
                     <properties>
-                        <name>{$name}</name>
-                        <description>{$name}</description>
+                        <name>{ $place }</name>
+                        <description>{ $place }</description>
                         <marker-size>large</marker-size>
                         <marker-color>#A80000</marker-color>
                     </properties>
@@ -903,9 +899,9 @@ let $id := string($rec//@xml:id[1])
 let $path := if($type = 'Bibliography') then 
                     concat('bibliography/',$id)
              else if($type = 'Person') then 
-                    concat('person/',$id)
+                    concat('persons/',$id)
              else if($type = 'Place') then 
-                    concat('place/',$id)                    
+                    concat('places/',$id)                    
              else concat('inscriptions/',$id) 
 return             
     <a href="{$path}" class="search-title">{ $title }</a>
@@ -1036,7 +1032,7 @@ function app:person-browse-hits($node as node()*, $model as map(*), $start as xs
     order by $id
     return 
      <div id="pers-{$id}">
-        <h4><a href="person.html?id={$id}">{$name}</a>
+        <h4>{app:rec-link($p, 'Person', $name)}
             {
             if($p/tei:person/tei:sex/@value) then  concat(' (',string-join($p/tei:person/tei:sex/@value,' '),') ')
             else()
@@ -1304,7 +1300,7 @@ function app:load($node as node(), $model as map(*), $doc as xs:string?, $root a
                     </body>
                 </text>
             </TEI>//tei:div
-    return (:collection($config:remote-data-root)//id($doc):)
+    return 
         map {
             "config": $data?config,
             "data": $node
@@ -1324,4 +1320,19 @@ declare function app:load-xml($view as xs:string?, $root as xs:string?, $doc as 
 
 declare function app:get-document($idOrName as xs:string) {
     collection($config:remote-data-root)//id($idOrName)
+};
+
+(: SAI version of page title, handles titles for persons/places/bibliography items and inscriptions :)
+declare
+    %templates:wrap
+function app:navigation-title($node as node(), $model as map(*)) {
+let $data := $model('data')
+return 
+    if($data//tei:title) then
+        $data//tei:title[1]/text()
+    else if(name($data/*[1]) = 'person') then 
+        $data//tei:persName[1]/text()
+    else if(name($data/*[1]) = 'place') then 
+        $data//tei:placeName[1]/text()        
+    else $data/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]/text()
 };

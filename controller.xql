@@ -71,11 +71,20 @@ else if (ends-with($exist:resource, ".xql")) then (
     		</error-handler>
         </dispatch>
 
-) else if (starts-with($exist:path, "/works/") or starts-with($exist:path, "/inscriptions/")) then (
+) else if (starts-with($exist:path, "/works/") or starts-with($exist:path, "/inscriptions/") or starts-with($exist:path, "/persons/") or starts-with($exist:path, "/places/") or starts-with($exist:path, "/bibliography/")) then (
     login:set-user($config:login-domain, (), false()),
     let $id := replace(xmldb:decode($exist:resource), "^(.*)\..*$", "$1")
     (:let $id := xmldb:decode($exist:resource):)
-    let $path := if(starts-with($exist:path, "/inscriptions/")) then substring-before(substring-after($exist:path, "/inscriptions/"), $exist:resource) else substring-before(substring-after($exist:path, "/works/"), $exist:resource)
+    let $path := 
+        if(starts-with($exist:path, "/inscriptions/")) then 
+            substring-before(substring-after($exist:path, "/inscriptions/"), $exist:resource) 
+        else if(starts-with($exist:path, "/persons/")) then 
+            substring-before(substring-after($exist:path, "/persons/"), $exist:resource)
+        else if(starts-with($exist:path, "/places/")) then 
+            substring-before(substring-after($exist:path, "/places/"), $exist:resource)
+        else if(starts-with($exist:path, "/bibliography/")) then 
+            substring-before(substring-after($exist:path, "/bibliography/"), $exist:resource)
+        else substring-before(substring-after($exist:path, "/works/"), $exist:resource)
     let $mode := request:get-parameter("mode", ())
     let $html :=
         if ($exist:resource = "") then
