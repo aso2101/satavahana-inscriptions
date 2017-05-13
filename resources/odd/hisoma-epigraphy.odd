@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-model href="http://jenkins.tei-c.org/job/TEIP5/lastSuccessfulBuild/artifact/P5/release/xml/tei/odd/p5.nvdl" type="application/xml" schematypens="http://purl.oclc.org/dsdl/nvdl/ns/structure/1.0"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:lang="en">
 	<teiHeader>
@@ -603,7 +604,7 @@
 						</model>
 					</modelSequence>
 					<!-- translation -->
-					<modelSequence predicate="@type='translation' and *[text()[normalize-space(.)]]">
+					<modelSequence predicate="@type='translation' and *[text()[normalize-space(.)]] or @type='edition'">
 						<model behaviour="heading">
 							<param name="level">3</param>
 							<param name="content"> let $plural := if (count(ab) &gt; 1) then 's' else () return concat(upper-case(substring(@type,1,1)),substring(@type,2),$plural) </param>
