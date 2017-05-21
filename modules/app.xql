@@ -12,6 +12,7 @@ import module namespace slider = "http://localhost/ns/slider" at "lib/date-slide
 
 (: For SAI customization of pages.xql which does not handle current data well :)
 import module namespace pages="http://www.tei-c.org/tei-simple/pages" at "lib/pages.xql";
+import module namespace pm-config="http://www.tei-c.org/tei-simple/pm-config" at "pm-config.xql";
 import module namespace tpu="http://www.tei-c.org/tei-publisher/util" at "lib/util.xql";
 import module namespace search="http://www.tei-c.org/tei-simple/search" at "search.xql";
 import module namespace odd="http://www.tei-c.org/tei-simple/odd2odd";
@@ -21,10 +22,10 @@ import module namespace console="http://exist-db.org/xquery/console" at "java:or
 declare namespace json="http://www.json.org";
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
+
 (:
  : Much of this code is adapted from the SARIT project,
  : which was the inspiration for this database. :)
-
 declare function app:generate-place-entry($id as xs:string,$name as xs:string) {
     if ($id instance of xs:NCName)
     then 
@@ -1263,8 +1264,8 @@ declare function app:translate-lang($lang-code as xs:string*){
     else ''
 };
 
-(: Special handling for SAI - Returns whole TEI record :)
 
+(: Special handling for SAI - Returns whole TEI record :)
 declare
     %templates:wrap
 function app:load($node as node(), $model as map(*), $doc as xs:string?, $root as xs:string?,
@@ -1310,6 +1311,7 @@ function app:load($node as node(), $model as map(*), $doc as xs:string?, $root a
         
 };
 
+(: Special handling for SAI - Returns whole TEI record :)
 declare function app:load-xml($view as xs:string?, $root as xs:string?, $doc as xs:string) {
     let $data := app:get-document($doc)
     let $config := tpu:parse-pi(root($data), $view)
@@ -1322,6 +1324,121 @@ declare function app:load-xml($view as xs:string?, $root as xs:string?, $doc as 
 
 declare function app:get-document($idOrName as xs:string) {
     collection($config:remote-data-root)//id($idOrName)
+};
+
+(:~
+ : SAI custom function to display specific child nodes via the TEI Publisher
+ : Allows more flexibility in display, as nodes can be moved around, or filtered through additional XQueries 
+ : @para $node  
+:)
+declare function app:display-node($node as node(), $model as map(*), $path as xs:string?) {
+let $docNode := util:eval(concat("$model?data/",$path))
+let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
+return 
+    if(not(empty($docNode))) then 
+        $html
+    (:
+        <div class="map panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">title</h3>
+            </div>
+            <div class="panel-collapse collapse in" id="map-panel">
+                {$html}
+            </div>
+        </div>    
+      :)  
+    else ()
+};
+
+(:~
+ : SAI custom function to display specific child nodes via the TEI Publisher
+ : Allows more flexibility in display, as nodes can be moved around, or filtered through additional XQueries 
+ : @para $node  
+:)
+declare function app:display-bibl($node as node(), $model as map(*), $path as xs:string?) {
+let $docNode := util:eval(concat("$model?data/",$path))
+let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
+return 
+    if(not(empty($docNode))) then 
+        if($docNode/descendant::tei:ptr) then
+            (<h3>Bibliography</h3>,
+            for $b in $docNode/descendant::tei:bibl
+            let $id := replace($b/tei:ptr/@target,'bibl:','')
+            let $bibRec := collection($config:data-root)//@xml:id[. = $id]
+            return 
+                if(not(empty($bibRec))) then
+                    $pm-config:web-transform(root($bibRec), map { "root": root($docNode) }, $model?config?odd)
+                else 
+                    <div>{string($id)}</div>
+            )
+                
+        else $html
+    else ()
+};
+
+
+(: PYU function adapted for SAI :)
+declare function app:display-tabs($node as node(), $model as map(*), $path as xs:string?) {
+    let $odd := $model?config?odd
+    let $tabs := array {"Logical","Physical","XML"}
+    let $status := if ($tabs = 'Logical') then 'active' else ()
+    return    
+	<div class="{$config:css-content-class}">
+		<!-- heading -->
+        <h3>Edition</h3>
+        <!-- tab card -->
+        <div class="card card-nav-tabs card-plain">        	
+        	<div class="header header-success">
+	        	<!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+	        	<div class="nav-tabs-navigation">
+	        		<div class="nav-tabs-wrapper">       	
+			            <ul class="nav nav-tabs" role="tablist" data-tabs="tabs">
+			                <li role="presentation" class="{$status}"><a href="#{$tabs?1}" aria-controls="..." role="tab" data-toggle="tab">{$tabs?1}</a></li>
+			                <li role="presentation"><a href="#{$tabs?2}" aria-controls="profile" role="tab" data-toggle="tab">{$tabs?2}</a></li>
+			                <li role="presentation"><a href="#{$tabs?3}" aria-controls="profile" role="tab" data-toggle="tab">{$tabs?3}</a></li>
+			            </ul>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="card-content">
+            <div class="tab-content">
+                {   
+                    for $i in 1 to array:size($tabs) 
+                    let $tabId := $tabs($i)
+                    return
+                        app:process-content-tabs($node,$model, $path, $tabId,$odd)
+                }
+            </div>
+		</div>		
+	</div>     
+};
+
+declare function app:process-content-tabs($node as node(), $model as map(*),$path as xs:string?, $tabId as xs:string, $odd as xs:string) {
+    let $docNode := util:eval(concat("$model?data/",$path))
+    let $html := $pm-config:web-transform($docNode, map { "root": root($docNode), "break":$tabId}, $model?config?odd)
+    let $class := if ($html//*[@class = ('margin-note')]) then "margin-right" else ()
+    let $body := pages:clean-footnotes($html)
+    let $status := if ($tabId = 'Logical') then ' active' else ()
+    return
+        <div role="tabpanel" class="tab-pane{$status}" id="{$tabId}">
+        {
+            $body,
+            if ($html//li[@class="footnote"]) then
+                <div class="footnotes">
+                    <ol>
+                    {
+                        for $note in $html//li[@class="footnote"]
+                        order by number($note/@value)
+                        return
+                            $note
+                    }
+                    </ol>
+                </div>
+            else
+                ()
+        }       
+        </div>        
 };
 
 (: SAI version of page title, handles titles for persons/places/bibliography items and inscriptions :)

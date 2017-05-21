@@ -38,7 +38,7 @@
 				<!--  *****************************-->
 				<!-- ==== A ==== -->
 				<elementSpec mode="change" ident="ab">
-					<model predicate="ancestor::div[@type='edition'] and $parameters?break='XML'" behaviour="xml"/>
+					<model predicate="ancestor::div[@type='edition'] and $parameters?break='XML'" behaviour="xml-tab"/>
 					<model predicate="ancestor::div[@type='edition']" behaviour="block"/>
 					<model predicate="ancestor::div[@type='translation']" behaviour="block" cssClass="well"/>
 					<model behaviour="block"/>
@@ -63,11 +63,13 @@
 						<model predicate="lem" behaviour="inline">
 							<param name="content">lem</param>
 						</model>
+						<!--
 						<model behaviour="popover">
 							<param name="note-ref">'v'</param>
 							<param name="pop-title">concat('Variant(s) for ','&lt;i&gt;',lem,'&lt;/i&gt;')</param>
 							<param name="pop-content">rdg</param>
 						</model>
+						-->
 					</modelSequence>
 					<model predicate="ancestor::listApp" behaviour="listItem-app">
 						<modelSequence>
@@ -604,7 +606,7 @@
 						</model>
 					</modelSequence>
 					<!-- translation -->
-					<modelSequence predicate="@type='translation' and *[text()[normalize-space(.)]] or @type='edition'">
+					<modelSequence predicate="@type='translation' and *[text()[normalize-space(.)]]">
 						<model behaviour="heading">
 							<param name="level">3</param>
 							<param name="content"> let $plural := if (count(ab) &gt; 1) then 's' else () return concat(upper-case(substring(@type,1,1)),substring(@type,2),$plural) </param>
@@ -735,7 +737,7 @@
 							<param name="content" value="titleStmt"/>
 						</model>
 					</modelSequence>
-					<model predicate="$parameters?headerType='epidoc'" behaviour="dl" output="web">
+					<model behaviour="dl" output="web">
 						<modelSequence>
 							<modelSequence>
 								<model behaviour="heading">
@@ -802,9 +804,11 @@
 							</modelSequence>
 						</modelSequence>
 					</model>
+					<!--
 					<model behaviour="title">
 						<param name="content" value="titleStmt"/>
 					</model>
+					-->
 				</elementSpec>
 				<!-- ==== G ==== -->
 				<elementSpec mode="change" ident="g">
@@ -1504,7 +1508,7 @@
 					<model output="web" predicate="$parameters?header='short'" behaviour="block"/>
 					<model output="web" predicate="$parameters?headerType='epidoc'" behaviour="block"/>
 					<model output="web" behaviour="metadata"/>
-					<!--<model behaviour="block"/>-->
+					<model output="web" behaviour="block"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="textLang">
 					<model behaviour="inline">

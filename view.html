@@ -105,8 +105,17 @@
                                         <div id="content-inner">
                                             <div id="content-container">
                                                 <!--#SAICustom - Include SAI maps -->
-                                                <div data-template="app:inscription-map"/>
-                                                <div data-template="pages:view" class="content"/>
+
+                                                <!--<div data-template="pages:view" class="content"/>-->
+                                                <div class="content">
+                                                    <div data-template="app:display-node" data-template-path="descendant::tei:fileDesc" class="content"/>
+                                                    <div data-template="app:inscription-map"/>
+                                                    <div data-template="app:display-node" data-template-path="descendant::tei:facsimile" class="content"/>
+                                                    <div data-template="app:display-tabs" data-template-path="descendant::tei:div[@type='edition']" class="content"/>
+                                                    <div data-template="app:display-node" data-template-path="descendant::tei:div[@type='translation']" class="content"/>
+                                                    <div data-template="app:display-node" data-template-path="descendant::tei:div[@type='commentary']" class="content"/>
+                                                    <div data-template="app:display-bibl" data-template-path="descendant::tei:div[@type='bibliography']" class="content"/>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

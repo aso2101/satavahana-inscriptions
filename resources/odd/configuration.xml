@@ -15,9 +15,13 @@
         <property name="class">"article"</property>
         <property name="section-numbers">false()</property>
         <property name="font-size">"12pt"</property>
-    </output><!-- Add custom module --><!--
+    </output>
+    <!-- Add custom module --><!--
                 <output mode="web" odd="teisimple">
                     <module uri="http://my.com" prefix="ext-html" at="xmldb:exist:///db/apps/my-app/modules/ext-html.xql"/>
                 </output>
                 -->
+    <output mode="web" odd="hisoma-epigraphy">
+        <module uri="http://www.hisoma.mom.fr/labs/epigraphy" prefix="ext-html" at="xmldb:exist:///db/apps/SAI/modules/ext-html.xql"/>
+    </output>  
 </modules>
