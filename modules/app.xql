@@ -360,7 +360,7 @@ declare function app:inscriptions-related-to-person-revised($node as node(), $mo
 };
 
 declare function app:person-name-orthography($node as node(), $model as map(*)) {
-    let $id := $model("person")/@xml:id
+    let $id := $model?data/@xml:id
     let $key := concat('pers:',$id)
     let $spellings :=
         for $inscription in collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
@@ -1334,7 +1334,7 @@ declare function app:get-document($idOrName as xs:string) {
  : @para $node  
 :)
 declare function app:display-node($node as node(), $model as map(*), $path as xs:string?) {
-let $docNode := util:eval(concat("$model?data/",$path))
+let $docNode := if($path != '' and $path != 'root()') then util:eval(concat("$model?data/",$path)) else $model?data
 let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
 return 
     if(not(empty($docNode))) then 
@@ -1349,47 +1349,6 @@ return
             </div>
         </div>    
       :)  
-    else ()
-};
-
-declare function app:display-person($node as node(), $model as map(*), $path as xs:string?) {
-let $docNode := $model?data
-let $key := concat('pers:',$docNode/@xml:id)
-let $spellings := 
-        for $inscription in collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
-        let $idno := $inscription//tei:idno/text()
-        let $namestring :=
-            for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
-            return 
-                app:flatten-app($name)
-        (:where $inscription//tei:persName[@key=$key]:)
-        return 
-            if($inscription) then 
-                <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}">{$idno}</a>)</li>
-            else ()
-return 
-    if(not(empty($docNode))) then 
-        (: Output name :)
-        (
-        $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd),
-        if($spellings) then 
-            <div>
-                <h3>Spellings of the name:</h3>
-                <ul>{ $spellings }</ul>
-            </div>
-        else (),
-        app:person-relations($node, $model),
-        app:inscriptions-related-to-person-revised($node, $model)
-        )
-    else ()
-};
-
-declare function app:display-place($node as node(), $model as map(*), $path as xs:string?) {
-let $docNode := util:eval(concat("$model?data/",$path))
-let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
-return 
-    if(not(empty($docNode))) then 
-        $html 
     else ()
 };
 

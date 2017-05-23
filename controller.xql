@@ -93,6 +93,8 @@ else if (ends-with($exist:resource, ".xql")) then (
             "templates/doc-table.html"
         else if ($exist:resource = ("search.html", "toc.html")) then
             $exist:resource
+        else if (starts-with($exist:path, "/persons/")) then
+           "person.html"            
         else
             "view.html"
     return
