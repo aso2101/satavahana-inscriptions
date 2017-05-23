@@ -332,8 +332,7 @@ declare function app:person-name-revised($node as node(), $model as map(*)) {
 };
 
 declare function app:inscriptions-related-to-person-revised($node as node(), $model as map(*)) {
-    (: first get all inscriptions that mention the person :)
-    let $person := $model("person")
+    let $person := $model?data
     let $key := concat('pers:',string($person/@xml:id))
     (: get the root node of all inscriptions that mention the person :)
     let $inscriptions := collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
@@ -384,8 +383,11 @@ declare function app:person-name-orthography($node as node(), $model as map(*)) 
         else ()
 };
 
+(:
+ : Edited for use with TEI Publisher
+:)
 declare function app:person-relations($node as node(), $model as map(*)) {
-    let $id :=  string($model("person")/@xml:id)
+    let $id :=  string($model?data/@xml:id)
     let $hashname := concat('#',string($id))
     (: is there a way to get relations without going to every single <relation> element? :)
     let $relations :=
@@ -1273,7 +1275,7 @@ function app:load($node as node(), $model as map(*), $doc as xs:string?, $root a
     let $doc := xmldb:decode($doc)
     let $data :=
         if ($id) then
-            let $node := collection($config:remote-data-root)//id($doc) 
+            let $node := collection($config:remote-root)//id($doc) 
             let $config := tpu:parse-pi($node, $view)
             return 
                 map {
@@ -1323,7 +1325,7 @@ declare function app:load-xml($view as xs:string?, $root as xs:string?, $doc as 
 };
 
 declare function app:get-document($idOrName as xs:string) {
-    collection($config:remote-data-root)//id($idOrName)
+    collection($config:remote-root)//id($idOrName)
 };
 
 (:~
@@ -1350,6 +1352,47 @@ return
     else ()
 };
 
+declare function app:display-person($node as node(), $model as map(*), $path as xs:string?) {
+let $docNode := $model?data
+let $key := concat('pers:',$docNode/@xml:id)
+let $spellings := 
+        for $inscription in collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
+        let $idno := $inscription//tei:idno/text()
+        let $namestring :=
+            for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
+            return 
+                app:flatten-app($name)
+        (:where $inscription//tei:persName[@key=$key]:)
+        return 
+            if($inscription) then 
+                <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}">{$idno}</a>)</li>
+            else ()
+return 
+    if(not(empty($docNode))) then 
+        (: Output name :)
+        (
+        $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd),
+        if($spellings) then 
+            <div>
+                <h3>Spellings of the name:</h3>
+                <ul>{ $spellings }</ul>
+            </div>
+        else (),
+        app:person-relations($node, $model),
+        app:inscriptions-related-to-person-revised($node, $model)
+        )
+    else ()
+};
+
+declare function app:display-place($node as node(), $model as map(*), $path as xs:string?) {
+let $docNode := util:eval(concat("$model?data/",$path))
+let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
+return 
+    if(not(empty($docNode))) then 
+        $html 
+    else ()
+};
+
 (:~
  : SAI custom function to display specific child nodes via the TEI Publisher
  : Allows more flexibility in display, as nodes can be moved around, or filtered through additional XQueries 
@@ -1364,7 +1407,7 @@ return
             (<h3>Bibliography</h3>,
             for $b in $docNode/descendant::tei:bibl
             let $id := replace($b/tei:ptr/@target,'bibl:','')
-            let $bibRec := collection($config:data-root)//@xml:id[. = $id]
+            let $bibRec := collection($config:data-root)//id($id)
             return 
                 if(not(empty($bibRec))) then
                     $pm-config:web-transform(root($bibRec), map { "root": root($docNode) }, $model?config?odd)
@@ -1382,36 +1425,39 @@ declare function app:display-tabs($node as node(), $model as map(*), $path as xs
     let $odd := $model?config?odd
     let $tabs := array {"Logical","Physical","XML"}
     let $status := if ($tabs = 'Logical') then 'active' else ()
-    return    
-	<div class="{$config:css-content-class}">
-		<!-- heading -->
-        <h3>Edition</h3>
-        <!-- tab card -->
-        <div class="card card-nav-tabs card-plain">        	
-        	<div class="header header-success">
-	        	<!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
-	        	<div class="nav-tabs-navigation">
-	        		<div class="nav-tabs-wrapper">       	
-			            <ul class="nav nav-tabs" role="tablist" data-tabs="tabs">
-			                <li role="presentation" class="{$status}"><a href="#{$tabs?1}" aria-controls="..." role="tab" data-toggle="tab">{$tabs?1}</a></li>
-			                <li role="presentation"><a href="#{$tabs?2}" aria-controls="profile" role="tab" data-toggle="tab">{$tabs?2}</a></li>
-			                <li role="presentation"><a href="#{$tabs?3}" aria-controls="profile" role="tab" data-toggle="tab">{$tabs?3}</a></li>
-			            </ul>
-					</div>
-				</div>
-			</div>
-		</div>
-        <div class="card-content">
-            <div class="tab-content">
-                {   
-                    for $i in 1 to array:size($tabs) 
-                    let $tabId := $tabs($i)
-                    return
-                        app:process-content-tabs($node,$model, $path, $tabId,$odd)
-                }
-            </div>
-		</div>		
-	</div>     
+    return 
+    if(not(empty(util:eval(concat("$model?data/",$path))))) then 
+        <div class="{$config:css-content-class}">
+    		<!-- heading -->
+            <h3>Edition</h3>
+            <!-- tab card -->
+            <div class="card card-nav-tabs card-plain">        	
+            	<div class="header header-success">
+    	        	<!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+    	        	<div class="nav-tabs-navigation">
+    	        		<div class="nav-tabs-wrapper">       	
+    			            <ul class="nav nav-tabs" role="tablist" data-tabs="tabs">
+    			                <li role="presentation" class="{$status}"><a href="#{$tabs?1}" aria-controls="..." role="tab" data-toggle="tab">{$tabs?1}</a></li>
+    			                <li role="presentation"><a href="#{$tabs?2}" aria-controls="profile" role="tab" data-toggle="tab">{$tabs?2}</a></li>
+    			                <li role="presentation"><a href="#{$tabs?3}" aria-controls="profile" role="tab" data-toggle="tab">{$tabs?3}</a></li>
+    			            </ul>
+    					</div>
+    				</div>
+    			</div>
+    		</div>
+            <div class="card-content">
+                <div class="tab-content">
+                    {   
+                        for $i in 1 to array:size($tabs) 
+                        let $tabId := $tabs($i)
+                        return
+                            app:process-content-tabs($node,$model, $path, $tabId,$odd)
+                    }
+                </div>
+    		</div>		
+    	</div>  
+    else ()
+	   
 };
 
 declare function app:process-content-tabs($node as node(), $model as map(*),$path as xs:string?, $tabId as xs:string, $odd as xs:string) {
@@ -1449,9 +1495,9 @@ let $data := $model('data')
 return 
     if($data//tei:title) then
         $data//tei:title[1]/text()
-    else if(name($data/*[1]) = 'person') then 
+    else if(name($data) = 'person') then 
         $data//tei:persName[1]/text()
-    else if(name($data/*[1]) = 'place') then 
+    else if(name($data) = 'place') then 
         $data//tei:placeName[1]/text()        
     else $data/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]/text()
 };
