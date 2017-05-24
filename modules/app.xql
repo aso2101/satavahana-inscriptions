@@ -372,7 +372,7 @@ declare function app:person-name-orthography($node as node(), $model as map(*)) 
         (:where $inscription//tei:persName[@key=$key]:)
         return 
             if($inscription) then 
-                <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}">{$idno}</a>)</li>
+                <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscription/{$inscription/@xml:id}">{$idno}</a>)</li>
             else ()
     return
         if($spellings) then 
@@ -444,7 +444,7 @@ declare function app:person-relations($node as node(), $model as map(*)) {
                 then collection($config:remote-context-root)//tei:person[@xml:id=$otherperson][1]/tei:persName[1]/text()
             else $otherperson
         order by $type
-        return <li><b>{ $label }</b>: <a href="/exist/apps/SAI/persons/{ $otherperson }">{ $otherpersonName }</a></li>
+        return <li><b>{ $label }</b>: <a href="/exist/apps/SAI/person/{ $otherperson }">{ $otherpersonName }</a></li>
     return
         if (empty($list)) then ()
         else
@@ -458,7 +458,7 @@ declare function app:person-name($node as node(), $model as map(*)) {
     let $person := $model("person")
     let $anchor := $person/@xml:id
     return 
-        <h4><a name="{$person/@xml:id}" href="/exist/apps/SAI/persons/{ $anchor }">{ $person/tei:persName/text() }</a></h4>
+        <h4><a name="{$person/@xml:id}" href="/exist/apps/SAI/person/{ $anchor }">{ $person/tei:persName/text() }</a></h4>
 };
 
 declare function app:inscriptions-related-to-person($node as node(), $model as map(*), $type as xs:string?) {
@@ -477,7 +477,7 @@ declare function app:inscriptions-related-to-person($node as node(), $model as m
             (:where $inscription//tei:persName[@key=$key]:)
             return 
                 <span>
-                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
+                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
                     (<em>{ $namestring }</em>)
                 </span>
         }
@@ -524,7 +524,7 @@ declare function app:places-inscriptions-located($node as node(), $model as map(
                 let $idno := $inscription//tei:idno
                 where $inscription//tei:origPlace//tei:placeName[@key=$key]
                 return
-                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
+                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
             }
             </div>
         else ()
@@ -561,7 +561,7 @@ declare function app:places-inscriptions-mentioned($node as node(), $model as ma
                 where $inscription//tei:div[@type='edition']//tei:placeName[@key=$key]
                 return
                     <span>
-                        <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
+                        <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
                         (<em>{ $namestring }</em>)
                     </span>
             }
@@ -902,10 +902,10 @@ let $id := string($rec//@xml:id[1])
 let $path := if($type = 'Bibliography') then 
                     concat('bibliography/',$id)
              else if($type = 'Person') then 
-                    concat('persons/',$id)
+                    concat('person/',$id)
              else if($type = 'Place') then 
-                    concat('places/',$id)                    
-             else concat('inscriptions/',$id) 
+                    concat('place/',$id)                    
+             else concat('inscription/',$id) 
 return             
     <a href="{$path}" class="search-title">{ $title }</a>
 };
@@ -1417,6 +1417,44 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
                 ()
         }       
         </div>        
+};
+
+
+(:~
+ : Get related inscriptions. 
+:)
+declare function app:related-inscriptions($node as node(), $model as map(*)) {
+    let $doc := $model?data
+    let $key := 
+        if(name($doc) = 'person') then 
+            concat('pers:',string($doc/@xml:id))
+        else if(name($doc) = 'place') then 
+            concat('place:',string($doc/@xml:id))   
+        else if($doc/descendant::tei:body/tei:text/tei:biblStruct or name($doc) = 'biblStruct') then 
+            concat('bibl:',string($doc/@xml:id))               
+        else $doc/@xml:id
+    let $inscriptions := collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//@key=$key]
+    let $places := 
+        for $placekey in distinct-values($inscriptions//tei:origPlace/tei:placeName[1]/@key)
+        let $name := 
+            if (contains($placekey,'pl:')) then substring-after($placekey,'pl:')
+            else $placekey
+        let $inscriptions-by-place := $inscriptions[descendant::tei:placeName[@key=$placekey]]
+        order by $name
+        return 
+            <div>
+                <h4>{ $name }</h4>
+                {
+                    app:view-hits($inscriptions-by-place, $placekey)
+                }
+            </div>
+    return 
+        if($places) then 
+            <div>
+                <h3>Mentioned in these inscriptions:</h3>
+                { $places }
+            </div>
+        else ()
 };
 
 (: SAI version of page title, handles titles for persons/places/bibliography items and inscriptions :)

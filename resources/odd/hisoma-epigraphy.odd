@@ -169,10 +169,18 @@
 						<outputRendition>list-style:none;</outputRendition>
 					</model>
 					<model predicate="parent::listBibl" behaviour="listItem"/>
-					<model behaviour="inline" cssClass="bibl">
-						<outputRendition scope="before">content:'T1 ';</outputRendition>
-						<outputRendition> display:inline-block; </outputRendition>
+					<model behaviour="block" cssClass="bibl">
+						<modelSequence>
+							<model behaviour="inline">
+								<param name="content" value="child::*[not(self::ptr)]"/>
+							</model>
+							<model behaviour="inline">
+								<param name="content" value="ptr"/>
+								<outputRendition scope="before">content:' ';</outputRendition>
+							</model>
+						</modelSequence>							
 					</model>
+					
 				</elementSpec>
 				<!-- biblScope-->
 				<elementSpec ident="biblScope" mode="change">
@@ -1321,13 +1329,13 @@
 					<model predicate="parent::history" behaviour="inline"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="ptr">
+					<model predicate="parent::bibl" behaviour="refbibl"/>
+					<!--
 					<model predicate="parent::bibl" behaviour="refbibl">
 						<param name="content">@target</param>
 						<param name="link">@target</param>
-						<!-- now global parameters in modules/config.xqm -->
-						<!--<param name="file">'Pyu-Bibliography.xml'</param>-->
-						<!--<param name="prefix">'pyu-bibl'</param>-->
 					</model>
+					-->
 					<model predicate="not(text()) and @target[starts-with(.,'#')]" behaviour="resolve-pointer">
 						<param name="target">substring-after(@target,'#')</param>
 					</model>
@@ -1390,7 +1398,7 @@
 						<param name="content">@target</param>
 						<param name="link">@target</param>
 					</model>
-					<model behaviour="link">
+					<model behaviour="link2">
 						<param name="content">.</param>
 						<param name="link"> if (starts-with(@target, "#")) then request:get-parameter("doc", ()) || "?odd=" || request:get-parameter("odd", ()) || "&amp;amp;view=" || request:get-parameter("view", ()) || "&amp;amp;id=" || substring-after(@target, '#') else @target </param>
 					</model>

@@ -130,7 +130,18 @@ declare function pmf:xsl-underdotted($config as map(*), $node as element(),
 };
  :)
 
-declare function pmf:link2($config as map(*), $node as element(), $class as xs:string+, $content, $link as item()?) {
+declare function pmf:link2($config as map(*), $node as element(), $class as xs:string?, $content, $link as item()?) {
+let $link :=    
+        if(starts-with($content/@target,'http')) then 
+            $content/@target
+        else if(starts-with($content/@target,'bibl')) then
+            replace($content/@target,'bibl:',concat($config:app-root,'/bibliography/'))
+        else if(starts-with($content/@target,'pers')) then
+            replace($content/@target,'bibl:',concat($config:app-root,'/person/'))
+        else if(starts-with($content/@target,'place')) then
+            replace($content/@target,'bibl:',concat($config:app-root,'/place/'))            
+        else concat($config:app-root,'/inscription/',$content/@target)
+return 							
     <a href="{$link}" class="{$class}">{pmf:apply-children($config, $node, $content)}</a>
 };
 
@@ -347,8 +358,15 @@ declare function pmf:dd($config as map(*), $node as element(), $class as xs:stri
     <dd>{pmf:apply-children($config, $node, $content)}</dd>
 };
 
-declare function pmf:refbibl($config as map(*), $node as element(),
-    $class as xs:string+, $content, $file as xs:string, $prefix as xs:string) {
+declare function pmf:refbibl($config as map(*), $node as element(), $class as xs:string?, $content, 
+$file as xs:string?, $prefix as xs:string?) {
+let $refId := if(contains($content/@target,':')) then substring-after($content/@target,':') else $content/@target
+let $doc := collection($config:remote-root)//id($refId)
+let $title := root($doc)//tei:title[1]/text()[1]
+let $link := concat($config:app-root,'/bibliography/',$refId)
+return 
+<a href="{$link}" title="{$title}" class="refbibl">{$title}</a>
+(:        
         let $prefix := concat ($prefix,':')
         let $target := substring-after($content,$prefix)
         let $doc := doc($config:data-root || '/' || $file)
@@ -365,7 +383,9 @@ declare function pmf:refbibl($config as map(*), $node as element(),
         let $link := $pages:app-root || '/works/' || $file || '?odd=' || $config:odd || '#' || $target
         return 
            <a href="{$link}" title="{$title-long}" class="refbibl">{$title-deb}<span class="hi">{$title-mid}</span>{$title-end}</a>
+:)           
 };
+
 declare function pmf:listItem-app($config as map(*), $node as element(), $class as xs:string+, $content) {
         <li class="{$class}">{pmf:apply-children($config, $node, $content)}</li>
 };

@@ -71,16 +71,16 @@ else if (ends-with($exist:resource, ".xql")) then (
     		</error-handler>
         </dispatch>
 
-) else if (starts-with($exist:path, "/works/") or starts-with($exist:path, "/inscriptions/") or starts-with($exist:path, "/persons/") or starts-with($exist:path, "/places/") or starts-with($exist:path, "/bibliography/")) then (
+) else if (starts-with($exist:path, "/works/") or starts-with($exist:path, "/inscription/") or starts-with($exist:path, "/person/") or starts-with($exist:path, "/place/") or starts-with($exist:path, "/bibliography/")) then (
     login:set-user($config:login-domain, (), false()),
     let $id := replace(xmldb:decode($exist:resource), "^(.*)\..*$", "$1")
     (:let $id := xmldb:decode($exist:resource):)
     let $path := 
-        if(starts-with($exist:path, "/inscriptions/")) then 
-            substring-before(substring-after($exist:path, "/inscriptions/"), $exist:resource) 
-        else if(starts-with($exist:path, "/persons/")) then 
+        if(starts-with($exist:path, "/inscription/")) then 
+            substring-before(substring-after($exist:path, "/inscription/"), $exist:resource)            
+        else if(starts-with($exist:path, "/person/")) then 
             substring-before(substring-after($exist:path, "/persons/"), $exist:resource)
-        else if(starts-with($exist:path, "/places/")) then 
+        else if(starts-with($exist:path, "/place/")) then 
             substring-before(substring-after($exist:path, "/places/"), $exist:resource)
         else if(starts-with($exist:path, "/bibliography/")) then 
             substring-before(substring-after($exist:path, "/bibliography/"), $exist:resource)
@@ -93,8 +93,10 @@ else if (ends-with($exist:resource, ".xql")) then (
             "templates/doc-table.html"
         else if ($exist:resource = ("search.html", "toc.html")) then
             $exist:resource
-        else if (starts-with($exist:path, "/persons/")) then
-           "person.html"            
+        else if (starts-with($exist:path, "/person/")) then
+           "person.html"                
+        else if (starts-with($exist:path, "/bibliography/")) then
+           "bibl.html"            
         else
             "view.html"
     return
