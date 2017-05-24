@@ -505,3 +505,4 @@ h4.slider {display:block; margin:0 0 1.25em; padding: 0 0 1.25em; background-col
 .map .panel-heading a.collapsed:after {
     content:"\e080";
 }
+.bibl-item {display:block; padding:1em;}
