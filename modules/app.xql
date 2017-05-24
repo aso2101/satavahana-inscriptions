@@ -1425,15 +1425,25 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
 :)
 declare function app:related-inscriptions($node as node(), $model as map(*)) {
     let $doc := $model?data
-    let $key := 
+    let $type := 
         if(name($doc) = 'person') then 
-            concat('pers:',string($doc/@xml:id))
+            'person'
         else if(name($doc) = 'place') then 
-            concat('place:',string($doc/@xml:id))   
+            'place'   
         else if($doc/descendant::tei:body/tei:text/tei:biblStruct or name($doc) = 'biblStruct') then 
+            'bibl'               
+        else 'inscription'
+    let $key := 
+        if($type='person') then 
+            concat('pers:',string($doc/@xml:id))
+        else if($type='place') then 
+            concat('place:',string($doc/@xml:id))   
+        else if($type='bibl') then 
             concat('bibl:',string($doc/@xml:id))               
         else $doc/@xml:id
-    let $inscriptions := collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//@key=$key]
+    let $inscriptions := if($type='bibl') then 
+                            collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='bibliography']//@target=$key]
+                         else collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//@key=$key]
     let $places := 
         for $placekey in distinct-values($inscriptions//tei:origPlace/tei:placeName[1]/@key)
         let $name := 

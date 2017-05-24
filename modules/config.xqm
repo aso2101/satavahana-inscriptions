@@ -18,6 +18,7 @@ declare namespace jmx="http://exist-db.org/jmx";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 
 (: SAI configuration options :)
+declare variable $config:app-nav-base:= replace($config:app-root,'/db/','/exist/');
 declare variable $config:remote-root:= substring-before($config:app-root,"SAI") || "SAI-data";
 declare variable $config:remote-data-root:= $config:remote-root || "/data";
 declare variable $config:remote-context-root:= $config:remote-root || "/contextual";

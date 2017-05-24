@@ -135,12 +135,12 @@ let $link :=
         if(starts-with($content/@target,'http')) then 
             $content/@target
         else if(starts-with($content/@target,'bibl')) then
-            replace($content/@target,'bibl:',concat($config:app-root,'/bibliography/'))
+            replace($content/@target,'bibl:',concat($config:app-nav-base,'/bibliography/'))
         else if(starts-with($content/@target,'pers')) then
-            replace($content/@target,'bibl:',concat($config:app-root,'/person/'))
+            replace($content/@target,'bibl:',concat($config:app-nav-base,'/person/'))
         else if(starts-with($content/@target,'place')) then
-            replace($content/@target,'bibl:',concat($config:app-root,'/place/'))            
-        else concat($config:app-root,'/inscription/',$content/@target)
+            replace($content/@target,'bibl:',concat($config:app-nav-base,'/place/'))            
+        else concat($config:app-nav-base,'/inscription/',$content/@target)
 return 							
     <a href="{$link}" class="{$class}">{pmf:apply-children($config, $node, $content)}</a>
 };
@@ -363,9 +363,9 @@ $file as xs:string?, $prefix as xs:string?) {
 let $refId := if(contains($content/@target,':')) then substring-after($content/@target,':') else $content/@target
 let $doc := collection($config:remote-root)//id($refId)
 let $title := root($doc)//tei:title[1]/text()[1]
-let $link := concat($config:app-root,'/bibliography/',$refId)
+let $link := concat($config:app-nav-base,'/bibliography/',$refId)
 return 
-<a href="{$link}" title="{$title}" class="refbibl">{$title}</a>
+(' ', $title, ' ',<a href="{$link}" title="{$title}" class="refbibl">See Work <span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>)
 (:        
         let $prefix := concat ($prefix,':')
         let $target := substring-after($content,$prefix)
