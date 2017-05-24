@@ -150,6 +150,7 @@ declare function app:ruler-name($node as node(), $model as map(*), $type as xs:s
 };
 
 (: Trying to get this to sort by date. :)
+(: @note: possibly depreciated :)
 declare function app:list-inscriptions($node as node(), $model as map(*)) {
   map {
      "inscriptions" := 
@@ -162,7 +163,7 @@ declare function app:list-inscriptions($node as node(), $model as map(*)) {
             $inscription
   }  
 };
-
+(: @note: possibly depreciated :)
 declare function app:list-inscriptions-by-place-mentioned($node as node(), $model as map(*)) {
     map {
         "inscriptions" :=
@@ -177,6 +178,7 @@ declare function app:list-inscriptions-by-place-mentioned($node as node(), $mode
             return $inscription
     }  
 };
+(: @note: possibly depreciated :)
 declare function app:list-inscriptions-by-place-location($node as node(), $model as map(*)) {
     map {
         "inscriptions" :=
@@ -220,6 +222,7 @@ declare function app:inscription-title($node as node(), $model as map(*), $type 
         <a xmlns="http://www.w3.org/1999/xhtml" href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}{$suffix}">{ $title }</a>
 };
 
+(: @note: possibly depreciated :)
 declare function app:inscription-regnal_year($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     let $test := xs:string($model("ruler")/@xml:id)
@@ -233,14 +236,14 @@ declare function app:inscription-regnal_year($node as node(), $model as map(*)) 
         then xs:string($date/@when-custom)
         else ''
 };
-
+(: @note: possibly depreciated :)
 declare function app:inscription-date($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     let $date := $inscription//tei:origDate/text()
     return 
         $date
 };
-
+(: @note: possibly depreciated :)
 declare function app:inscription-id($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     let $id := $inscription//tei:idno
@@ -264,6 +267,7 @@ declare function app:inscription-language($node as node(), $model as map(*)) {
         $script
 };
 
+(: @note: possibly depreciated :)
 (: This also needs work. :)
 declare function app:download-epidoc($node as node(), $model as map(*)) {
     let $doc-path := document-uri(root($model("inscription")))
@@ -273,6 +277,7 @@ declare function app:download-epidoc($node as node(), $model as map(*)) {
 };
 
 (: List of persons. Sorting still needs work. :)
+(: @note: possibly depreciated :)
 declare function app:list-people($node as node(), $model as map(*)) {
     map {
         "people" := 
@@ -291,6 +296,7 @@ declare function app:list-people($node as node(), $model as map(*)) {
     }
 };
 
+(: @note: possibly depreciated :)
 declare 
     %templates:wrap
 function app:person($node as node(), $model as map(*), $key as xs:string) {
@@ -306,12 +312,13 @@ function app:person($node as node(), $model as map(*), $key as xs:string) {
 (:
  : Retrieve person node by xml:id from remote context root directory. 
 :)
+(: @note: possibly depreciated :)
 declare function app:person-revised($node as node(), $model as map(*), $id as xs:string) {
     let $person := collection($config:remote-context-root)//@xml:id[. = $id]/parent::tei:person
     return
         map { "person" := $person }
 };
-
+(: @note: possibly depreciated :)
 declare function app:person-name-revised($node as node(), $model as map(*)) {
     let $person := $model("person")
     let $id := string($person/@xml:id)
@@ -331,6 +338,7 @@ declare function app:person-name-revised($node as node(), $model as map(*)) {
         </div>
 };
 
+(: @note: possibly depreciated use app:related-inscriptions :)
 declare function app:inscriptions-related-to-person-revised($node as node(), $model as map(*)) {
     let $person := $model?data
     let $key := concat('pers:',string($person/@xml:id))
@@ -454,6 +462,7 @@ declare function app:person-relations($node as node(), $model as map(*)) {
             </div>
 };
 
+(: @note: possibly depreciated use teiPublisher :)
 declare function app:person-name($node as node(), $model as map(*)) {
     let $person := $model("person")
     let $anchor := $person/@xml:id
@@ -461,6 +470,7 @@ declare function app:person-name($node as node(), $model as map(*)) {
         <h4><a name="{$person/@xml:id}" href="/exist/apps/SAI/person/{ $anchor }">{ $person/tei:persName/text() }</a></h4>
 };
 
+(: @note: possibly depreciated use app:related-inscriptions :)
 declare function app:inscriptions-related-to-person($node as node(), $model as map(*), $type as xs:string?) {
     let $suffix := if ($type) then "." || $type else ()
     let $personid := $model("person")/@xml:id
@@ -569,6 +579,7 @@ declare function app:places-inscriptions-mentioned($node as node(), $model as ma
         else ()
 };
 
+(: @note: possibly depreciated use teiPublihser :)
 declare function app:view($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     return $inscription
