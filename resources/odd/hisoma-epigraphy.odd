@@ -66,7 +66,7 @@
 						<!--
 						<model behaviour="popover">
 							<param name="note-ref">'v'</param>
-							<param name="pop-title">concat('Variant(s) for ','&lt;i&gt;',lem,'&lt;/i&gt;')</param>
+							<param name="pop-title">concat('Variant(s) for ','<i>',lem,'</i>')</param>
 							<param name="pop-content">rdg</param>
 						</model>
 						-->
@@ -614,6 +614,7 @@
 						<model behaviour="section" cssClass="translation"/>
 					</modelSequence>
 					<!-- transcription -->
+					<model predicate="@type='edition' and $parameters?break='XML'" behaviour="xml-tab"/>
 					<model predicate="@type='edition'" class="edition" behaviour="section">
 						<cssClass>@type</cssClass>
 						<outputRendition>padding: 1em 0; </outputRendition>
