@@ -170,6 +170,7 @@
 					</model>
 					<model predicate="parent::listBibl" behaviour="listItem"/>
 					<model behaviour="inline" cssClass="bibl">
+						<outputRendition scope="before">content:'T1 ';</outputRendition>
 						<outputRendition> display:inline-block; </outputRendition>
 					</model>
 				</elementSpec>
@@ -599,10 +600,13 @@
 					<modelSequence predicate="@type='bibliography'">
 						<model behaviour="heading">
 							<param name="level">3</param>
-							<param name="content">'Secondary bibliography'</param>
+							<param name="content">'Bibliography'</param>
 						</model>
-						<model behaviour="section" cssClass="bibliography-secondary">
+						<model behaviour="section" cssClass="bibliography">
 							<param name="content">listBibl</param>
+						</model>
+						<model behaviour="section" cssClass="bibliography-item">
+							<param name="content">bibl</param>
 						</model>
 					</modelSequence>
 					<!-- translation -->

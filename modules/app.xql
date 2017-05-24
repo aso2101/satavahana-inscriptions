@@ -1352,33 +1352,6 @@ return
     else ()
 };
 
-(:~
- : SAI custom function to display specific child nodes via the TEI Publisher
- : Allows more flexibility in display, as nodes can be moved around, or filtered through additional XQueries 
- : @para $node  
-:)
-declare function app:display-bibl($node as node(), $model as map(*), $path as xs:string?) {
-let $docNode := util:eval(concat("$model?data/",$path))
-let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
-return 
-    if(not(empty($docNode))) then 
-        if($docNode/descendant::tei:ptr) then
-            (<h3>Bibliography</h3>,
-            for $b in $docNode/descendant::tei:bibl
-            let $id := replace($b/tei:ptr/@target,'bibl:','')
-            let $bibRec := collection($config:data-root)//id($id)
-            return 
-                if(not(empty($bibRec))) then
-                    $pm-config:web-transform(root($bibRec), map { "root": root($docNode) }, $model?config?odd)
-                else 
-                    <div>{string($id)}</div>
-            )
-                
-        else $html
-    else ()
-};
-
-
 (: PYU function adapted for SAI :)
 declare function app:display-tabs($node as node(), $model as map(*), $path as xs:string?) {
     let $odd := $model?config?odd
