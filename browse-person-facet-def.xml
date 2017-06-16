@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <facets xmlns="http://expath.org/ns/facet">
     <!-- Need a local function to browse by data type -->
-    <facet-definition name="Place">
+    <facet-definition name="Place of attestation">
         <group-by>
             <sub-path>descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+    <facet-definition name="Place of residence">
+        <group-by>
+            <sub-path>tei:person//tei:placeName/@key</sub-path>
         </group-by>
         <max-values show="5">40</max-values>
         <order-by direction="ascending">count</order-by>
