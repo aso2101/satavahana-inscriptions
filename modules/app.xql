@@ -506,7 +506,7 @@ declare function app:bibl-shortname($node as node(), $model as map(*)) {
 
 declare function app:bibitem($node as node(), $model as map(*)) {
     let $bibitem := $model("bibitem")
-    return $bibitem (:tei-to-html:biblStruct($bibitem):)
+    return $bibitem
 };
 
 declare function app:places-inscriptions-located($node as node(), $model as map(*), $type as xs:string?) {
@@ -655,6 +655,7 @@ declare function app:inscription-map($node as node(), $model as map(*)) {
                </div>
             </section>   
         else ()
+        
 };
 
 (:

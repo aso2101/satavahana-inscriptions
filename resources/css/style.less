@@ -1,9 +1,15 @@
 // out: style.css, sourcemap: true, compress: true
+// These are the project-specific additions of the SAI
+// (Sātavāhana Inscriptions) database to the main
+// TEI Publisher model.
+
 @charset "UTF-8";
 
 // Core --------------------------- //
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400|Oswald');
+// use Noto instead of Oswald
+// @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400|Oswald');
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans|Noto+Serif|Open+Sans|Oswald:300|Roboto');
 //@import "_default-variables.less";
 @import "_base.less";
 @import "_utilities.less";
@@ -91,9 +97,9 @@
 
 /********************* Fonts ************************/
 
-@font-serif:                      "Junicode", Georgia, "Times New Roman", serif;
+@font-serif:                      "Noto Serif", Georgia, "Times New Roman", serif;
 @font-sans-serif:                 "Oswald", Verdana, "Helvetica", sans-serif;
-@font-sans-serif-default:         "Open Sans", Verdana, "Helvetica", sans-serif;
+@font-sans-serif-default:         "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
 @font-monospace:                  "Ubuntu Mono", Menlo, Consolas, Courier, monospace;
 
 // Body
