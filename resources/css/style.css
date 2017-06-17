@@ -675,6 +675,11 @@ body.tei-text {
 /* All content styling should go here.                               */
 /* Do not modify other .less files except this one                   */
 /*********************************************************************/
+.modal-backdrop,
+.modal-backdrop.in {
+  opacity: 0 !important;
+  background: #000000 !important;
+}
 #content-inner .content h1,
 #content-inner .content h2,
 #content-inner .content h3,

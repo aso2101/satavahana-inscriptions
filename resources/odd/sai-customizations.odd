@@ -19,6 +19,25 @@
 <text>
   <body>
     <schemaSpec start="TEI teiCorpus" source="hisoma-epigraphy.odd" ident="sai-customizations">
+                <elementSpec mode="change" ident="facsimile">
+                    <model predicate="$parameters?modal='true'" behaviour="image-modals">
+                    	<param name="images">graphic</param>
+                    </model>
+					<modelSequence>
+					    <model behaviour="heading">
+							<param name="level">3</param>
+							<param name="content">'Facsimiles '</param>
+						</model>
+						<model behaviour="images">
+							<param name="content">graphic</param>
+						</model>
+					</modelSequence>
+				</elementSpec>
+                <elementSpec mode="change" ident="graphic">
+					<model behaviour="graphic">
+						<param name="url">@url</param>
+					</model>
+				</elementSpec>
 				<elementSpec mode="change" ident="fileDesc">
 					<modelSequence predicate="$parameters?header='short'">
 						<model behaviour="inline" cssClass="header-short">

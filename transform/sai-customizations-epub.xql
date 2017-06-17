@@ -482,10 +482,7 @@ else
                                                                         else
                                                                             $config?apply($config, ./node())
                 case element(graphic) return
-                    if (parent::facsimile and $parameters?teiHeader-type='epidoc') then
-                        html:link($config, ., ("tei-graphic1"), ., ())
-                    else
-                        html:graphic($config, ., ("tei-graphic2"), ., @url, (), (), 0.5, desc)
+                    html:graphic($config, ., ("tei-graphic"), ., @url, (), (), (), ())
                 case element(group) return
                     epub:block($config, ., ("tei-group"), .)
                 case element(head) return
@@ -1591,6 +1588,17 @@ else
 
                     else
                         epub:block($config, ., ("tei-titleStmt4"), .)
+                case element(facsimile) return
+                    if ($parameters?modal='true') then
+                        (: No function found for behavior: image-modals :)
+                        $config?apply($config, ./node())
+                    else
+                        (
+                            html:heading($config, ., ("tei-facsimile2"), 'Facsimiles ', 3),
+                            (: No function found for behavior: images :)
+                            $config?apply($config, ./node())
+                        )
+
                 case element(exist:match) return
                     html:match($config, ., .)
                 case element() return

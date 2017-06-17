@@ -478,10 +478,7 @@ else
                                                                         else
                                                                             $config?apply($config, ./node())
                 case element(graphic) return
-                    if (parent::facsimile and $parameters?teiHeader-type='epidoc') then
-                        html:link($config, ., ("tei-graphic1"), ., ())
-                    else
-                        html:graphic($config, ., ("tei-graphic2"), ., @url, (), (), 0.5, desc)
+                    ext-html:graphic($config, ., ("tei-graphic"), @url)
                 case element(group) return
                     html:block($config, ., ("tei-group"), .)
                 case element(head) return
@@ -1658,6 +1655,15 @@ else
 
                     else
                         html:block($config, ., ("tei-titleStmt4"), .)
+                case element(facsimile) return
+                    if ($parameters?modal='true') then
+                        ext-html:image-modals($config, ., ("tei-facsimile1"), graphic)
+                    else
+                        (
+                            html:heading($config, ., ("tei-facsimile2"), 'Facsimiles ', 3),
+                            ext-html:images($config, ., ("tei-facsimile3"), graphic)
+                        )
+
                 case element(exist:match) return
                     html:match($config, ., .)
                 case element() return

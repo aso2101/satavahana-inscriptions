@@ -67,14 +67,6 @@ div.hit-count {
 .sai-number {display:inline-block; margin: 0 2em;}
 .reference .kwic {background-color:#f4f4f4; padding-left:6em;}
 
-/* Overwrites some bootstrap defaults */
-.modal-backdrop, 
-.modal-backdrop.fade.in{
-opacity: 0.85 !important;
-filter: alpha(opacity=85) !important;
-background: #ffffff;
-}
-
 /* slider styles */
 h4.slider {display:block; margin:0 0 1em;padding: 0 0 1em;}
 .slider-container {display:block; min-height: 20px; padding:1em 0;}

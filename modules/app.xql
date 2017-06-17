@@ -1362,6 +1362,15 @@ return
       :)  
     else ()
 };
+(: this is jugar, since the modal can't be programmatically placed at the bottom of the page
+ : due to the templating functions, and so it's covered by the backdrop. i've made the backdrop
+ : transparent in the css, but it would be nice to fix this for real. :)
+declare function app:display-modal($node as node(), $model as map(*), $path as xs:string?) {
+let $docNode := if($path != '' and $path != 'root()') then util:eval(concat("$model?data/",$path)) else $model?data
+let $html := $pm-config:web-transform($docNode, map { "modal" : "true" }, $model?config?odd)
+return 
+    if(not(empty($docNode))) then $html else ()
+};
 
 (: PYU function adapted for SAI :)
 declare function app:display-tabs($node as node(), $model as map(*), $path as xs:string?) {

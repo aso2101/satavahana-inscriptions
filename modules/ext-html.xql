@@ -358,6 +358,47 @@ declare function pmf:dd($config as map(*), $node as element(), $class as xs:stri
     <dd>{pmf:apply-children($config, $node, $content)}</dd>
 };
 
+(: modal for images, AO, june 17 2017 :)
+declare function pmf:images($config as map(*), $node as element(), $class as xs:string+,$content) {
+    <div class="row">
+        <div class="col-md-4">{pmf:apply-children($config,$node,$content)}</div>
+    </div>
+};
+declare function pmf:graphic($config as map(*), $node as element(), $class as xs:string+,$url) {
+let $x := fn:substring-before(fn:substring-after($url,"images/"),".")
+return
+    <div class="col-lg-3 col-md-4 col-xs-6 thumb">
+        <a class="thumbnail" href="#" data-toggle="modal" data-target="#{$x}">
+            <img class="img-rounded" alt="" src="{concat("/exist/apps/SAI-data/",$url)}"></img>
+        </a>
+    </div>
+};
+declare function pmf:image-modals($config as map(*), $node as element(), $class as xs:string+,$images) {
+let $modals := 
+    for $i in $images
+    let $url := fn:string($i/@url)
+    let $id := fn:substring-before(fn:substring-after($url,"images/"),".")
+    return 
+    <div id="{$id}" class="modal text-left"  tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">x</button>
+                    <h3>Facsimiles</h3>
+                </div>
+                <div class="modal-body">
+                    <img class="img-responsive center-block" src="{concat("/exist/apps/SAI-data/",$url)}"></img>
+                    <p class="text-center">{$i/tei:desc}</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+return if($modals) then $modals else ()
+};
+
 declare function pmf:refbibl($config as map(*), $node as element(), $class as xs:string?, $content, 
 $file as xs:string?, $prefix as xs:string?) {
 let $refId := if(contains($content/@target,':')) then substring-after($content/@target,':') else $content/@target

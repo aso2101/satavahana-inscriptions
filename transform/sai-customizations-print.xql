@@ -482,10 +482,7 @@ else
                                                                         else
                                                                             $config?apply($config, ./node())
                 case element(graphic) return
-                    if (parent::facsimile and $parameters?teiHeader-type='epidoc') then
-                        fo:link($config, ., ("tei-graphic1"), ., ())
-                    else
-                        fo:graphic($config, ., ("tei-graphic2"), ., @url, (), (), 0.5, desc)
+                    fo:graphic($config, ., ("tei-graphic"), ., @url, (), (), (), ())
                 case element(group) return
                     fo:block($config, ., ("tei-group"), .)
                 case element(head) return
@@ -1555,6 +1552,17 @@ else
                 case element(titleStmt) return
                     (: No function found for behavior: headerType :)
                     $config?apply($config, ./node())
+                case element(facsimile) return
+                    if ($parameters?modal='true') then
+                        (: No function found for behavior: image-modals :)
+                        $config?apply($config, ./node())
+                    else
+                        (
+                            fo:heading($config, ., ("tei-facsimile2"), 'Facsimiles '),
+                            (: No function found for behavior: images :)
+                            $config?apply($config, ./node())
+                        )
+
                 case element() return
                     if (namespace-uri(.) = 'http://www.tei-c.org/ns/1.0') then
                         $config?apply($config, ./node())
