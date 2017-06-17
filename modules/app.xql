@@ -1223,7 +1223,7 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
        return root($p) 
     else 
         let $data := if($model("places")) then $model("places") else if($model("persons")) then $model("persons") else if($model("data")) then $model("data") else $model("hits") 
-        let $places := distinct-values($data//tei:placeName/@key | $data/@xml:id)
+        let $places := if($model("places") | $model("persons")) then distinct-values($data//tei:placeName/@key | $data/@xml:id) else distinct-values($data//tei:origPlace/tei:placeName/@key | $data/@xml:id) 
         for $p in $places
         let $id := 
                 if (contains($p,'pl:')) then substring-after($p,'pl:')
