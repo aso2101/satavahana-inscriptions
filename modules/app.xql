@@ -314,7 +314,7 @@ function app:person($node as node(), $model as map(*), $key as xs:string) {
 :)
 (: @note: possibly depreciated :)
 declare function app:person-revised($node as node(), $model as map(*), $id as xs:string) {
-    let $person := collection($config:remote-context-root)//@xml:id[. = $id]/parent::tei:person
+    let $person := collection($config:remote-context-root)//@xml:id[. = $id]
     return
         map { "person" := $person }
 };
