@@ -180,7 +180,6 @@
 .tei-lem6:after { content: ' '; }
 .tei-listApp1 { list-style:none; font-size:small; }
 .tei-listApp2 { list-style:none; }
-.tei-persName1:after { content: ' '; }
 .tei-rdg1 { font-style: italic; color:#55b559; }
 .tei-rdg1:after { content: ' '; }
 .tei-rdg2 { font-style:italic; }

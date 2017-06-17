@@ -1548,17 +1548,10 @@ else
                 case element(orgName) return
                     html:inline($config, ., ("tei-orgName"), .)
                 case element(persName) return
-                    (
-                        if (forename) then
-                            html:inline($config, ., ("tei-persName1"), forename)
-                        else
-                            (),
-                        if (surname) then
-                            html:inline($config, ., ("tei-persName2"), surname)
-                        else
-                            ()
-                    )
-
+                    if (ancestor::div[@type]) then
+                        ext-html:link2($config, ., ("tei-persName"), ., ())
+                    else
+                        $config?apply($config, ./node())
                 case element(physDesc) return
                     html:inline($config, ., ("tei-physDesc"), .)
                 case element(provenance) return
@@ -1664,6 +1657,18 @@ else
                             ext-html:images($config, ., ("tei-facsimile3"), graphic)
                         )
 
+                case element(person) return
+                    (
+                        ext-html:dt($config, ., ("tei-person1"), 'Reconstructed spellings '),
+                        ext-html:dd($config, ., ("tei-person2"), persName),
+                        ext-html:dt($config, ., ("tei-person3"), 'Attested spellings ')
+                    )
+
+                case element(placeName) return
+                    if (ancestor::div[@type]) then
+                        ext-html:link2($config, ., ("tei-placeName"), ., ())
+                    else
+                        $config?apply($config, ./node())
                 case element(exist:match) return
                     html:match($config, ., .)
                 case element() return

@@ -131,16 +131,22 @@ declare function pmf:xsl-underdotted($config as map(*), $node as element(),
  :)
 
 declare function pmf:link2($config as map(*), $node as element(), $class as xs:string?, $content, $link as item()?) {
+let $target :=
+    if($content/@target) then $content/@target
+    else if($content/@key) then $content/@key
+    else ()
 let $link :=    
-        if(starts-with($content/@target,'http')) then 
-            $content/@target
-        else if(starts-with($content/@target,'bibl')) then
-            replace($content/@target,'bibl:',concat($config:app-nav-base,'/bibliography/'))
-        else if(starts-with($content/@target,'pers')) then
-            replace($content/@target,'bibl:',concat($config:app-nav-base,'/person/'))
-        else if(starts-with($content/@target,'place')) then
-            replace($content/@target,'bibl:',concat($config:app-nav-base,'/place/'))            
-        else concat($config:app-nav-base,'/inscription/',$content/@target)
+        if(starts-with($target,'http')) then 
+            $target
+        else if(starts-with($target,'in')) then
+            replace($target,'in:',concat($config:app-nav-base,'/inscription/'))
+        else if(starts-with($target,'bibl')) then
+            replace($target,'bibl:',concat($config:app-nav-base,'/bibliography/'))
+        else if(starts-with($target,'pers')) then
+            replace($target,'pers:',concat($config:app-nav-base,'/person/'))
+        else if(starts-with($target,'place')) then
+            replace($target,'pl:',concat($config:app-nav-base,'/place/'))            
+        else concat($config:app-nav-base,'/inscription/',$target)
 return 							
     <a href="{$link}" class="{$class}">{pmf:apply-children($config, $node, $content)}</a>
 };

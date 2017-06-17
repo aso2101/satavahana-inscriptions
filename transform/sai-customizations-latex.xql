@@ -1449,17 +1449,11 @@ else
                 case element(orgName) return
                     latex:inline($config, ., ("tei-orgName"), .)
                 case element(persName) return
-                    (
-                        if (forename) then
-                            latex:inline($config, ., ("tei-persName1"), forename)
-                        else
-                            (),
-                        if (surname) then
-                            latex:inline($config, ., ("tei-persName2"), surname)
-                        else
-                            ()
-                    )
-
+                    if (ancestor::div[@type]) then
+                        (: No function found for behavior: link2 :)
+                        $config?apply($config, ./node())
+                    else
+                        $config?apply($config, ./node())
                 case element(physDesc) return
                     latex:inline($config, ., ("tei-physDesc"), .)
                 case element(provenance) return
@@ -1563,6 +1557,22 @@ else
                             $config?apply($config, ./node())
                         )
 
+                case element(person) return
+                    (
+                        (: No function found for behavior: dt :)
+                        $config?apply($config, ./node()),
+                        (: No function found for behavior: dd :)
+                        $config?apply($config, ./node()),
+                        (: No function found for behavior: dt :)
+                        $config?apply($config, ./node())
+                    )
+
+                case element(placeName) return
+                    if (ancestor::div[@type]) then
+                        (: No function found for behavior: link2 :)
+                        $config?apply($config, ./node())
+                    else
+                        $config?apply($config, ./node())
                 case element() return
                     if (namespace-uri(.) = 'http://www.tei-c.org/ns/1.0') then
                         $config?apply($config, ./node())

@@ -171,7 +171,25 @@
 						<param name="content" value="titleStmt"/>
 					</model>
 				</elementSpec>
-
+                <elementSpec mode="change" ident="persName">
+                    <model predicate="ancestor::div[@type]" behaviour="link2"/>
+				</elementSpec>
+				<elementSpec mode="change" ident="person">
+				    <modelSequence>
+						<model behaviour="dt">
+							<param name="content">'Reconstructed spellings '</param>
+						</model>
+						<model behaviour="dd">
+							<param name="content">persName</param>
+						</model>
+						<model behaviour="dt">
+							<param name="content">'Attested spellings '</param>
+						</model>
+				    </modelSequence>
+				</elementSpec>
+                <elementSpec mode="change" ident="placeName">
+                    <model predicate="ancestor::div[@type]" behaviour="link2"/>
+				</elementSpec>
     </schemaSpec>
   </body>
 </text>

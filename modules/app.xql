@@ -320,20 +320,20 @@ declare function app:person-revised($node as node(), $model as map(*), $id as xs
 };
 (: @note: possibly depreciated :)
 declare function app:person-name-revised($node as node(), $model as map(*)) {
-    let $person := $model("person")
-    let $id := string($person/@xml:id)
+    let $id := $model?data/@xml:id
+    let $data := $model('data')
+    let $key := concat('pers:',$id)
     let $names :=
-        for $name in ($person/tei:persName)
+        for $name in ($data//tei:persName)
         let $lang := <small class="text-muted">{ app:translate-lang($name/@xml:lang) }</small>
         let $cert := 
             if ($name/@cert = "low") then "*"
             else ""
         return
-            if ($name = $person/tei:persName[1]) then <h1 class="text-left">{ $cert }{ $name/text() }{ $lang }</h1>
+            if ($name = $data//tei:persName[1]) then <h3 class="text-left">{ $cert }{ $name/text() }{ $lang }</h3>
             else <h4 class="text-left">{ $cert }{ $name/text() }{ $lang }</h4>
     return 
         <div>
-            <span class="text-muted pull-right">Person ID: { $id }</span>
             { $names }
         </div>
 };
@@ -377,7 +377,6 @@ declare function app:person-name-orthography($node as node(), $model as map(*)) 
             for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
             return 
                 app:flatten-app($name)
-        (:where $inscription//tei:persName[@key=$key]:)
         return 
             if($inscription) then 
                 <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscription/{$inscription/@xml:id}">{$idno}</a>)</li>
@@ -1491,25 +1490,20 @@ declare function app:related-inscriptions($node as node(), $model as map(*)) {
 declare
     %templates:wrap
 function app:navigation-title($node as node(), $model as map(*)) {
-let $data := $model('data')
-let $idno := 
-	if(exists($data/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno)) then 
-		$data/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno
-	else if(exists($data/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno)) then 
-		$data/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno
-	else if(exists($data/@xml:id)) then 
-		$data/@xml:id
-	else ()
-let $main-title := 
-    if($data//tei:title) then
-        $data//tei:title[1]/text()
-    else if(name($data) = 'person') then 
-        $data//tei:persName[1]/text()
-    else if(name($data) = 'place') then 
-        $data//tei:placeName[1]/text()        
-    else if(exists($data/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]/text())) then
-        $data/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]/text()
-    else ()
-return 
-    <h3 class="text-center">{ $main-title }<span class="text-muted pull-right">ID: { $idno }</span></h3>
+    let $id := string($model?data/@xml:id)
+    let $data := $model('data')
+    let $idspan :=
+        if ($id) then
+            <span class="small pull-right">ID: { $id }</span>
+        else ()
+    let $main-title := 
+        if($data//tei:title) then
+            $data//tei:title[1]/text()
+        else if(name($data) = 'person') then 
+            $data//tei:persName[1]/text()
+        else if(name($data) = 'place') then 
+            $data//tei:placeName[1]/text()
+        else ()
+    return 
+        <h3 class="text-center">{ $main-title }{ $idspan }</h3>
 };
