@@ -1,14 +1,9 @@
 // out: style.css, sourcemap: true, compress: true
-// These are the project-specific additions of the SAI
-// (Sātavāhana Inscriptions) database to the main
-// TEI Publisher model.
-
 @charset "UTF-8";
 
 // Core --------------------------- //
 
-// use Noto instead of Oswald
-// @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400|Oswald');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400|Oswald');
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans|Noto+Serif|Open+Sans|Oswald:300|Roboto');
 //@import "_default-variables.less";
 @import "_base.less";
@@ -102,13 +97,14 @@
 @font-sans-serif-default:         "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
 @font-monospace:                  "Ubuntu Mono", Menlo, Consolas, Courier, monospace;
 
+
 // Body
 @font-family-body-default:        @font-sans-serif-default;
 @font-size-body-default:          16px;
 @font-size-body-print:            12pt;
 
 // Headings
-@font-family-heading:             @font-sans-serif;
+@font-family-heading:             @font-sans-serif-default;
 
 @direction-left-to-right:         ltr;  /* Left to Right */
 @direction-right-ro-left:         rtl;  /* Right to Left */
@@ -137,7 +133,7 @@
 
 // Inner Document Text
 @font-family-content-inner:       @font-serif;
-@font-size-content-inner:         14pt;
+@font-size-content-inner:         12pt;
 @direction-content-inner:         @direction-left-to-right;
 
 // Headlines for inner document

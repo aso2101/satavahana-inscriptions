@@ -209,7 +209,7 @@ declare variable $config:app-root :=
 
 declare variable $config:data-root := "/db/apps/SAI-data/data/";
 
-declare variable $config:odd := "hisoma-epigraphy.odd";
+declare variable $config:odd := "sai-customizations.odd";
 
 declare variable $config:odd-root := $config:app-root || "/resources/odd";
 

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400|Oswald');
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans|Noto+Serif|Open+Sans|Oswald:300|Roboto');
 @charset "UTF-8";
 /********************* Base Styles ***********************************/
@@ -93,7 +94,7 @@ h6,
 .h5,
 .h6,
 .documents .header-short {
-  font-family: "Oswald", Verdana, "Helvetica", sans-serif;
+  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
   font-weight: 400 !important;
 }
 /********************* Button Styles *********************************/
@@ -638,7 +639,7 @@ footer .poweredby img {
 #content-inner {
   min-height: 450px;
   font-family: "Noto Serif", Georgia, "Times New Roman", serif;
-  font-size: 14pt;
+  font-size: 12pt;
   direction: ltr;
 }
 #content-container {

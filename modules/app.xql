@@ -150,6 +150,7 @@ declare function app:ruler-name($node as node(), $model as map(*), $type as xs:s
 };
 
 (: Trying to get this to sort by date. :)
+(: @note: possibly depreciated :)
 declare function app:list-inscriptions($node as node(), $model as map(*)) {
   map {
      "inscriptions" := 
@@ -162,7 +163,7 @@ declare function app:list-inscriptions($node as node(), $model as map(*)) {
             $inscription
   }  
 };
-
+(: @note: possibly depreciated :)
 declare function app:list-inscriptions-by-place-mentioned($node as node(), $model as map(*)) {
     map {
         "inscriptions" :=
@@ -177,6 +178,7 @@ declare function app:list-inscriptions-by-place-mentioned($node as node(), $mode
             return $inscription
     }  
 };
+(: @note: possibly depreciated :)
 declare function app:list-inscriptions-by-place-location($node as node(), $model as map(*)) {
     map {
         "inscriptions" :=
@@ -220,6 +222,7 @@ declare function app:inscription-title($node as node(), $model as map(*), $type 
         <a xmlns="http://www.w3.org/1999/xhtml" href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}{$suffix}">{ $title }</a>
 };
 
+(: @note: possibly depreciated :)
 declare function app:inscription-regnal_year($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     let $test := xs:string($model("ruler")/@xml:id)
@@ -233,14 +236,14 @@ declare function app:inscription-regnal_year($node as node(), $model as map(*)) 
         then xs:string($date/@when-custom)
         else ''
 };
-
+(: @note: possibly depreciated :)
 declare function app:inscription-date($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     let $date := $inscription//tei:origDate/text()
     return 
         $date
 };
-
+(: @note: possibly depreciated :)
 declare function app:inscription-id($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     let $id := $inscription//tei:idno
@@ -264,6 +267,7 @@ declare function app:inscription-language($node as node(), $model as map(*)) {
         $script
 };
 
+(: @note: possibly depreciated :)
 (: This also needs work. :)
 declare function app:download-epidoc($node as node(), $model as map(*)) {
     let $doc-path := document-uri(root($model("inscription")))
@@ -273,6 +277,7 @@ declare function app:download-epidoc($node as node(), $model as map(*)) {
 };
 
 (: List of persons. Sorting still needs work. :)
+(: @note: possibly depreciated :)
 declare function app:list-people($node as node(), $model as map(*)) {
     map {
         "people" := 
@@ -291,6 +296,7 @@ declare function app:list-people($node as node(), $model as map(*)) {
     }
 };
 
+(: @note: possibly depreciated :)
 declare 
     %templates:wrap
 function app:person($node as node(), $model as map(*), $key as xs:string) {
@@ -306,12 +312,13 @@ function app:person($node as node(), $model as map(*), $key as xs:string) {
 (:
  : Retrieve person node by xml:id from remote context root directory. 
 :)
+(: @note: possibly depreciated :)
 declare function app:person-revised($node as node(), $model as map(*), $id as xs:string) {
     let $person := collection($config:remote-context-root)//@xml:id[. = $id]/parent::tei:person
     return
         map { "person" := $person }
 };
-
+(: @note: possibly depreciated :)
 declare function app:person-name-revised($node as node(), $model as map(*)) {
     let $person := $model("person")
     let $id := string($person/@xml:id)
@@ -331,6 +338,7 @@ declare function app:person-name-revised($node as node(), $model as map(*)) {
         </div>
 };
 
+(: @note: possibly depreciated use app:related-inscriptions :)
 declare function app:inscriptions-related-to-person-revised($node as node(), $model as map(*)) {
     let $person := $model?data
     let $key := concat('pers:',string($person/@xml:id))
@@ -360,7 +368,7 @@ declare function app:inscriptions-related-to-person-revised($node as node(), $mo
 };
 
 declare function app:person-name-orthography($node as node(), $model as map(*)) {
-    let $id := $model("person")/@xml:id
+    let $id := $model?data/@xml:id
     let $key := concat('pers:',$id)
     let $spellings :=
         for $inscription in collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
@@ -372,7 +380,7 @@ declare function app:person-name-orthography($node as node(), $model as map(*)) 
         (:where $inscription//tei:persName[@key=$key]:)
         return 
             if($inscription) then 
-                <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}">{$idno}</a>)</li>
+                <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscription/{$inscription/@xml:id}">{$idno}</a>)</li>
             else ()
     return
         if($spellings) then 
@@ -444,7 +452,7 @@ declare function app:person-relations($node as node(), $model as map(*)) {
                 then collection($config:remote-context-root)//tei:person[@xml:id=$otherperson][1]/tei:persName[1]/text()
             else $otherperson
         order by $type
-        return <li><b>{ $label }</b>: <a href="/exist/apps/SAI/persons/{ $otherperson }">{ $otherpersonName }</a></li>
+        return <li><b>{ $label }</b>: <a href="/exist/apps/SAI/person/{ $otherperson }">{ $otherpersonName }</a></li>
     return
         if (empty($list)) then ()
         else
@@ -454,13 +462,15 @@ declare function app:person-relations($node as node(), $model as map(*)) {
             </div>
 };
 
+(: @note: possibly depreciated use teiPublisher :)
 declare function app:person-name($node as node(), $model as map(*)) {
     let $person := $model("person")
     let $anchor := $person/@xml:id
     return 
-        <h4><a name="{$person/@xml:id}" href="/exist/apps/SAI/persons/{ $anchor }">{ $person/tei:persName/text() }</a></h4>
+        <h4><a name="{$person/@xml:id}" href="/exist/apps/SAI/person/{ $anchor }">{ $person/tei:persName/text() }</a></h4>
 };
 
+(: @note: possibly depreciated use app:related-inscriptions :)
 declare function app:inscriptions-related-to-person($node as node(), $model as map(*), $type as xs:string?) {
     let $suffix := if ($type) then "." || $type else ()
     let $personid := $model("person")/@xml:id
@@ -477,7 +487,7 @@ declare function app:inscriptions-related-to-person($node as node(), $model as m
             (:where $inscription//tei:persName[@key=$key]:)
             return 
                 <span>
-                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
+                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
                     (<em>{ $namestring }</em>)
                 </span>
         }
@@ -506,7 +516,7 @@ declare function app:bibl-shortname($node as node(), $model as map(*)) {
 
 declare function app:bibitem($node as node(), $model as map(*)) {
     let $bibitem := $model("bibitem")
-    return $bibitem
+    return $bibitem (:tei-to-html:biblStruct($bibitem):)
 };
 
 declare function app:places-inscriptions-located($node as node(), $model as map(*), $type as xs:string?) {
@@ -524,7 +534,7 @@ declare function app:places-inscriptions-located($node as node(), $model as map(
                 let $idno := $inscription//tei:idno
                 where $inscription//tei:origPlace//tei:placeName[@key=$key]
                 return
-                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
+                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
             }
             </div>
         else ()
@@ -561,7 +571,7 @@ declare function app:places-inscriptions-mentioned($node as node(), $model as ma
                 where $inscription//tei:div[@type='edition']//tei:placeName[@key=$key]
                 return
                     <span>
-                        <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscriptions/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
+                        <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
                         (<em>{ $namestring }</em>)
                     </span>
             }
@@ -569,6 +579,7 @@ declare function app:places-inscriptions-mentioned($node as node(), $model as ma
         else ()
 };
 
+(: @note: possibly depreciated use teiPublihser :)
 declare function app:view($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
     return $inscription
@@ -655,7 +666,6 @@ declare function app:inscription-map($node as node(), $model as map(*)) {
                </div>
             </section>   
         else ()
-        
 };
 
 (:
@@ -903,10 +913,10 @@ let $id := string($rec//@xml:id[1])
 let $path := if($type = 'Bibliography') then 
                     concat('bibliography/',$id)
              else if($type = 'Person') then 
-                    concat('persons/',$id)
+                    concat('person/',$id)
              else if($type = 'Place') then 
-                    concat('places/',$id)                    
-             else concat('inscriptions/',$id) 
+                    concat('place/',$id)                    
+             else concat('inscription/',$id) 
 return             
     <a href="{$path}" class="search-title">{ $title }</a>
 };
@@ -974,8 +984,6 @@ declare function app:browse-get-places($node as node(), $model as map(*)){
     map {
                 "places" := 
                     let $places := distinct-values($model("hits")//descendant::tei:origPlace/tei:placeName/@key)
-                    (: only selects places that are listed as the origPlace of an inscription,
-                       which is the behavior we want. :)
                     for $p in $places
                     let $id := 
                                 if (contains($p,'pl:')) then substring-after($p,'pl:')
@@ -1206,22 +1214,16 @@ declare function app:display-facets($node as node(), $model as map(*), $facet-de
         else 'No matching facet definition file.'
 };
 
-(: this function gets associated map data from the list of hits,
-   and its output is passed to smap:create-data, which serializes
-   the XML into geoJSON. :)
 declare function app:dynamic-map-data($node as node(), $model as map(*)){
-    (: when would this first condition hold? if the hits are inscriptions,
-       they shouldn't contain any geo tags. :)
     if($model("hits")//tei:geo) then 
         for $p in $model("hits")//tei:geo
         return root($p)
-    (: if the model contains places (used for places.html?) :)
     else if($model("places")//tei:geo) then
        for $p in $model("places")//tei:geo
        return root($p) 
     else 
         let $data := if($model("places")) then $model("places") else if($model("persons")) then $model("persons") else if($model("data")) then $model("data") else $model("hits") 
-        let $places := if($model("places") | $model("persons")) then distinct-values($data//tei:placeName/@key | $data/@xml:id) else distinct-values($data//tei:origPlace/tei:placeName/@key | $data/@xml:id) 
+        let $places := distinct-values($data//tei:placeName/@key | $data/@xml:id)
         for $p in $places
         let $id := 
                 if (contains($p,'pl:')) then substring-after($p,'pl:')
@@ -1343,7 +1345,7 @@ declare function app:get-document($idOrName as xs:string) {
  : @para $node  
 :)
 declare function app:display-node($node as node(), $model as map(*), $path as xs:string?) {
-let $docNode := util:eval(concat("$model?data/",$path))
+let $docNode := if($path != '' and $path != 'root()') then util:eval(concat("$model?data/",$path)) else $model?data
 let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
 return 
     if(not(empty($docNode))) then 
@@ -1360,74 +1362,6 @@ return
       :)  
     else ()
 };
-
-declare function app:display-person($node as node(), $model as map(*), $path as xs:string?) {
-let $docNode := $model?data
-let $key := concat('pers:',$docNode/@xml:id)
-let $spellings := 
-        for $inscription in collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
-        let $idno := $inscription//tei:idno/text()
-        let $namestring :=
-            for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
-            return 
-                app:flatten-app($name)
-        (:where $inscription//tei:persName[@key=$key]:)
-        return 
-            if($inscription) then 
-                <li><em>{ $namestring }</em> (<a href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}">{$idno}</a>)</li>
-            else ()
-return 
-    if(not(empty($docNode))) then 
-        (: Output name :)
-        (
-        $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd),
-        if($spellings) then 
-            <div>
-                <h3>Spellings of the name:</h3>
-                <ul>{ $spellings }</ul>
-            </div>
-        else (),
-        app:person-relations($node, $model),
-        app:inscriptions-related-to-person-revised($node, $model)
-        )
-    else ()
-};
-
-declare function app:display-place($node as node(), $model as map(*), $path as xs:string?) {
-let $docNode := util:eval(concat("$model?data/",$path))
-let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
-return 
-    if(not(empty($docNode))) then 
-        $html 
-    else ()
-};
-
-(:~
- : SAI custom function to display specific child nodes via the TEI Publisher
- : Allows more flexibility in display, as nodes can be moved around, or filtered through additional XQueries 
- : @para $node  
-:)
-declare function app:display-bibl($node as node(), $model as map(*), $path as xs:string?) {
-let $docNode := util:eval(concat("$model?data/",$path))
-let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, $model?config?odd)
-return 
-    if(not(empty($docNode))) then 
-        if($docNode/descendant::tei:ptr) then
-            (<h3>Bibliography</h3>,
-            for $b in $docNode/descendant::tei:bibl
-            let $id := replace($b/tei:ptr/@target,'bibl:','')
-            let $bibRec := collection($config:data-root)//id($id)
-            return 
-                if(not(empty($bibRec))) then
-                    $pm-config:web-transform(root($bibRec), map { "root": root($docNode) }, $model?config?odd)
-                else 
-                    <div>{string($id)}</div>
-            )
-                
-        else $html
-    else ()
-};
-
 
 (: PYU function adapted for SAI :)
 declare function app:display-tabs($node as node(), $model as map(*), $path as xs:string?) {
@@ -1496,17 +1430,77 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
         </div>        
 };
 
+
+(:~
+ : Get related inscriptions. 
+:)
+declare function app:related-inscriptions($node as node(), $model as map(*)) {
+    let $doc := $model?data
+    let $type := 
+        if(name($doc) = 'person') then 
+            'person'
+        else if(name($doc) = 'place') then 
+            'place'   
+        else if($doc/descendant::tei:body/tei:text/tei:biblStruct or name($doc) = 'biblStruct') then 
+            'bibl'               
+        else 'inscription'
+    let $key := 
+        if($type='person') then 
+            concat('pers:',string($doc/@xml:id))
+        else if($type='place') then 
+            concat('place:',string($doc/@xml:id))   
+        else if($type='bibl') then 
+            concat('bibl:',string($doc/@xml:id))               
+        else $doc/@xml:id
+    let $inscriptions := if($type='bibl') then 
+                            collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='bibliography']//@target=$key]
+                         else collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//@key=$key]
+    let $places := 
+        for $placekey in distinct-values($inscriptions//tei:origPlace/tei:placeName[1]/@key)
+        let $name := 
+            if (contains($placekey,'pl:')) then substring-after($placekey,'pl:')
+            else $placekey
+        let $inscriptions-by-place := $inscriptions[descendant::tei:placeName[@key=$placekey]]
+        order by $name
+        return 
+            <div>
+                <h4>{ $name }</h4>
+                {
+                    app:view-hits($inscriptions-by-place, $placekey)
+                }
+            </div>
+    return 
+        if($places) then 
+            <div>
+                <h3>Mentioned in these inscriptions:</h3>
+                { $places }
+            </div>
+        else ()
+};
+
 (: SAI version of page title, handles titles for persons/places/bibliography items and inscriptions :)
 declare
     %templates:wrap
 function app:navigation-title($node as node(), $model as map(*)) {
 let $data := $model('data')
-return 
+let $idno := 
+	if(exists($data/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno)) then 
+		$data/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno
+	else if(exists($data/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno)) then 
+		$data/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno
+	else if(exists($data/@xml:id)) then 
+		$data/@xml:id
+	else ()
+let $main-title := 
     if($data//tei:title) then
         $data//tei:title[1]/text()
     else if(name($data) = 'person') then 
         $data//tei:persName[1]/text()
     else if(name($data) = 'place') then 
         $data//tei:placeName[1]/text()        
-    else $data/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]/text()
+    else if(exists($data/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]/text())) then
+        $data/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]/text()
+    else ()
+return 
+    <h3 class="text-center">{ $main-title }<span class="text-muted pull-right">ID: { $idno }</span></h3>
 };
