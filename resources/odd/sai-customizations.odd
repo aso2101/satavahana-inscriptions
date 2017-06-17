@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://jenkins.tei-c.org/job/TEIP5/lastSuccessfulBuild/artifact/P5/release/xml/tei/odd/p5.nvdl" type="application/xml" schematypens="http://purl.oclc.org/dsdl/nvdl/ns/structure/1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xml:lang="en">
+<teiHeader>
+  <fileDesc>
+    <titleStmt>
+      <title>ODD for extensions to EIAD-PYU for Sātavāhana Inscriptions</title>
+    </titleStmt>
+    <publicationStmt>
+      <p>Extends hisoma.epigraphy.odd, which contains Emmanuelle Morlock's EIAD-PYU ODD for the project
+        "From Vijayapurī to Śrīkṣetra." This document will contain any alternative behaviors
+        that we want for the "Sātavāhana Inscriptions" project.</p>
+    </publicationStmt>
+    <sourceDesc>
+      <p>Created by Andrew Ollett</p>
+    </sourceDesc>
+  </fileDesc>
+</teiHeader>
+<text>
+  <body>
+    <schemaSpec start="TEI teiCorpus" source="hisoma-epigraphy.odd" ident="sai-customizations">
+      <moduleRef key="tei"/>
+      <moduleRef key="header"/>
+      <moduleRef key="tagdocs"/>
+      <moduleRef key="core"/>
+      <moduleRef key="namesdates"/>
+      <moduleRef key="msdescription"/>
+      <moduleRef key="textstructure"/>
+      <moduleRef key="corpus"/>
+      <moduleRef key="transcr"/>
+      <moduleRef key="analysis"/>
+      <moduleRef key="linking"/>
+      <moduleRef key="drama"/>
+      <moduleRef key="figures"/>
+      <moduleRef key="verse"/>
+    </schemaSpec>
+  </body>
+</text>
+</TEI>
