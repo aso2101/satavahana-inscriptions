@@ -208,19 +208,12 @@ declare variable $config:app-root :=
 ;
 
 declare variable $config:data-root := "/db/apps/SAI-data/data/";
-
 declare variable $config:odd := "sai-customizations.odd";
-
 declare variable $config:odd-root := $config:app-root || "/resources/odd";
-
 declare variable $config:output := "transform";
-
 declare variable $config:output-root := $config:app-root || "/" || $config:output;
-
 declare variable $config:module-config := doc($config:odd-root || "/configuration.xml")/*;
-
 declare variable $config:repo-descriptor := doc(concat($config:app-root, "/repo.xml"))/repo:meta;
-
 declare variable $config:expath-descriptor := doc(concat($config:app-root, "/expath-pkg.xml"))/expath:package;
 
 (:~

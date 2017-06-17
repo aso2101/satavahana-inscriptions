@@ -19,20 +19,140 @@
 <text>
   <body>
     <schemaSpec start="TEI teiCorpus" source="hisoma-epigraphy.odd" ident="sai-customizations">
-      <moduleRef key="tei"/>
-      <moduleRef key="header"/>
-      <moduleRef key="tagdocs"/>
-      <moduleRef key="core"/>
-      <moduleRef key="namesdates"/>
-      <moduleRef key="msdescription"/>
-      <moduleRef key="textstructure"/>
-      <moduleRef key="corpus"/>
-      <moduleRef key="transcr"/>
-      <moduleRef key="analysis"/>
-      <moduleRef key="linking"/>
-      <moduleRef key="drama"/>
-      <moduleRef key="figures"/>
-      <moduleRef key="verse"/>
+				<elementSpec mode="change" ident="fileDesc">
+					<modelSequence predicate="$parameters?header='short'">
+						<model behaviour="inline" cssClass="header-short">
+							<param name="content" value="sourceDesc/msDesc/msIdentifier/idno"/>
+						</model>
+						<model behaviour="inline" cssClass="header-short">
+							<param name="content" value="titleStmt"/>
+						</model>
+					</modelSequence>
+					<model behaviour="dl" output="web">
+						<modelSequence>
+							<modelSequence>
+								<model behaviour="heading">
+									<param name="level">3</param>
+									<param name="content">'Metadata '</param>
+								</model>
+								<model behaviour="dt">
+									<param name="content">'Support '</param>
+								</model>
+								<model behaviour="dd">
+									<modelSequence>
+										<model behaviour="inline">
+											<param name="content">sourceDesc/msDesc/physDesc/objectDesc/supportDesc/support</param>
+											<outputRendition scope="after">content: ' ';</outputRendition>
+										</model>
+										<model behaviour="inline">
+											<param name="content">sourceDesc/msDesc/physDesc/decoDesc </param>
+										</model>
+									</modelSequence>
+								</model>
+								<model behaviour="dt">
+									<param name="content">'Text '</param>
+								</model>
+								<model behaviour="dd">
+									<modelSequence>
+										<model behaviour="inline">
+											<param name="content">sourceDesc/msDesc/msContents/msItem/textLang</param>
+											<outputRendition scope="after">content: ' ';</outputRendition>
+										</model>
+										<model behaviour="inline">
+											<param name="content">sourceDesc/msDesc/physDesc/handDesc</param>
+											<outputRendition scope="after">content: ' ';</outputRendition>
+										</model>
+									</modelSequence>
+								</model>
+								<model predicate="sourceDesc/msDesc/history/origin/origDate[text()[normalize-space(.)]]" behaviour="dt">
+									<param name="content">'Date '</param>
+								</model>
+								<model predicate="sourceDesc/msDesc/history/origin/origDate[text()[normalize-space(.)]]" behaviour="dd">
+									<!--<param name="content">let $finale := if (ends-with(normalize-space(sourceDesc/msDesc/history/origin/origDate),'.')) then () else '. ' return
+										concat(sourceDesc/msDesc/history/origin/origDate,$finale)</param>-->
+									<param name="content" value="sourceDesc/msDesc/history/origin/origDate"/>
+								</model>
+								<model behaviour="dt">
+									<param name="content">'Origin '</param>
+								</model>
+								<model behaviour="dd">
+									<param name="content">let $finale := if (ends-with(sourceDesc/msDesc/history/origin/origPlace,'.')) then () else '. ' return
+										concat(sourceDesc/msDesc/history/origin/origPlace,$finale)</param>
+								</model>
+								<model behaviour="dt">
+									<param name="content">'Provenance'</param>
+								</model>
+								<model behaviour="dd">
+									<param name="content">sourceDesc/msDesc/history/provenance</param>
+								</model>
+								<model behaviour="dt">
+									<param name="content">'Visual Documentation'</param>
+								</model>
+								<model behaviour="dd">
+									<param name="content">sourceDesc/msDesc/additional</param>
+								</model>
+								<model predicate="notesStmt/note[text()[normalize-space(.)]]" behaviour="dt">
+									<param name="content">'Note '</param>
+								</model>
+								<model predicate="notesStmt/note[text()[normalize-space(.)]]" behaviour="dd">
+									<param name="content">notesStmt</param>
+								</model>
+								<model predicate="titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']" behaviour="dt">
+									<param name="content">'Editors '</param>
+								</model>
+								<model predicate="titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']" behaviour="dd">
+									<desc>See elementSpec/@ident='editor' for details.</desc>
+									<!-- both @role=general and @role=contributor -->
+									<modelSequence predicate="titleStmt/editor[@role='general'] and titleStmt/editor[@role='contributor']">
+										<model behaviour="inline">
+											<param name="content">titleStmt/editor[@role='general']</param>
+										</model>
+										<model behaviour="inline" cssClass="textInline">
+											<param name="content" value="', with contributions by '"/>
+										</model>
+										<model behaviour="inline">
+											<param name="content">titleStmt/editor[@role='contributor']</param>
+										</model>
+										<model behaviour="inline" cssClass="textInline">
+											<param name="content" value="'. '"/>
+										</model>
+									</modelSequence>
+									<!-- only @role=general -->
+									<modelSequence predicate="titleStmt/editor[@role='general'] and not(titleStmt/editor[@role='contributor'])">
+										<model behaviour="inline">
+											<param name="content">titleStmt/editor[@role='general']</param>
+										</model>
+										<model behaviour="inline" cssClass="textInline">
+											<param name="content" value="'. '"/>
+										</model>
+									</modelSequence>
+									<!-- only @role=contributor -->
+									<modelSequence predicate="titleStmt/editor[@role='contributor'] and not(titleStmt/editor[@role='general'])">
+										<model behaviour="inline">
+											<param name="content">titleStmt/editor[@role='contributor']</param>
+										</model>
+									</modelSequence>
+									<model behaviour="inline" cssClass="textInline">
+										<param name="content" value="'. '"/>
+									</model>
+								</model>
+							</modelSequence>
+							<modelSequence predicate="../..//div[@type='bibliography']/p[text()[normalize-space(.)]]">
+								<model behaviour="dt">
+									<param name="content">'Publication history'</param>
+								</model>
+								<model behaviour="dd">
+									<param name="content">../..//div[@type='bibliography']/p</param>
+								</model>
+								<desc/>
+							</modelSequence>
+						</modelSequence>
+					</model>
+					<model behaviour="title">
+						<param name="content" value="titleStmt"/>
+					</model>
+				</elementSpec>
+
     </schemaSpec>
   </body>
 </text>

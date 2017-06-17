@@ -458,26 +458,27 @@ else
                                                         else
                                                             if ((@reason='lost' or @reason='illegible') and @extent='unknown') then
                                                                 html:inline($config, ., ("tei-gap11"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-	  else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity return if (@precision = 'low')
-	  then '///' || '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else '///' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),''))
-	  )
+							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
+							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' /// ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
+							@reason || ')' else ' /// ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
                                                             else
                                                                 if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::*[1][local-name()='lb']) then
                                                                     html:inline($config, ., ("tei-gap12", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-	  else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity return if (@precision = 'low')
-	  then '///' || '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else '///' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),''))
-	  )
+							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
+							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' /// ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
+							@reason || ')' else ' /// ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
                                                                 else
                                                                     if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and preceding-sibling::*[1][local-name()='lb']) then
                                                                         html:inline($config, ., ("tei-gap13", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-	  else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity return if (@precision ='low') then
-	  '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' || '///' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),'')) || '///'
-	  )
+							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
+							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||
+							')' || ' /// ' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || ' /// ' || $sep )
                                                                     else
                                                                         if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::text()[1]) then
                                                                             html:inline($config, ., ("tei-gap14", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-	  else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity return if (@precision ='low') then
-	  '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),'')))
+							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
+							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||
+							')' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep)
                                                                         else
                                                                             $config?apply($config, ./node())
                 case element(graphic) return
@@ -911,11 +912,9 @@ else
                         )
 
                     else
-                        if ($parameters?headerType='epidoc') then
-                            (: No function found for behavior: dl :)
-                            $config?apply($config, ./node())
-                        else
-                            html:title($config, ., ("tei-fileDesc35"), titleStmt)
+                        (: More than one model without predicate found for ident fileDesc. Choosing first one. :)
+                        (: No function found for behavior: dl :)
+                        $config?apply($config, ./node())
                 case element(profileDesc) return
                     html:omit($config, ., ("tei-profileDesc"), .)
                 case element(revisionDesc) return
@@ -1439,19 +1438,26 @@ else
                         (
                             html:inline($config, ., ("tei-lem1"), .),
                             if (@source) then
-                                (: No function found for behavior: refbibl :)
+                                (: No function found for behavior: bibl-author-key :)
                                 $config?apply($config, ./node())
                             else
                                 (),
-                            if (@resp) then
-                                html:inline($config, ., ("tei-lem3"), @resp)
+                            if (starts-with(@resp,'eiad-part:')) then
+                                html:inline($config, ., ("tei-lem3"), substring-after(@resp,'eiad-part:'))
                             else
                                 (),
-                            html:inline($config, ., ("tei-lem4", "sep"), '. ')
+                            if (starts-with(@resp,'#')) then
+                                html:link($config, ., ("tei-lem4"), substring-after(@resp,'#'),  "?odd=" || request:get-parameter("odd", ()) || "&amp;view=" || request:get-parameter("view", ()) || "&amp;id=" || @resp )
+                            else
+                                (),
+                            if (@rend) then
+                                html:inline($config, ., ("tei-lem5"), @rend)
+                            else
+                                ()
                         )
 
                     else
-                        html:inline($config, ., ("tei-lem5"), .)
+                        html:inline($config, ., ("tei-lem6"), .)
                 case element(licence) return
                     html:omit($config, ., ("tei-licence"), .)
                 case element(listApp) return
@@ -1509,21 +1515,38 @@ else
                             else
                                 $config?apply($config, ./node())
                 case element(rdg) return
-                    (
-                        html:inline($config, ., ("tei-rdg1"), .),
-                        if (@resp) then
-                            html:inline($config, ., ("tei-rdg2"), @resp)
-                        else
-                            (),
-                        html:text($config, ., ("tei-rdg3"), ' '),
-                        if (@source) then
-                            (: No function found for behavior: refbibl :)
-                            $config?apply($config, ./node())
-                        else
-                            (),
-                        html:inline($config, ., ("tei-rdg5", "sep"), '. ')
-                    )
+                    if (ancestor::listApp) then
+                        (
+                            html:inline($config, ., ("tei-rdg1"), .),
+                            if (@source and ancestor::listApp) then
+                                (: No function found for behavior: bibl-author-key :)
+                                $config?apply($config, ./node())
+                            else
+                                (),
+                            if (starts-with(@resp,'eiad-part:')) then
+                                html:inline($config, ., ("tei-rdg3"), substring-after(@resp,'eiad-part'))
+                            else
+                                (),
+                            if (starts-with(@resp,'eiad-part:')) then
+                                html:inline($config, ., ("tei-rdg4"), substring-after(@resp,'eiad-part'))
+                            else
+                                (),
+                            if (starts-with(@resp,'#')) then
+                                html:link($config, ., ("tei-rdg5"), substring-after(@resp,'#'),  "?odd=" || request:get-parameter("odd", ()) || "&amp;view=" || request:get-parameter("view", ()) || "&amp;id=" || @resp )
+                            else
+                                (),
+                            if (@rend) then
+                                html:inline($config, ., ("tei-rdg6"), @rend)
+                            else
+                                (),
+                            if (not(following-sibling::*[1][local-name()='rdg'])) then
+                                html:inline($config, ., ("tei-rdg7", "period"), '.')
+                            else
+                                ()
+                        )
 
+                    else
+                        html:inline($config, ., ("tei-rdg8"), .)
                 case element(respStmt) return
                     if (ancestor::titleStmt and count(child::resp[@type='editor'] >= 1)) then
                         html:inline($config, ., ("tei-respStmt1"), persName)
