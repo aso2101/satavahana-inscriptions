@@ -1462,18 +1462,25 @@ else
                     else
                         $config?apply($config, ./node())
                 case element(ptr) return
-                    if (parent::bibl and @target) then
+                    if (parent::bibl and @target and following-sibling::citedRange) then
                         (: No function found for behavior: refbibl :)
                         $config?apply($config, ./node())
                     else
-                        if (not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]) then
-                            (: No function found for behavior: resolve-pointer :)
+                        if (parent::bibl and @target) then
+                            (: No function found for behavior: refbibl :)
                             $config?apply($config, ./node())
                         else
-                            if (not(text())) then
-                                fo:link($config, ., ("tei-ptr3"), @target, ())
-                            else
+                            if (not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]) then
+                                (: No function found for behavior: resolve-pointer :)
                                 $config?apply($config, ./node())
+                            else
+                                if (not(text())) then
+                                    fo:link($config, ., ("tei-ptr4"), @target, ())
+                                else
+                                    $config?apply($config, ./node())
+                case element(ptr) return
+                    (: No function found for behavior: refbibl :)
+                    $config?apply($config, ./node())
                 case element(rdg) return
                     if (ancestor::listApp) then
                         (

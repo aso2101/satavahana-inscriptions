@@ -1503,8 +1503,7 @@ else
                         (
                             html:inline($config, ., ("tei-lem1"), .),
                             if (@source) then
-                                (: No function found for behavior: bibl-author-key :)
-                                $config?apply($config, ./node())
+                                ext-html:bibl-author-key($config, ., ("tei-lem2", "author-initials"), @source)
                             else
                                 (),
                             if (starts-with(@resp,'eiad-part:')) then
@@ -1560,24 +1559,28 @@ else
                     else
                         $config?apply($config, ./node())
                 case element(ptr) return
-                    if (parent::bibl and @target) then
-                        ext-html:refbibl($config, ., ("tei-ptr1"), @target, (), ())
+                    if (parent::bibl and @target and following-sibling::citedRange) then
+                        ext-html:refbibl($config, ., ("tei-ptr1"), @target, @target)
                     else
-                        if (not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]) then
-                            (: No function found for behavior: resolve-pointer :)
-                            $config?apply($config, ./node())
+                        if (parent::bibl and @target) then
+                            ext-html:refbibl($config, ., ("tei-ptr2"), @target, @target)
                         else
-                            if (not(text())) then
-                                html:link($config, ., ("tei-ptr3"), @target, ())
-                            else
+                            if (not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]) then
+                                (: No function found for behavior: resolve-pointer :)
                                 $config?apply($config, ./node())
+                            else
+                                if (not(text())) then
+                                    html:link($config, ., ("tei-ptr4"), @target, ())
+                                else
+                                    $config?apply($config, ./node())
+                case element(ptr) return
+                    ext-html:refbibl($config, ., ("tei-ptr"), @target, 'test')
                 case element(rdg) return
                     if (ancestor::listApp) then
                         (
                             html:inline($config, ., ("tei-rdg1"), .),
                             if (@source and ancestor::listApp) then
-                                (: No function found for behavior: bibl-author-key :)
-                                $config?apply($config, ./node())
+                                ext-html:bibl-author-key($config, ., ("tei-rdg2", "author-initials"), @source)
                             else
                                 (),
                             if (starts-with(@resp,'eiad-part:')) then

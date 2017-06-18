@@ -190,6 +190,31 @@
                 <elementSpec mode="change" ident="placeName">
                     <model predicate="ancestor::div[@type]" behaviour="link2"/>
 				</elementSpec>
+				<elementSpec mode="change" ident="ptr">
+					<model predicate="parent::bibl and @target and following-sibling::citedRange" behaviour="refbibl">
+						<param name="content">@target</param>
+						<param name="link">@target</param>
+						<outputRendition scope="after">content: ": ";</outputRendition>
+					</model>
+					<model predicate="parent::bibl and @target" behaviour="refbibl">
+						<param name="content">@target</param>
+						<param name="link">@target</param>
+					</model>
+					<model predicate="not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]" behaviour="resolve-pointer">
+						<param name="target">substring-after(@target,'#')</param>
+					</model>
+					<model predicate="not(text())" behaviour="link">
+						<param name="content" value="@target"/>
+						<param name="uri" value="@target"/>
+					</model>
+				</elementSpec>
+				<elementSpec mode="change" ident="ptr">
+					<model behaviour="refbibl">
+						<param name="link">@target</param>
+						<param name="content">'test'</param>
+						<outputRendition scope="after">content: ": ";</outputRendition>
+                    </model>
+				</elementSpec>
     </schemaSpec>
   </body>
 </text>

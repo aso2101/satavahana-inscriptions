@@ -405,34 +405,41 @@ let $modals :=
 return if($modals) then $modals else ()
 };
 
-declare function pmf:refbibl($config as map(*), $node as element(), $class as xs:string?, $content, 
-$file as xs:string?, $prefix as xs:string?) {
-let $refId := if(contains($content/@target,':')) then substring-after($content/@target,':') else $content/@target
-let $doc := collection($config:remote-root)//id($refId)
-let $title := root($doc)//tei:title[1]/text()[1]
-let $link := concat($config:app-nav-base,'/bibliography/',$refId)
-return 
-(' ', $title, ' ',<a href="{$link}" title="{$title}" class="refbibl">See Work <span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>)
-(:        
-        let $prefix := concat ($prefix,':')
-        let $target := substring-after($content,$prefix)
-        let $doc := doc($config:data-root || '/' || $file)
-        let $ref := $doc//tei:biblStruct[@xml:id=$target]
-        let $title-short := $ref//tei:title[@type='short'][1]
-        let $title-short := $ref//tei:title[@type='short'][1]/text()
-        (:the data contains some markup from the zotero db to tag some italics or sup:)
-        let $title-deb := if (contains($title-short, '</i>'))
-                            then (substring-before($title-short,'<i>'))
-                            else ($title-short)
-        let $title-end := substring-after($title-short,'</i>')
-        let $title-mid := substring-before(substring-after($title-short, '<i>'),'</i>')
-        let $title-long := $ref//tei:title[not(@type='short')][1]
-        let $link := $pages:app-root || '/works/' || $file || '?odd=' || $config:odd || '#' || $target
-        return 
-           <a href="{$link}" title="{$title-long}" class="refbibl">{$title-deb}<span class="hi">{$title-mid}</span>{$title-end}</a>
-:)           
+declare function pmf:refbibl($config as map(*), $node as element(), $class as xs:string+, $link as xs:string+, $content) {
+	let $prefix := 'bibl:'
+	for $i in tokenize($link, ' ') 
+		let $target := substring-after(data($i),$prefix)
+		let $ref := collection($config:bibl-authority-dir)//tei:biblStruct[@xml:id=$target]			
+		return
+			pmf:make-bibl-link($ref)
 };
-
+declare function pmf:bibl-author-key($config as map(*), $node as element(), $class as xs:string+, $content) {
+	let $prefix := 'bibl:'
+	for $i in tokenize($content, ' ') 
+		let $target := substring-after(data($i),$prefix)
+		let $ref := collection($config:bibl-authority-dir)//tei:biblStruct[@xml:id=$target]	
+		let $key := if (exists($ref//tei:author[@key][1])) then string($ref//tei:author[@key][1]/@key) else ('test')
+		return
+		    <span class="{$class}">{$key}</span>
+};
+(: 
+ : creates a link to the master bibliography 
+ 
+:)
+declare function pmf:make-bibl-link($ref as node()*) {
+    let $title-short := $ref//tei:title[@type='short'][1]/text()    
+    (:the data contains some markup from the zotero db to tag some italics or sup:)
+    let $title-deb := if (contains($title-short, '</i>')) then 
+    						(substring-before($title-short,'<i>'))
+                       else ($title-short)
+    let $title-end := substring-after($title-short,'</i>')
+    let $title-mid := substring-before(substring-after($title-short, '<i>'),'</i>')
+    let $title-long := $ref//tei:title[not(@type='short')][1]
+    let $target := $ref/@xml:id
+    let $link := $pages:app-root || '/bibliography.html' || '#' || $target
+    return 
+        <a href="{$link}" title="{$title-long}" class="refbibl">{$title-deb}<span class="hi">{$title-mid}</span>{$title-end}</a>
+};
 declare function pmf:listItem-app($config as map(*), $node as element(), $class as xs:string+, $content) {
         <li class="{$class}">{pmf:apply-children($config, $node, $content)}</li>
 };
