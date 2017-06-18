@@ -909,13 +909,11 @@ return
 
 declare function app:rec-link($rec, $type, $title){
 let $id := string($rec//@xml:id[1]) 
-let $path := if($type = 'Bibliography') then 
-                    concat('bibliography/',$id)
-             else if($type = 'Person') then 
-                    concat('person/',$id)
-             else if($type = 'Place') then 
-                    concat('place/',$id)                    
-             else concat('inscription/',$id) 
+let $med := if($type = 'Bibliography') then 'bibliography/'
+            else if($type = 'Person') then 'person/'
+            else if($type = 'Place') then 'place/'                    
+            else 'inscription/'
+let $path := concat(concat('/exist/apps/SAI/',$med),$id)
 return             
     <a href="{$path}" class="search-title">{ $title }</a>
 };
