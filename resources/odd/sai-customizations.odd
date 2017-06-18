@@ -19,6 +19,93 @@
 <text>
   <body>
     <schemaSpec start="TEI teiCorpus" source="hisoma-epigraphy.odd" ident="sai-customizations">
+				<elementSpec mode="change" ident="div">
+					<attList>
+						<attDef ident="type" mode="replace" usage="req">
+							<valList type="closed">
+								<valItem ident="apparatus">
+									<desc>to contain apparatus criticus or textual notes</desc>
+								</valItem>
+								<valItem ident="bibliography">
+									<desc>to contain bibliographical information, previous publications, etc.</desc>
+								</valItem>
+								<valItem ident="commentary">
+									<desc>to contain all editorial commentary, historical/prosopographical discussion, etc.</desc>
+								</valItem>
+								<valItem ident="edition">
+									<desc>to contain the text of the edition itself; may include multiple text-parts</desc>
+								</valItem>
+								<valItem ident="textpart">
+									<desc>used to divide a div[type=edition] into multiple parts (fragments, columns, faces, etc.)</desc>
+								</valItem>
+								<valItem ident="translation">
+									<desc>to contain a translation of the text into one or more modern languages</desc>
+								</valItem>
+							</valList>
+						</attDef>
+					</attList>
+					<!-- texpart -->
+					<model predicate="@type='textpart'" behaviour="block" cssClass="texpart">
+						<modelSequence>
+							<model behaviour="block" cssClass="textpart-label">
+								<param name="content">concat(upper-case(substring(@n,1,1)),substring(@n,2))</param>
+							</model>
+							<model behaviour="block"/>
+						</modelSequence>
+					</model>
+					<model predicate="@type='textpart'" behaviour="block" cssClass="textpart"/>
+					<!-- bibliography -->
+					<modelSequence predicate="@type='bibliography'">
+						<model predicate="listBibl" behaviour="heading">
+							<param name="level">3</param>
+							<param name="content">'Secondary bibliography'</param>
+						</model>
+						<model behaviour="section" cssClass="bibliography-secondary">
+							<param name="content">listBibl</param>
+						</model>
+					</modelSequence>
+					<!-- translation -->
+					<modelSequence predicate="@type='translation' and *[text()[normalize-space(.)]]">
+						<model behaviour="heading">
+							<param name="level">3</param>
+							<param name="content"> let $plural := if (count(ab) &gt; 1) then 's' else () return concat(upper-case(substring(@type,1,1)),substring(@type,2),$plural) </param>
+						</model>
+						<model behaviour="section" cssClass="translation"/>
+					</modelSequence>
+					<!-- edition -->
+					<model predicate="@type='edition'" class="edition" behaviour="section">
+						<cssClass>@type</cssClass>
+						<outputRendition>padding: 1em 0; </outputRendition>
+						<model predicate="div[@type='textpart']" behaviour="block">
+							<cssClass>@type</cssClass>
+						</model>
+						<model behaviour="block" cssClass="diveditionnormal"/>
+					</model>
+					<!-- apparatus -->
+					<modelSequence predicate="@type='apparatus'">
+						<model behaviour="separator">
+							<param name="content" value="''"/>
+							<cssClass>'apparatus-sep'</cssClass>
+						</model>
+						<model behaviour="section">
+							<cssClass>@type</cssClass>
+							<outputRendition>padding: 1em 0; </outputRendition>
+						</model>
+					</modelSequence>
+					<!-- commentary -->
+					<modelSequence predicate="@type='commentary' and not(p ='' or listApp/* ='')">
+						<model behaviour="heading">
+							<param name="level">3</param>
+							<param name="content">concat(upper-case(substring(@type,1,1)),substring(@type,2))</param>
+							<cssClass>@type</cssClass>
+						</model>
+						<model behaviour="section">
+							<cssClass>@type</cssClass>
+							<outputRendition>padding: 1em 0; </outputRendition>
+						</model>
+					</modelSequence>
+				</elementSpec>
+
                 <elementSpec mode="change" ident="facsimile">
                     <model predicate="$parameters?modal='true'" behaviour="image-modals">
                     	<param name="images">graphic</param>
@@ -190,30 +277,19 @@
                 <elementSpec mode="change" ident="placeName">
                     <model predicate="ancestor::div[@type]" behaviour="link2"/>
 				</elementSpec>
-				<elementSpec mode="change" ident="ptr">
-					<model predicate="parent::bibl and @target and following-sibling::citedRange" behaviour="refbibl">
-						<param name="content">@target</param>
-						<param name="link">@target</param>
-						<outputRendition scope="after">content: ": ";</outputRendition>
-					</model>
-					<model predicate="parent::bibl and @target" behaviour="refbibl">
-						<param name="content">@target</param>
-						<param name="link">@target</param>
-					</model>
-					<model predicate="not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]" behaviour="resolve-pointer">
-						<param name="target">substring-after(@target,'#')</param>
-					</model>
-					<model predicate="not(text())" behaviour="link">
-						<param name="content" value="@target"/>
-						<param name="uri" value="@target"/>
-					</model>
-				</elementSpec>
-				<elementSpec mode="change" ident="ptr">
-					<model behaviour="refbibl">
-						<param name="link">@target</param>
-						<param name="content">'test'</param>
-						<outputRendition scope="after">content: ": ";</outputRendition>
-                    </model>
+				<elementSpec mode="change" ident="rdg">
+					<modelSequence predicate="ancestor::listApp">
+						<model behaviour="inline">
+							<outputRendition>font-style: italic; color:#55b559;</outputRendition>
+							<outputRendition scope="after">content: ' ';</outputRendition>
+						</model>
+						<model predicate="@source and ancestor::listApp" behaviour="refbibl" cssClass="author-initials">
+							<param name="link" value="@source"/>
+							<outputRendition>font-style:italic; </outputRendition>
+							<outputRendition scope="before">content: ' ';</outputRendition>
+							<outputRendition scope="after">content: ' ';</outputRendition>
+						</model>
+					</modelSequence>
 				</elementSpec>
     </schemaSpec>
   </body>

@@ -689,49 +689,49 @@ body.tei-text {
   font-family: "Noto Serif", Georgia, "Times New Roman", serif;
   line-height: 1.2;
 }
-#content-inner .content {
+#content-inner .content .content {
   hyphens: auto;
   -webkit-hyphens: auto;
 }
-#content-inner .content h1 {
+#content-inner .content .content h1 {
   font-size: 2.441em;
 }
-#content-inner .content h2 {
+#content-inner .content .content h2 {
   font-size: 1.953em;
 }
-#content-inner .content h3 {
+#content-inner .content .content h3 {
   font-size: 1.563em;
 }
-#content-inner .content h4 {
+#content-inner .content .content h4 {
   font-size: 1.25em;
 }
-#content-inner .content .tei-code1 {
+#content-inner .content .content .tei-code1 {
   font-family: "Ubuntu Mono", Menlo, Consolas, Courier, monospace;
   font-size: 85%;
 }
-#content-inner .content .tei-list2 dd {
+#content-inner .content .content .tei-list2 dd {
   margin-left: 2em;
 }
-#content-inner .content .tei-gi,
-#content-inner .content .xml-attribute {
+#content-inner .content .content .tei-gi,
+#content-inner .content .content .xml-attribute {
   font-family: "Ubuntu Mono", Menlo, Consolas, Courier, monospace;
   font-size: 85%;
 }
-#content-inner .content figure {
+#content-inner .content .content figure {
   text-align: center;
   margin: 24px 0;
   padding: 16px 0;
   border-top: 1px solid #d6d7d9;
   border-bottom: 1px solid 1px solid #d6d7d9;
 }
-#content-inner .content figure img.img-responsive {
+#content-inner .content .content figure img.img-responsive {
   margin: 0 auto;
 }
-#content-inner .content figcaption {
+#content-inner .content .content figcaption {
   margin-top: .5em;
   text-align: right;
 }
-#content-inner .content > * > section {
+#content-inner .content .content > * > section {
   border-top: 1px solid #d6d7d9;
   margin: 2.5em 0;
   padding-top: 2em;
@@ -801,4 +801,20 @@ body.tei-text {
 }
 #content-inner .pb:before {
   content: '[p. ' !important;
+}
+.content hr.apparatus-sep {
+  padding: 0;
+  border: none;
+  border-top: medium double #333;
+  color: #333;
+  text-align: center;
+}
+.content hr.apparatus-sep:after {
+  content: "§";
+  display: inline-block;
+  position: relative;
+  top: -0.7em;
+  font-size: 1.5em;
+  padding: 0 0.25em;
+  background: white;
 }

@@ -180,25 +180,10 @@
 .tei-lem6:after { content: ' '; }
 .tei-listApp1 { list-style:none; font-size:small; }
 .tei-listApp2 { list-style:none; }
-.tei-ptr1:after { content: ": "; }
-.tei-ptr:after { content: ": "; }
 .tei-rdg1 { font-style: italic; color:#55b559; }
 .tei-rdg1:after { content: ' '; }
 .tei-rdg2 { font-style:italic; }
 .tei-rdg2:before { content: ' '; }
 .tei-rdg2:after { content: ' '; }
-.tei-rdg3 { font-style:italic; }
-.tei-rdg3:before { content: ' '; }
-.tei-rdg3:after { content: ' '; }
-.tei-rdg4 { font-style:italic; }
-.tei-rdg4:before { content: ' '; }
-.tei-rdg4:after { content: ' '; }
-.tei-rdg5 { font-style:italic; }
-.tei-rdg5:before { content: ' '; }
-.tei-rdg5:after { content: ' '; }
-.tei-rdg6 { font-style:italic; }
-.tei-rdg6:before { content: ' '; }
-.tei-rdg6:after { content: ' '; }
-.tei-rdg8:after { content: ' '; }
 .tei-surplus:before { content:"{"; }
 .tei-surplus:after { content:"}"; }

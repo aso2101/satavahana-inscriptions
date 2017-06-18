@@ -440,8 +440,33 @@ declare function pmf:make-bibl-link($ref as node()*) {
     return 
         <a href="{$link}" title="{$title-long}" class="refbibl">{$title-deb}<span class="hi">{$title-mid}</span>{$title-end}</a>
 };
+(: 
+ : creates an apparatus list 
+:)
+declare function pmf:list-app($config as map(*), $node as element(), $class as xs:string+, $content) {
+    <ul class="{$class} list-inline">
+    	{pmf:apply-children($config, $node, $content)}
+    </ul>
+};
 declare function pmf:listItem-app($config as map(*), $node as element(), $class as xs:string+, $content) {
-        <li class="{$class}">{pmf:apply-children($config, $node, $content)}</li>
+    let $loc :=
+        if ($node/@loc) then $node/@loc
+        else
+           'loc'
+    (:let $finale := 
+    	 	if (ends-with(normalize-space($node),'.')) then () 
+    		else '.':)
+       	
+    return
+        
+        	<li class="{$class} list-inline-item">
+        	{ if ($loc) then 
+            	<span class="loc">({pmf:apply-children($config, $node, $loc)})</span>
+            	else ()
+            }
+            	{pmf:apply-children($config, $node, $content)}
+            </li>
+          
 };
 (:  samedi 11 février :)
 declare function pmf:graphic-pyu($config as map(*), $node as element(), $class as xs:string+, $content, $url,
@@ -489,4 +514,8 @@ declare function pmf:listItemImage($config as map(*), $node as element(), $class
             </li>
 };
 
-
+declare function pmf:separator($config as map(*), $node as element(), $class as xs:string+, $content) {
+     	element { "hr" }
+     		{ attribute class { $class } 
+     	}
+};
