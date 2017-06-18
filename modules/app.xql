@@ -1090,7 +1090,7 @@ declare function app:browse-hits($node as node()*, $model as map(*)) {
     return 
      <div id="place-{$key}">
         <a id="{$name}"></a>
-        <h4>{string(replace($key,'pl:',''))}</h4>
+        <h4 class="placeName">{string(replace($key,'pl:',''))}</h4>
         {
                 app:view-hits($inscriptions, $key)
         }
@@ -1242,8 +1242,7 @@ declare function app:map($node as node(), $model as map(*)) {
                    L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
                    var geojson = {smap:create-data(app:dynamic-map-data($node,$model))};
                    var bounds = L.latLngBounds(geojson);
-                   var map = L.mapbox.map('map', 'aso2101.kbbp2nnh'); // centers on Nasik
-                   //map.fitBounds(geojson.getBounds());
+                   var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
                </script>
                <script type="text/javascript" src="resources/scripts/map.js"/>
                <ul id="marker-list"/>
