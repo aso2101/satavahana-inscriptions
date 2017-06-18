@@ -57,21 +57,49 @@ return fn:serialize($data,
     file. This means that the geodata needs to be specified in the
     place authority file if it's going to be presented on the map. :)
 declare function smap:create-data($data as node()*) as xs:string* {
-let $data :=            
-    <root>
-        <type>FeatureCollection</type>
-        <features>
-        {
-            for $place in $data//tei:place
-            where $place//tei:geo
-            let $name := 
+let $data :=   
+    if(count($data//tei:geo) gt 1) then 
+        <root>
+            <type>FeatureCollection</type>
+            <features>
+            {
+                for $place in $data//tei:place
+                where $place//tei:geo
+                let $name := 
+                    if ($place/tei:placeName[@type='ancient']) then 
+                        $place/tei:placeName[@type='ancient'][1]/text()
+                    else $place/tei:placeName[1]/text()
+                let $lat := substring-before($place/tei:geo,' ')
+                let $long := substring-after($place/tei:geo,' ')
+                return
+                    <json:value>
+                        <type>Feature</type>
+                        <geometry>
+                            <place>{$name}</place>
+                            <type>Point</type>
+                            <coordinates json:literal="true">[{$lat},{$long}]</coordinates>
+                        </geometry>
+                        <properties>
+                            <name>{ $name }</name>
+                            <description>{ $name }</description>
+                            <marker-size>large</marker-size>
+                            <marker-color>#A80000</marker-color>
+                        </properties>
+                    </json:value>
+            }        
+          </features>
+        </root>   
+    else if(count($data//tei:geo) = 1) then
+        for $place in $data//tei:place
+        where $place//tei:geo
+        let $name := 
                 if ($place/tei:placeName[@type='ancient']) then 
                     $place/tei:placeName[@type='ancient'][1]/text()
                 else $place/tei:placeName[1]/text()
-            let $lat := substring-before($place/tei:geo,' ')
-            let $long := substring-after($place/tei:geo,' ')
-            return
-                <json:value>
+        let $lat := substring-before($place/tei:geo,' ')
+        let $long := substring-after($place/tei:geo,' ')
+        return
+             <json:value>
                     <type>Feature</type>
                     <geometry>
                         <place>{$name}</place>
@@ -84,10 +112,8 @@ let $data :=
                         <marker-size>large</marker-size>
                         <marker-color>#A80000</marker-color>
                     </properties>
-                </json:value>
-        }        
-      </features>
-    </root>   
+                </json:value> 
+    else ()                
 return fn:serialize($data,
             <output:serialization-parameters>
                 <output:method value="json"/>
