@@ -1462,58 +1462,31 @@ else
                     else
                         $config?apply($config, ./node())
                 case element(ptr) return
-                    if (parent::bibl and @target and following-sibling::citedRange) then
+                    if (parent::bibl and @target) then
                         (: No function found for behavior: refbibl :)
                         $config?apply($config, ./node())
                     else
-                        if (parent::bibl and @target) then
-                            (: No function found for behavior: refbibl :)
+                        if (not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]) then
+                            (: No function found for behavior: resolve-pointer :)
                             $config?apply($config, ./node())
                         else
-                            if (not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]) then
-                                (: No function found for behavior: resolve-pointer :)
-                                $config?apply($config, ./node())
+                            if (not(text())) then
+                                fo:link($config, ., ("tei-ptr3"), @target, ())
                             else
-                                if (not(text())) then
-                                    fo:link($config, ., ("tei-ptr4"), @target, ())
-                                else
-                                    $config?apply($config, ./node())
-                case element(ptr) return
-                    (: No function found for behavior: refbibl :)
-                    $config?apply($config, ./node())
+                                $config?apply($config, ./node())
                 case element(rdg) return
                     if (ancestor::listApp) then
                         (
                             fo:inline($config, ., ("tei-rdg1"), .),
                             if (@source and ancestor::listApp) then
-                                (: No function found for behavior: bibl-author-key :)
+                                (: No function found for behavior: refbibl :)
                                 $config?apply($config, ./node())
-                            else
-                                (),
-                            if (starts-with(@resp,'eiad-part:')) then
-                                fo:inline($config, ., ("tei-rdg3"), substring-after(@resp,'eiad-part'))
-                            else
-                                (),
-                            if (starts-with(@resp,'eiad-part:')) then
-                                fo:inline($config, ., ("tei-rdg4"), substring-after(@resp,'eiad-part'))
-                            else
-                                (),
-                            if (starts-with(@resp,'#')) then
-                                fo:link($config, ., ("tei-rdg5"), substring-after(@resp,'#'),  "?odd=" || request:get-parameter("odd", ()) || "&amp;view=" || request:get-parameter("view", ()) || "&amp;id=" || @resp )
-                            else
-                                (),
-                            if (@rend) then
-                                fo:inline($config, ., ("tei-rdg6"), @rend)
-                            else
-                                (),
-                            if (not(following-sibling::*[1][local-name()='rdg'])) then
-                                fo:inline($config, ., ("tei-rdg7", "period"), '.')
                             else
                                 ()
                         )
 
                     else
-                        fo:inline($config, ., ("tei-rdg8"), .)
+                        $config?apply($config, ./node())
                 case element(respStmt) return
                     if (ancestor::titleStmt and count(child::resp[@type='editor'] >= 1)) then
                         fo:inline($config, ., ("tei-respStmt1"), persName)
