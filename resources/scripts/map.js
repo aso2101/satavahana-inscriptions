@@ -1,21 +1,18 @@
-var myLayer = L.mapbox.featureLayer()
-    .addTo(map);
-    
-myLayer.on('layeradd', function(e) {
-    var marker = e.layer,
-        feature = marker.feature;
+//Add geojson to myLayer
+var myLayer = L.mapbox.featureLayer(geojson).addTo(map);
 
+// Add popup to marker
+myLayer.eachLayer(function(marker) {
+    var feature = marker.feature;
+    
     // Create custom popup content
     var popupContent =  '<a href="#' + feature.properties.name + '">' + feature.properties.name + '</a>';
-
+            
     // http://leafletjs.com/reference.html#popup
     marker.bindPopup(popupContent);
     
-    var name = layer.feature.properties.name;
 });
-
-myLayer.setGeoJSON(geojson);
-
+        
 myLayer.on('mouseover', function(e) {
     e.layer.openPopup();
 });
@@ -35,6 +32,8 @@ function panto(e) {
         }
     });
 }
+
+map.fitBounds(myLayer.getBounds(),{maxZoom: 7});
 
 function addLinksToPlace() {
     var spans = document.getElementsByClassName(placeName);
@@ -56,3 +55,5 @@ function addLinksToPlace() {
         }
     }
 }
+
+
