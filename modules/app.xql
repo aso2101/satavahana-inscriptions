@@ -366,13 +366,14 @@ declare function app:inscriptions-related-to-person-revised($node as node(), $mo
             </div>
         else ()
 };
-
 declare function app:person-name-orthography($node as node(), $model as map(*)) {
     let $id := $model?data/@xml:id
     let $key := concat('pers:',$id)
     let $spellings :=
         for $inscription in collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
-        let $idno := $inscription//tei:idno/text()
+        let $idno := 
+            if ($inscription//tei:publicationStmt/tei:idno) then $inscription//tei:publicationStmt/tei:idno/text()
+            else $inscription//tei:idno[1]/text()
         let $namestring :=
             for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
             return 
