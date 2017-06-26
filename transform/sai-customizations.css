@@ -167,17 +167,18 @@
 .tei-imprint17:before { content: ': '; }
 .tei-lem1 { font-weight:bold; }
 .tei-lem1:after { content: ' '; }
-.tei-lem2 { font-style:normal; }
 .tei-lem2:before { content: ' '; }
-.tei-lem2:after { content: ' '; }
-.tei-lem3 { font-style:normal; }
 .tei-lem3:before { content: ' '; }
-.tei-lem3:after { content: ' '; }
 .tei-lem4 { font-style:normal; }
 .tei-lem4:before { content: ' '; }
 .tei-lem4:after { content: ' '; }
+.tei-lem5 { font-style:normal; }
 .tei-lem5:before { content: ' '; }
+.tei-lem5:after { content: ' '; }
+.tei-lem6 { font-style:normal; }
+.tei-lem6:before { content: ' '; }
 .tei-lem6:after { content: ' '; }
+.tei-lem8:after { content: ' '; }
 .tei-listApp1 { list-style:none; font-size:small; }
 .tei-listApp2 { list-style:none; }
 .tei-rdg1 { font-style: italic; color:#55b559; }

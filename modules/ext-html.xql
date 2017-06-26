@@ -413,21 +413,33 @@ declare function pmf:refbibl($config as map(*), $node as element(), $class as xs
 		return
 			pmf:make-bibl-link($ref)
 };
+(: use this for making an apparatus link :)
 declare function pmf:bibl-author-key($config as map(*), $node as element(), $class as xs:string+, $content) {
 	let $prefix := 'bibl:'
-	for $i in tokenize($content, ' ') 
-		let $target := substring-after(data($i),$prefix)
-		let $ref := collection($config:bibl-authority-dir)//tei:biblStruct[@xml:id=$target]	
-		let $key := if (exists($ref//tei:author[@key][1])) then string($ref//tei:author[@key][1]/@key) else ('test')
-		return
-		    <span class="{$class}">{$key}</span>
+	let $tokens := tokenize($content, ' ')
+	let $tokencount := count($tokens)
+	let $result :=
+	    for $i at $count in $tokens
+		    let $target := substring-after(data($i),$prefix)
+		    let $ref := collection($config:bibl-authority-dir)//tei:biblStruct[@xml:id=$target]
+		    let $href := $pages:app-root || '/bibliography.html' || '#' || $target
+		    let $connector :=
+		        if ($count < $tokencount) then ', ' else ''
+		    let $link := 
+		        if ($ref//tei:author[@key][1])
+		            then (<a class="{$class}" href="{$href}">{string($ref//tei:author[@key][1]/@key)}</a>,' ')
+		        else if ($ref//tei:title[@type='short'])
+		            then (pmf:make-bibl-link($ref),$connector)
+		        else ()
+		    return $link
+	return <span>{$result}</span>
 };
 (: 
  : creates a link to the master bibliography 
- 
 :)
 declare function pmf:make-bibl-link($ref as node()*) {
     let $title-short := $ref//tei:title[@type='short'][1]/text()    
+    let $author-key := string($ref//tei:author[@key][1])
     (:the data contains some markup from the zotero db to tag some italics or sup:)
     let $title-deb := if (contains($title-short, '</i>')) then 
     						(substring-before($title-short,'<i>'))

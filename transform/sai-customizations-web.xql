@@ -473,7 +473,7 @@ else
                                                                             html:inline($config, ., ("tei-gap14", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
 							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
 							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||
-							')' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep)
+							')' else (string-join((for $i in 1 to xs:integer($quantity) return ' ' || $charToRepeat),' ')) || $sep)
                                                                         else
                                                                             $config?apply($config, ./node())
                 case element(graphic) return
@@ -535,7 +535,7 @@ else
                         if ($parameters?break='Logical') then
                             html:block($config, ., ("tei-l4"), if (@n) then
     (
-        html:block($config, ., ("tei-l5", "verse-number"), @n),
+        html:block($config, ., ("tei-l5", "verse-number"), @n || '*'),
         html:block($config, ., ("tei-l6"), .)
     )
 
@@ -1211,10 +1211,11 @@ else
                     if (@type='book' or @type='thesis' or @type='report') then
                         html:inline($config, ., ("tei-biblStruct26"), monogr/title[@level='m'])
                     else
-                        if (@type='manuscript') then
-                            html:inline($config, ., ("tei-biblStruct27"), monogr/title[@level='u'])
-                        else
-                            $config?apply($config, ./node()),
+                        (),
+                    if (@type='manuscript') then
+                        html:inline($config, ., ("tei-biblStruct27"), monogr/title[@level='u'])
+                    else
+                        (),
                     html:text($config, ., ("tei-biblStruct28"), ', '),
                     if (.//series) then
                         html:inline($config, ., ("tei-biblStruct29"), series)
@@ -1497,30 +1498,39 @@ else
                                 $config?apply($config, ./node())
                 case element(layout) return
                     html:inline($config, ., ("tei-layout"), p)
+                (: There should be no dot before note if this element follows immediately after lem. This rule should be refined and limited to cases where lem had no source or rend. :)
                 case element(lem) return
                     if (ancestor::listApp) then
                         (
                             html:inline($config, ., ("tei-lem1"), .),
+                            if (@rend and not(following-sibling::*[1][local-name()='rdg'])) then
+                                html:inline($config, ., ("tei-lem2", "author-rend"), if (contains(.,'.')) then substring-before(@rend,'.') else @rend)
+                            else
+                                (),
+                            if (@rend and following-sibling::*[1][local-name()='rdg']) then
+                                html:inline($config, ., ("tei-lem3", "author-rend"), @rend)
+                            else
+                                (),
                             if (@source) then
-                                ext-html:bibl-author-key($config, ., ("tei-lem2", "author-initials"), @source)
+                                ext-html:bibl-author-key($config, ., ("tei-lem4", "author-initials"), @source)
                             else
                                 (),
                             if (starts-with(@resp,'eiad-part:')) then
-                                html:inline($config, ., ("tei-lem3"), substring-after(@resp,'eiad-part:'))
+                                html:inline($config, ., ("tei-lem5"), substring-after(@resp,'eiad-part:'))
                             else
                                 (),
                             if (starts-with(@resp,'#')) then
-                                html:link($config, ., ("tei-lem4"), substring-after(@resp,'#'),  "?odd=" || request:get-parameter("odd", ()) || "&amp;view=" || request:get-parameter("view", ()) || "&amp;id=" || @resp )
+                                html:link($config, ., ("tei-lem6"), substring-after(@resp,'#'),  "?odd=" || request:get-parameter("odd", ()) || "&amp;view=" || request:get-parameter("view", ()) || "&amp;id=" || @resp )
                             else
                                 (),
-                            if (@rend) then
-                                html:inline($config, ., ("tei-lem5"), @rend)
+                            if (not(following-sibling::*[1][local-name()='rdg']) and (@source or @rend)) then
+                                html:inline($config, ., ("tei-lem7", "period"), '.')
                             else
                                 ()
                         )
 
                     else
-                        html:inline($config, ., ("tei-lem6"), .)
+                        html:inline($config, ., ("tei-lem8"), .)
                 case element(licence) return
                     html:omit($config, ., ("tei-licence"), .)
                 case element(listApp) return
