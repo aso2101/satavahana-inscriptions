@@ -139,7 +139,7 @@ else if (ends-with($exist:resource, ".xql")) then (
                     <forward url="{$exist:controller}/error-page.html" method="get"/>
                     <forward url="{$exist:controller}/modules/view.xql"/>
                 </error-handler>
-            </dispatch>
+            </dispatch>            
         else if ($mode = "plain") then
             <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
                 <forward url="{$exist:controller}/modules/lib/transform.xql">
