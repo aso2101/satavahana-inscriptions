@@ -680,6 +680,15 @@ body.tei-text {
   opacity: 0 !important;
   background: #000000 !important;
 }
+#main-container {
+  max-width: 1200px;
+  margin-top: 53px;
+}
+@media (min-width: 1200px) {
+  #main-container {
+    margin-top: 63px;
+  }
+}
 #content-inner .content h1,
 #content-inner .content h2,
 #content-inner .content h3,
