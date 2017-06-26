@@ -25,8 +25,8 @@ let $data :=
                 if ($place/tei:placeName[@type='ancient']) then 
                     $place/tei:placeName[@type='ancient'][1]/text()
                 else $place/tei:placeName[1]/text()
-            let $lat := substring-before($place/tei:geo,' ')
-            let $long := substring-after($place/tei:geo,' ')
+            let $lat := substring-before($place//tei:geo,' ')
+            let $long := substring-after($place//tei:geo,' ')
             return
                 <json:value>
                     <type>Feature</type>
@@ -69,8 +69,8 @@ let $data :=
                     if ($place/tei:placeName[@type='ancient']) then 
                         $place/tei:placeName[@type='ancient'][1]/text()
                     else $place/tei:placeName[1]/text()
-                let $lat := substring-before($place/tei:geo,' ')
-                let $long := substring-after($place/tei:geo,' ')
+                let $lat := substring-before($place//tei:geo,' ')
+                let $long := substring-after($place//tei:geo,' ')
                 return
                     <json:value>
                         <type>Feature</type>
@@ -96,8 +96,8 @@ let $data :=
                 if ($place/tei:placeName[@type='ancient']) then 
                     $place/tei:placeName[@type='ancient'][1]/text()
                 else $place/tei:placeName[1]/text()
-        let $lat := substring-before($place/tei:geo,' ')
-        let $long := substring-after($place/tei:geo,' ')
+        let $lat := substring-before($place//tei:geo,' ')
+        let $long := substring-after($place//tei:geo,' ')
         return
              <json:value>
                     <type>Feature</type>
