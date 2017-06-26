@@ -1494,6 +1494,9 @@ function app:navigation-title($node as node(), $model as map(*)) {
         if ($id) then
             <span class="small pull-right">ID: { $id }</span>
         else ()
+    let $teiLink := concat(request:get-uri(),'.xml')
+    let $teispan := 
+            <span class="small pull-right" style="margin:-.25em .5em;"><a href="{$teiLink}"><img src="{$config:app-nav-base}/resources/images/tei-25.png"/></a></span>    
     let $main-title := 
         if($data//tei:title) then
             $data//tei:title[1]/text()
@@ -1503,5 +1506,6 @@ function app:navigation-title($node as node(), $model as map(*)) {
             $data//tei:placeName[1]/text()
         else ()
     return 
-        <h3 class="text-center">{ $main-title }{ $idspan }</h3>
+        <h3 class="text-center">{ $main-title } {$teispan} { $idspan }</h3>
+        
 };
