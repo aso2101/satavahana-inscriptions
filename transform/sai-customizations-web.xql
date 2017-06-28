@@ -53,8 +53,7 @@ declare function model:apply($config as map(*), $input as node()*) {
                     html:body($config, ., ("tei-text"), .)
                 case element(ab) return
                     if (ancestor::div[@type='edition'] and $parameters?break='XML') then
-                        (: No function found for behavior: xml :)
-                        $config?apply($config, ./node())
+                        ext-html:xml($config, ., ("tei-ab1"), .)
                     else
                         if (ancestor::div[@type='edition'] and @xml:lang) then
                             html:inline($config, ., ("tei-ab2"), .)
@@ -562,8 +561,7 @@ else
                                 $config?apply($config, ./node())
                 case element(lg) return
                     if (ancestor::div[@type='edition'] and $parameters?break='XML') then
-                        (: No function found for behavior: xml :)
-                        $config?apply($config, ./node())
+                        ext-html:xml($config, ., ("tei-lg1"), .)
                     else
                         if ((@met or @n) and $parameters?break='Logical') then
                             html:block($config, ., ("tei-lg2", "stance-block"), (

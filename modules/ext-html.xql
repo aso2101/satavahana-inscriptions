@@ -277,17 +277,20 @@ declare function local:copy($element as element()) as element() {
                         else $child
       }
 };
-declare function pmf:xml-tab($config as map(*), $node as element(), $class as xs:string+, $content) {
-    
+(: 
+ :  : creates a div with xml tei code in it 
+:)
+declare function pmf:xml($config as map(*), $node as element(), $class as xs:string+, $content) {    
         let $type := $node/@type
         let $content2 := local:copy($content)
-        let $content3 := util:serialize($content2,"method=xml omit-xml-declaration=yes indent=yes")
+        let $content3 := util:serialize($content2,"indent=no")
         return
             <div class="{class} xml-tab {@type}">
-                <pre><code>{$content3}</code></pre>
+                <pre>
+                	<code class="epidoc">{$content3}</code>
+                </pre>
             </div>
 };
-
 
 
 declare function pmf:popover($config as map(*), $node as element(), $class as xs:string+, $content,

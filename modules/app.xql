@@ -1400,7 +1400,7 @@ declare function app:display-tabs($node as node(), $model as map(*), $path as xs
                         for $i in 1 to array:size($tabs) 
                         let $tabId := $tabs($i)
                         return
-                            app:process-content-tabs($node,$model, $path, $tabId,$odd)
+                            app:process-content-tabs($node,$model,$path,$tabId,$odd)
                     }
                 </div>
     		</div>		
