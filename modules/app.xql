@@ -1016,10 +1016,8 @@ declare function app:browse-get-persons($node as node(), $model as map(*)){
                             $hit[matches(substring(global:build-sort-string(.,$browse:computed-lang),1,1),browse:get-sort(),'i')]
                             :)
                     let $facet-def := doc($config:app-root || '/browse-person-facet-def.xml')
-                    for $i in util:eval(concat("$persons",app:abc-filter(),facet:facet-filter($facet-def)))
-                    let $name := 
-                        if (contains($i/@id,'pers:')) then substring-after($i/@id,'pers:')
-                        else $i
+                    for $i in util:eval(concat("$persons",app:abc-filter('tei:person[1]/tei:persName[1]'),facet:facet-filter($facet-def)))
+                    let $name := $i//tei:person[1]/tei:persName[1]
                     order by $name
                     return $i
         }     
@@ -1175,11 +1173,11 @@ declare function app:view-hits($inscriptions, $placeId){
 (:
  : May need to add filters for accented letters?
 :)
-declare function app:abc-filter(){
+declare function app:abc-filter($node){
  if(request:get-parameter('abc-filter', '') != '') then
     if(request:get-parameter('abc-filter', '') = 'ALL') then () 
     else 
-     concat('[tei:person[starts-with(@xml:id, "',request:get-parameter('abc-filter', ''),'")]]')
+     concat('[',$node,'[starts-with(., "',request:get-parameter('abc-filter', ''),'")]]')
  else()
 };
 
@@ -1242,7 +1240,6 @@ declare function app:map($node as node(), $model as map(*)) {
                <script type="text/javascript">
                    L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
                    var geojson = {smap:create-data(app:dynamic-map-data($node,$model))};
-                   var bounds = L.latLngBounds(geojson);
                    var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
                </script>
                <script type="text/javascript" src="resources/scripts/map.js"/>
@@ -1400,7 +1397,7 @@ declare function app:display-tabs($node as node(), $model as map(*), $path as xs
                         for $i in 1 to array:size($tabs) 
                         let $tabId := $tabs($i)
                         return
-                            app:process-content-tabs($node,$model,$path,$tabId,$odd)
+                            app:process-content-tabs($node,$model, $path, $tabId,$odd)
                     }
                 </div>
     		</div>		
