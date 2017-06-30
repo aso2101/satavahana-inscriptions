@@ -75,7 +75,7 @@ h4.slider {display:block; margin:0 0 1em;padding: 0 0 1em;}
 .person-identifiers {font-weight:600;}
 .abc {margin:0 -1em 1em -1em; padding:0;}
 /*.abc {margin:0; margin-bottom: -1.25em; padding:0; text-align:center;}*/
-/*.pagination li a {font-size:.85em;}*/
+.pagination li a {font-size:.75em;}
 .pagination {margin-top:.25em;}
 .nav-justified li {padding:0; margin:0; font-size:.85em;}
 .nav-tabs.nav-justified > li > a {padding:1em; margin:0;}

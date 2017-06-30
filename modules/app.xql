@@ -960,6 +960,20 @@ declare function app:hit-count($node as node()*, $model as map(*)) {
 };
 
 (:~
+ : Browse Bibliography
+:)
+declare function app:browse-bibl-data($node as node(), $model as map(*)) {
+    map {
+                "hits" := 
+                    let $browse-path := concat($config:remote-root,'/contextual/Bibliography')
+                    let $facet-def :=  doc($config:app-root || '/browse-bibl-facet-def.xml')
+                    for $i in util:eval(concat("collection($browse-path)/tei:TEI",app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()'),facet:facet-filter($facet-def),slider:date-filter()))
+                    order by $i//tei:titleStmt/tei:title[1]
+                    return $i
+        }  
+};
+
+(:~
  : Browse inscriptions  
  : Group inscriptions by place/@key
  : @sort  
@@ -1022,6 +1036,33 @@ declare function app:browse-get-persons($node as node(), $model as map(*)){
                     return $i
         }     
 };
+
+(:~
+ : Show browse hits. 
+ : @param $start default 1 
+ : @param $per-page default 10
+:)
+declare
+    %templates:default("start", 1)
+    %templates:default("per-page", 10)
+function app:bibl-browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
+    for $p in subsequence($model("hits"), $start, $per-page)
+    let $id := $p/descendant::tei:biblStruct/@xml:id
+    let $bibl-id := concat('bibl:',$id)
+    let $title := $p/descendant::tei:titleStmt/tei:title[1]/text()
+    let $inscriptions := 
+        for $i in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target=$bibl-id]]
+        return <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($i/@xml:id)}">{($i/tei:teiHeader, $i//tei:div[@type='edition'][@xml:lang])}</TEI>
+    return 
+     <div id="{$bibl-id}">
+        <h4>{app:rec-link($p, 'Bibliography', $title)}</h4>
+        <p>Mentioned in these inscriptions:</p>
+        <div class="indent">
+            {app:view-hits($inscriptions, $bibl-id)}
+        </div>
+    </div>     
+};
+
 
 (:~
  : Show browse hits. 
@@ -1177,7 +1218,7 @@ declare function app:abc-filter($node){
  if(request:get-parameter('abc-filter', '') != '') then
     if(request:get-parameter('abc-filter', '') = 'ALL') then () 
     else 
-     concat('[',$node,'[starts-with(., "',request:get-parameter('abc-filter', ''),'")]]')
+     concat('[',$node,'[matches(., "^',request:get-parameter('abc-filter', ''),'")]]')
  else()
 };
 

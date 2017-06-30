@@ -2,12 +2,8 @@
 <div xmlns:i18n="http://exist-db.org/xquery/i18n" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
     <div data-template="templates:include" data-template-path="templates/menu.html"/>
     <section class="container-fluid sai-content">
+        <!--
     <div class="container">
-        <div class="row">
-            <div class="page-header">
-                <h1>Bibliography</h1>
-            </div>
-        </div>
         <div class="row">
             <div class="bibitems" data-template="app:list-bibitems" data-template-key="{$id}">
                 <div class="bibitem" data-template="templates:each" data-template-from="bibitems" data-template-to="bibitem">
@@ -18,6 +14,55 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>-->
+        <div class="container">
+            <div class="row">
+                <div class="page-header">
+                    <h2>Bibliography</h2>
+                </div>
+            </div>
+            <div class="bibitems" data-template="app:browse-bibl-data" data-template-path="/contextual/Bibliography">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="well well-sm">
+                            <h5>Matching Bibliographic Records: <span id="hit-count" data-template="app:hit-count"/></h5>
+                            <hr/>
+                            <div data-template="app:display-facets" data-template-facet-def="browse-bibl-facet-def.xml"/>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    <ul class="pagination" data-template="app:browse-abc-menu"/>
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <!-- pagination for small device -->
+                                <div class="hidden-md hidden-lg hidden-sm pull-right">
+                                    <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="5" data-template-min-hits="21"/>
+                                </div>
+                                <!-- pagination for larger device -->
+                                <div class="hidden-xs" style="text-align:right;">
+                                    <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="9" data-template-min-hits="21"/>
+                                </div>
+                                <hr/>
+                                <br/>
+                                <div data-template="app:bibl-browse-hits" data-template-per-page="20"/>
+                                
+                                <!-- pagination for small device -->
+                                <div class="hidden-md hidden-lg hidden-sm pull-right">
+                                    <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="5" data-template-min-hits="21"/>
+                                </div>
+                                <!-- pagination for larger device -->
+                                <div class="hidden-xs pull-right">
+                                    <ul class="pagination" data-template="app:paginate" data-template-per-page="20" data-template-max-pages="9" data-template-min-hits="21"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
