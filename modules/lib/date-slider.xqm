@@ -23,8 +23,9 @@ declare namespace tei="http://www.tei-c.org/ns/1.0";
  : Build date filter for date slider. 
  : @param $startDate
  : @param $endDate
+ : @param $mode selects which date element to use for filter. Current modes are 'inscription' and 'bibl'
 :)
-declare function slider:date-filter() {
+declare function slider:date-filter($mode) {
 let $startDate := 
                if(request:get-parameter('startDate', '') != '') then
                     if(request:get-parameter('startDate', '') castable as xs:date) then 
@@ -39,7 +40,21 @@ let $endDate :=
                 else() 
 return                 
     if(not(empty($startDate)) and not(empty($endDate))) then 
-        concat('[descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate[
+        if($mode = 'bibl') then 
+            concat('[descendant::tei:imprint[1]/tei:date[1]
+            [
+            (xs:gYear(xs:date(slider:expand-dates(@when))) gt xs:gYear("', $startDate,'") 
+            and xs:gYear(xs:date(slider:expand-dates(@when))) lt xs:gYear("', $endDate,'"))
+            or 
+            (xs:gYear(xs:date(slider:expand-dates(@from))) gt xs:gYear("', $startDate,'") 
+            and xs:gYear(xs:date(slider:expand-dates(@from))) lt xs:gYear("', $endDate,'"))
+            or 
+            (xs:gYear(xs:date(slider:expand-dates(@to))) gt xs:gYear("', $startDate,'") 
+            and xs:gYear(xs:date(slider:expand-dates(@to))) lt xs:gYear("', $endDate,'"))
+            ]
+            ]')
+        else concat('[descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate
+        [
         (xs:gYear(xs:date(slider:expand-dates(@notBefore-custom))) gt xs:gYear("', $startDate,'") and xs:gYear(xs:date(slider:expand-dates(@notBefore-custom))) lt xs:gYear("', $endDate,'"))
         or (xs:gYear(xs:date(slider:expand-dates(@notAfter-custom))) gt xs:gYear("',$startDate,'") and xs:gYear(xs:date(slider:expand-dates(@notAfter-custom))) lt xs:gYear("',$endDate,'"))]]')
     else ()
@@ -69,16 +84,22 @@ return
 
 (:~
  : Build Javascript Date Slider. 
+ : @param $hits node containing all hits from search/browse pages
+ : @param $mode selects which date element to use for filter. Current modes are 'inscription' and 'bibl'
 :)
-declare function slider:browse-date-slider($hits){                  
+declare function slider:browse-date-slider($hits, $mode as xs:string?){                  
 let $startDate := request:get-parameter('startDate', '')
 let $endDate := request:get-parameter('endDate', '')
 (: Dates in current results set :)  
 let $d := 
-    for $dates in $hits/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom | $hits/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notAfter-custom
-    order by xs:date(slider:expand-dates($dates)) 
-    return $dates
-    
+    if($mode = 'bibl') then
+        for $dates in $hits/descendant::tei:imprint[1]/tei:date[1]/@when | $hits/descendant::tei:imprint[1]/tei:date[1]/@from | $hits/descendant::tei:imprint[1]/tei:date[1]/@to
+        order by xs:date(slider:expand-dates($dates)) 
+        return $dates    
+    else 
+        for $dates in $hits/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom | $hits/descendant::tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notAfter-custom
+        order by xs:date(slider:expand-dates($dates)) 
+        return $dates    
 let $min := if($startDate) then 
                 slider:expand-dates($startDate) 
             else slider:expand-dates(xs:date(slider:expand-dates(string($d[1]))))

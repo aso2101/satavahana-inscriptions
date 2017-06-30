@@ -967,7 +967,7 @@ declare function app:browse-bibl-data($node as node(), $model as map(*)) {
                 "hits" := 
                     let $browse-path := concat($config:remote-root,'/contextual/Bibliography')
                     let $facet-def :=  doc($config:app-root || '/browse-bibl-facet-def.xml')
-                    for $i in util:eval(concat("collection($browse-path)/tei:TEI",app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()'),facet:facet-filter($facet-def),slider:date-filter()))
+                    for $i in util:eval(concat("collection($browse-path)/tei:TEI",app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()'),facet:facet-filter($facet-def),slider:date-filter('bibl')))
                     order by $i//tei:titleStmt/tei:title[1]
                     return $i
         }  
@@ -982,7 +982,7 @@ declare function app:browse-get-inscriptions($node as node(), $model as map(*)) 
     map {
                 "hits" := 
                     let $facet-def := doc($config:app-root || '/browse-facet-def.xml')
-                    for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def),slider:date-filter()))
+                    for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def),slider:date-filter('inscriptions')))
                     return $i
         }  
 };
@@ -1270,6 +1270,10 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
         return $p
 };
 
+(:~ 
+ : Builds map HTML and javascript elements 
+ : Uses dynamic data based on page data 
+:)
 declare function app:map($node as node(), $model as map(*)) { 
     if(not(empty(app:dynamic-map-data($node, $model)))) then 
         <div class="map panel panel-default">
@@ -1294,8 +1298,8 @@ declare function app:map($node as node(), $model as map(*)) {
  : Date slider pulls functions from lib/date-slider.xqm
  : Build Javascript Date Slider. 
 :)
-declare function app:browse-date-slider($node as node(), $model as map(*)){   
-    slider:browse-date-slider($model("hits"))
+declare function app:browse-date-slider($node as node(), $model as map(*), $mode as xs:string?){   
+    slider:browse-date-slider($model("hits"), $mode)
 };
                     
 (:~
