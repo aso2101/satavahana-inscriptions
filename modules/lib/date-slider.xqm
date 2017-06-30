@@ -118,44 +118,46 @@ let $params :=
         else if(request:get-parameter($param, '') = ' ') then ()
         else concat('&amp;',$param, '=',request:get-parameter($param, '')),'')
 return 
-<div>
-    <h4 class="slider">Date range</h4>
-    <!--<div>Min: {$min}, Max: {$max} Min padding: {$minPadding}, Max padding: {$maxPadding}<br/><br/><br/></div>-->
-    <div class="sliderContainer">
-    <div id="slider"/>
-    {if($startDate != '') then
-            (<br/>,<a href="?start=1{$params}" class="btn btn-warning btn-sm" role="button"><i class="glyphicon glyphicon-remove-circle"></i> Reset Dates</a>,<br/>)
-    else()}
-    <script type="text/javascript">
-    <![CDATA[
-        var minPadding = "]]>{$minPadding}<![CDATA["
-        var maxPadding = "]]>{$maxPadding}<![CDATA["
-        var minValue = "]]>{$min}<![CDATA["
-        var maxValue = "]]>{$max}<![CDATA["
-        $("#slider").dateRangeSlider({  
-                        bounds: {
-                                min:  new Date(minPadding),
-                               	max:  new Date(maxPadding)
-                               	},
-                        defaultValues: {min: new Date(minValue), max: new Date(maxValue)},
-                        //values: {min: new Date(minValue), max: new Date(maxValue)},
-		        		formatter:function(val){
-		        		     var year = val.getFullYear();
-		        		     return year;
-		        		}
-            });
-            
-            $("#slider").bind("userValuesChanged", function(e, data){
-                var url = window.location.href.split('?')[0];
-                var minDate = data.values.min.toISOString().split('T')[0]
-                var maxDate = data.values.max.toISOString().split('T')[0]
-                console.log(url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[");
-                window.location.href = url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[" ;
-                //$('#browse-results').load(window.location.href + "?startDate=" + data.values.min.toISOString() + "&endDate=" + data.values.max.toISOString() + " #browse-results");
-            });
-        ]]>
-    </script>     
+if(not(empty($min)) and not(empty($max))) then
+    <div>
+        <h4 class="slider">Date range</h4>
+        <!--<div>Min: {$min}, Max: {$max} Min padding: {$minPadding}, Max padding: {$maxPadding}<br/><br/><br/></div>-->
+        <div class="sliderContainer">
+        <div id="slider"/>
+        {if($startDate != '') then
+                (<br/>,<a href="?start=1{$params}" class="btn btn-warning btn-sm" role="button"><i class="glyphicon glyphicon-remove-circle"></i> Reset Dates</a>,<br/>)
+        else()}
+        <script type="text/javascript">
+        <![CDATA[
+            var minPadding = "]]>{$minPadding}<![CDATA["
+            var maxPadding = "]]>{$maxPadding}<![CDATA["
+            var minValue = "]]>{$min}<![CDATA["
+            var maxValue = "]]>{$max}<![CDATA["
+            $("#slider").dateRangeSlider({  
+                            bounds: {
+                                    min:  new Date(minPadding),
+                                   	max:  new Date(maxPadding)
+                                   	},
+                            defaultValues: {min: new Date(minValue), max: new Date(maxValue)},
+                            //values: {min: new Date(minValue), max: new Date(maxValue)},
+    		        		formatter:function(val){
+    		        		     var year = val.getFullYear();
+    		        		     return year;
+    		        		}
+                });
+                
+                $("#slider").bind("userValuesChanged", function(e, data){
+                    var url = window.location.href.split('?')[0];
+                    var minDate = data.values.min.toISOString().split('T')[0]
+                    var maxDate = data.values.max.toISOString().split('T')[0]
+                    console.log(url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[");
+                    window.location.href = url + "?startDate=" + minDate + "&endDate=" + maxDate + "]]> {$params} <![CDATA[" ;
+                    //$('#browse-results').load(window.location.href + "?startDate=" + data.values.min.toISOString() + "&endDate=" + data.values.max.toISOString() + " #browse-results");
+                });
+            ]]>
+        </script>     
+        </div>
     </div>
-</div>
+else ()
 };
  
