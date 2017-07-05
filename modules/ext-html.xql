@@ -334,6 +334,18 @@ declare function pmf:popover($config as map(*), $node as element(), $class as xs
             </div>
         </div>)
 };
+
+
+(: may 2017 :)
+(:  used only for links in the bibliography; AO changed on july 6 2017 on the basis of winona's app:rec-link :)
+declare function pmf:bibl-link($config as map(*), $node as element(), $class as xs:string+, $content, $id as xs:string) {
+    let $path := concat('/exist/apps/SAI/bibliography/',$id)
+    return
+    	<a href="{$path}" class="{$class}">
+	     	{ pmf:apply-children($config, $node, $content) }
+	    </a>
+};
+
 declare function pmf:headingPyu($config as map(*), $node as element(), $class as xs:string+, $content, $level) {
     let $level :=
         if ($level) then

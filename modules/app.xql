@@ -962,8 +962,9 @@ declare function app:hit-count($node as node()*, $model as map(*)) {
 (:~
  : Browse Bibliography
 :)
-declare function app:browse-bibl-data($node as node(), $model as map(*)) {
+declare function app:browse-bibl-data($node as node(), $model as map(*), $view as xs:string?) {
     map {
+                "config" := map { "odd": $config:odd },
                 "hits" := 
                     let $browse-path := concat($config:remote-root,'/contextual/Bibliography')
                     let $facet-def :=  doc($config:app-root || '/browse-bibl-facet-def.xml')
@@ -980,6 +981,7 @@ declare function app:browse-bibl-data($node as node(), $model as map(*)) {
 :)
 declare function app:browse-get-inscriptions($node as node(), $model as map(*)) {
     map {
+                "config" := map { "odd": $config:odd },
                 "hits" := 
                     let $facet-def := doc($config:app-root || '/browse-facet-def.xml')
                     for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def),slider:date-filter('inscriptions')))
@@ -994,6 +996,7 @@ declare function app:browse-get-inscriptions($node as node(), $model as map(*)) 
 :)
 declare function app:browse-get-places($node as node(), $model as map(*)){
     map {
+                "config" := map { "odd": $config:odd },
                 "places" := 
                     let $places := distinct-values($model("hits")//descendant::tei:origPlace/tei:placeName/@key)
                     for $p in $places
@@ -1047,21 +1050,36 @@ declare
     %templates:default("per-page", 10)
 function app:bibl-browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
     for $p in subsequence($model("hits"), $start, $per-page)
+    let $docNode := util:eval("$p//tei:biblStruct[1]")
+    let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) },$model?config?odd)
     let $id := $p/descendant::tei:biblStruct/@xml:id
     let $bibl-id := concat('bibl:',$id)
     let $title := $p/descendant::tei:titleStmt/tei:title[1]/text()
     let $inscriptions := 
         for $i in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target=$bibl-id]]
         return <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($i/@xml:id)}">{($i/tei:teiHeader, $i//tei:div[@type='edition'][@xml:lang])}</TEI>
+    let $related-records :=
+        if ($inscriptions) then 
+            <div class="row mentions">
+                <div class="col-sm-12">
+                    <p>Mentioned in these records:</p>
+                    <div class="indent">
+                        {app:view-hits($inscriptions, $bibl-id)}
+                    </div>
+                </div>
+            </div>
+        else ""
     return 
-     <div id="{$bibl-id}">
-        <h4>{app:rec-link($p, 'Bibliography', $title)}</h4>
-        <p>Mentioned in these inscriptions:</p>
-        <div class="indent">
-            {app:view-hits($inscriptions, $bibl-id)}
-        </div>
-    </div>     
+        <li class="list-group-item">
+          { $html }{ $related-records }
+        </li>
 };
+(: old return:
+    <div id="{$bibl-id}">
+        <h4>{app:rec-link($p, 'Bibliography', $title)}</h4>
+        {$related-records}
+    </div>  
+:)
 
 
 (:~
@@ -1520,7 +1538,7 @@ declare function app:related-inscriptions($node as node(), $model as map(*)) {
     return 
         if($places) then 
             <div>
-                <h3>Mentioned in these inscriptions:</h3>
+                <h3>Mentioned in these records:</h3>
                 { $places }
             </div>
         else ()

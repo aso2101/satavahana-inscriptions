@@ -675,6 +675,9 @@ body.tei-text {
 /* All content styling should go here.                               */
 /* Do not modify other .less files except this one                   */
 /*********************************************************************/
+.mentions {
+  margin-top: 5px;
+}
 .modal-backdrop,
 .modal-backdrop.in {
   opacity: 0 !important;
@@ -1514,10 +1517,10 @@ h3.popover-title i {
 .list-group li .vedette {
   margin-left: -3.5em !important;
 }
-.list-group li:nth-child(odd) {
+.list-group li.list-group-item:nth-child(odd) {
   background-color: #f5f5f5;
 }
-.list-group li:nth-child(even) {
+.list-group li.list-group-item:nth-child(even) {
   background-color: #ffffff;
 }
 .translation-ref {

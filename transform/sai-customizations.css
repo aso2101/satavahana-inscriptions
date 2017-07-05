@@ -51,14 +51,15 @@
 .tei-g { font-style: italic; }
 .tei-g:before { content:"("; }
 .tei-g:after { content:")"; }
-.tei-gap2:before { content:"(3line lost?)"; }
-.tei-gap3:before { content:"(4line illegible?)"; }
-.tei-gap4:before { content:"(7lines lost?)"; }
-.tei-gap5:before { content:"(8lines illegible?)"; }
-.tei-gap6:before { content:"(1line lost)"; }
-.tei-gap7:before { content:"(2line illegible)"; }
-.tei-gap8:before { content:"(5lines lost)"; }
-.tei-gap9:before { content:"(6lines illegible)"; }
+.tei-gap2:before { content:"(line lost?)"; }
+.tei-gap3:before { content:"(line illegible?)"; }
+.tei-gap4:before { content:"(lines lost?)"; }
+.tei-gap5:before { content:"(lines illegible?)"; }
+.tei-gap6:before { content:"(line lost)"; }
+.tei-gap7:before { content:"(line illegible)"; }
+.tei-gap8:before { content:"(lines lost)"; }
+.tei-gap9:before { content:"(lines illegible)"; }
+.tei-gap10:before { content:' … ' }
 .tei-head2 { font-style: italic; }
 .tei-head3 { font-style: italic; }
 .tei-head4 { font-style: italic; }
@@ -73,11 +74,7 @@
 .tei-note3:before { content:". "; }
 .tei-note11 { color:orange; }
 .tei-note12:before { content: '.'; }
-.tei-p1 { margin-left:6em; }
-.tei-p4 { text-indent:3em; }
-.tei-pb { display: block; margin-left: 4pt; color: grey; float: right; }
-.tei-pb:before { content: '[plate '; }
-.tei-pb:after { content: ']'; }
+.tei-p1 { margin-left:2em; }
 .tei-q1 { margin-left: 10px; margin-right: 10px; }
 .tei-q2:before { content: '‘'; }
 .tei-q2:after { content: '’'; }
@@ -91,17 +88,13 @@
 .tei-reg1:after { content: ']'; }
 .tei-row1 { font-weight: bold; }
 .tei-seg1 { color:red; background-color:yellow; }
-.tei-seg2 { color:red; }
-.tei-seg3:before { content:"<"; }
-.tei-seg3:after { content:">"; }
-.tei-seg4:before { content:"["; }
-.tei-seg4:after { content:"]"; }
-.tei-seg5:before { content:"/"; }
-.tei-seg5:after { content:"/"; }
-.tei-seg6 { background:yellow; color:red }
-.tei-seg6:before { content:"***"; }
-.tei-seg6:after { content:"***"; }
-.tei-seg7 { font-weight:bold; display:inline-block; }
+.tei-seg2:before { content:"<"; }
+.tei-seg2:after { content:">"; }
+.tei-seg3:before { content:"["; }
+.tei-seg3:after { content:"]"; }
+.tei-seg4:before { content:"/"; }
+.tei-seg4:after { content:"/"; }
+.tei-seg5 { font-weight:bold; margin-left:2em; margin-right:.25em; }
 .tei-sic2:before { content: '{'; }
 .tei-sic2:after { content: '}'; }
 .tei-signed1 { text-align: right; }
@@ -138,8 +131,7 @@
 .tei-w5:after { content:')' }
 .tei-addName:before { content:'('; }
 .tei-addName:after { content:')'; }
-.tei-app3:after { content: ' '; }
-.tei-biblStruct1 { margin-bottom:1em; }
+.tei-app2:after { content: ' '; }
 .tei-biblStruct2 { font-weight:bold; }
 .tei-biblStruct3 { font-weight:bold; font-style:normal; color: #f6a623; }
 .tei-biblStruct3:after { content:"\a"; white-space:pre; }
@@ -148,20 +140,23 @@
 .tei-biblStruct18:before { content:'ed. by ' }
 .tei-biblStruct27:before { content:'“'; }
 .tei-biblStruct27:after { content:'”'; }
-.tei-height2:before { content:"h. "; }
-.tei-height2:after { content:" × "; }
-.tei-height3:before { content:"h. "; }
-.tei-height3:after { content:" × "; }
-.tei-height4:before { content:"h. "; }
-.tei-width1:before { content:"w. "; }
-.tei-width1:after { content:" × "; }
-.tei-width2:before { content:"w. "; }
-.tei-depth2:before { content:"d. "; }
-.tei-depth2:after { content:" × "; }
-.tei-depth3:before { content:"d. "; }
-.tei-dim1:before { content:"dia. "; }
-.tei-dim1:after { content:" × "; }
-.tei-dim2:before { content:"dia. "; }
+.tei-dimensions4:after { content: " "; }
+.tei-dimensions7:before { content: ' ('; }
+.tei-dimensions7:after { content: ')'; }
+.tei-height2:before { content:"h. "; }
+.tei-height2:after { content:" × "; }
+.tei-height3:before { content:"h. "; }
+.tei-height3:after { content:" × "; }
+.tei-height4:before { content:"h. "; }
+.tei-width1:before { content:"w. "; }
+.tei-width1:after { content:" × "; }
+.tei-width2:before { content:"w. "; }
+.tei-depth2:before { content:"d. "; }
+.tei-depth2:after { content:" × "; }
+.tei-depth3:before { content:"d. "; }
+.tei-dim1:before { content:"dia. "; }
+.tei-dim1:after { content:" × "; }
+.tei-dim2:before { content:"dia. "; }
 .tei-idno5:after { content: " - "; }
 .tei-imprint10:before { content: ': '; }
 .tei-imprint17:before { content: ': '; }

@@ -19,6 +19,303 @@
 <text>
   <body>
     <schemaSpec start="TEI teiCorpus" source="hisoma-epigraphy.odd" ident="sai-customizations">
+				<!-- ==== biblStruct ==== -->
+				<elementSpec mode="change" ident="biblStruct">
+				    <model behaviour="block">
+					<modelSequence>
+						<modelSequence>
+							<model behaviour="inline">
+								<model predicate=".//title[@type='short']" behaviour="bibl-link">
+									<param name="content" value=".//title[@type='short']"/>
+									<param name="id">@xml:id</param>
+									<outputRendition> font-weight:bold; font-style:normal; color: #f6a623; </outputRendition>
+									<outputRendition scope="after"> content:"\a"; white-space:pre; </outputRendition>
+								</model>
+								<modelSequence behaviour="inline">
+									<modelGrp>
+										<model predicate=".//author/surname" behaviour="inline">
+											<param name="content">.//author/surname</param>
+										</model>
+										<model predicate=".//author/name" behaviour="inline">
+											<param name="content">.//author/name</param>
+										</model>
+									</modelGrp>
+									<model behaviour="text">
+										<param name="content">' '</param>
+									</model>
+									<model behaviour="inline">
+										<param name="content">monogr/imprint/date</param>
+									</model>
+								</modelSequence>
+								<outputRendition>font-weight:bold;</outputRendition>
+							</model>
+						</modelSequence>
+						<modelSequence behaviour="block">
+							<modelGrp>
+								<!-- case 1 -->
+								<modelSequence predicate="@type='journalArticle' or @type='bookSection' or @type='encyclopediaArticle'">
+									<!-- author -->
+									<model behaviour="inline">
+										<param name="content">analytic/author</param>
+									</model>
+									<!-- title article -->
+									<modelGrp>
+										<modelSequence predicate="analytic/title[@level='a']">
+											<model behaviour="inline">
+												<param name="content">analytic/title[@level='a']</param>
+												<outputRendition scope="before">content:'“'; </outputRendition>
+												<outputRendition scope="after">content:'”'; </outputRendition>
+											</model>
+											<model behaviour="text">
+												<param name="content">', '</param>
+											</model>
+										</modelSequence>
+										<modelSequence predicate="not(analytic/title[@level='a']) and relatedItem[@type='reviewOf']">
+											<!--<model behaviour="text">
+												<param name="content">'review of '</param>
+											</model>-->
+											<model behaviour="link">
+												<param name="content">relatedItem/ref</param>
+												<desc>When it is a review of another bibliographic entry: so there's is no analytic/title[@level='a'].</desc>
+											</model>
+											<model behaviour="text">
+												<param name="content">', '</param>
+											</model>
+										</modelSequence>
+									</modelGrp>
+									<!-- if bookSection  or encyclopediaArticle-->
+									<modelSequence predicate="@type='bookSection' or @type='encyclopediaArticle'">
+										<model predicate="@type='bookSection' or @type='encyclopediaArticle'" behaviour="text">
+											<param name="content">'in '</param>
+										</model>
+										<model behaviour="inline">
+											<param name="content">monogr/title[@level='m']</param>
+										</model>
+										<model behaviour="text">
+											<param name="content">', '</param>
+										</model>
+										<model predicate="monogr/author" behaviour="text">
+											<param name="content">'by '</param>
+										</model>
+										<model behaviour="inline">
+											<param name="content">monogr/author</param>
+											<!--<outputRendition>color:pink;</outputRendition>-->
+										</model>
+										<model predicate="monogr/editor" behaviour="inline">
+											<param name="content">monogr/editor</param>
+											<outputRendition scope="before">content:'ed. by '</outputRendition>
+										</model>
+										<!--<model predicate="monogr/editor/forename" behaviour="inline">
+											<param name="content">monogr/editor/forename</param>
+											<outputRendition>color:red;</outputRendition>
+										</model>
+										<model predicate="monogr/editor/surname" behaviour="inline">
+											<param name="content">' '</param>
+										</model>
+										<model predicate="monogr/editor/surname" behaviour="inline">
+											<param name="content">monogr/editor/surname</param>
+											
+										</model>
+										<model predicate="monogr/editor/name" behaviour="inline">
+											<param name="content">monogr/editor/name</param>
+										</model>
+										<model predicate="monogr/editor" behaviour="text">
+											<param name="content">', '</param>
+										</model>-->
+									</modelSequence>
+									<!-- if journal article  -->
+									<modelSequence predicate="@type='journalArticle'">
+										<model behaviour="inline">
+											<param name="content">monogr/title[@level='j']</param>
+											<!-- <outputRendition>font-style:italic;</outputRendition>-->
+										</model>
+										<model behaviour="text">
+											<param name="content">', '</param>
+										</model>
+									</modelSequence>
+									<!-- series  -->
+								<model predicate=".//series" behaviour="inline">
+										<param name="content">series</param>
+										
+										</model>
+									<!-- !!! warning !!! biblScope specificity in eiad (follows tei.js) !!!! -->
+									<!-- volume  -->
+									<!--<model predicate=".//monogr/biblScope[@unit='volume']" behaviour="inline">
+										<param name="content">monogr/imprint/biblScope[@unit='volume']</param>
+									</model>-->
+									<!-- issue  -->
+									<!--<model predicate=".//monogr/biblScope[@unit='issue']" behaviour="inline">
+										<param name="content">monogr/imprint/biblScope[@unit='issue']</param>
+									</model>-->
+									<!-- imprint  -->
+									<model predicate=".//monogr/imprint" behaviour="inline">
+										<param name="content">monogr/imprint</param>
+										<!--											<outputRendition>color:blue;</outputRendition>-->
+									</model>
+									<!-- pages  -->
+									<!-- see imprint	-->
+									<!--<model predicate=".//monogr/imprint/biblScope[@unit='page']" behaviour="inline">
+										<param name="content">monogr/imprint/biblScope[@unit='page']</param>
+										<outputRendition scope="before">content: ': ';</outputRendition>
+										<outputRendition>color:red;</outputRendition>
+									</model>-->
+									<!-- note  -->
+									<!--<modelSequence predicate=".//note">
+										<model predicate="./note" behaviour="inline">
+											<param name="content">./note</param>
+											<outputRendition>color:orange; </outputRendition>
+										</model>
+										<model predicate=".//imprint/note" behaviour="inline">
+											<param name="content">./note</param>
+											<outputRendition>color:pink; </outputRendition>
+										</model>
+										<!-\- end dot -\->
+										<!-\-<model predicate="not(ends-with(.//note,'.'))" behaviour="inline">
+											<param name="content">'.'</param>
+										</model>-\->
+									</modelSequence>-->
+								</modelSequence>
+								<!-- case 2 -->
+								<modelSequence predicate="@type='book' or @type='manuscript' or @type='thesis' or @type='report'">
+									<!-- author -->
+									<model behaviour="inline">
+										<param name="content">monogr/author</param>
+									</model>
+									<!-- editor -->
+									<model behaviour="inline">
+										<param name="content">monogr/editor</param>
+									</model>
+									<!-- other responsabilities -->
+									<model behaviour="inline">
+										<param name="content">monogr/respStmt</param>
+									</model>
+									<!-- title  -->
+									<model predicate="@type='book' or @type='thesis' or @type='report'" behaviour="inline">
+										<param name="content">monogr/title[@level='m']</param>
+									</model>
+									<model predicate="@type='manuscript'" behaviour="inline">
+										<param name="content">monogr/title[@level='u']</param>
+										<outputRendition scope="before">content:'“'; </outputRendition>
+										<outputRendition scope="after">content:'”'; </outputRendition>
+									</model>
+									<model behaviour="text">
+										<param name="content" value="', '"/>
+										
+									</model>
+									<!-- series  -->
+									<model predicate=".//series" behaviour="inline">
+										<param name="content" value="series"/>
+										
+									</model>
+									<!-- volume  -->
+									<model predicate=".//series/biblScope[@unit='volume']" behaviour="inline">
+										<param name="content" value="biblScope[@unit='volume']"/>
+									</model>
+									<!-- imprint  -->
+									<modelSequence predicate="monogr/imprint">
+										<model predicate="@type='manuscript'" behaviour="text">
+											<param name="content" value="' manuscript '"/>
+										</model>
+										<model predicate="@type='thesis'" behaviour="text">
+											<param name="content" value="' unpublished Ph.D., '"/>
+										</model>
+										<model behaviour="inline">
+											<param name="content" value="monogr/imprint"/>
+										</model>
+									</modelSequence>
+									<!-- note  -->
+									<modelSequence predicate="note">
+										<model behaviour="inline">
+											<param name="content">note</param>
+										</model>
+									</modelSequence>
+								</modelSequence>
+								<!-- /end case 2 -->
+								<!-- case 3 -->
+								<modelSequence predicate="@type='journal'">
+									<!-- title journal -->
+									<model behaviour="inline">
+										<param name="content">monogr/title[@level='j']</param>
+									</model>
+									<model behaviour="text">
+										<param name="content">', '</param>
+									</model>
+									<!-- imprint  -->
+									<modelSequence predicate="monogr/imprint">
+										<model behaviour="inline">
+											<param name="content">monogr/imprint</param>
+										</model>
+									</modelSequence>
+									<!-- note  -->
+									<modelSequence predicate="note">
+										<model behaviour="inline">
+											<param name="content">note</param>
+										</model>
+									</modelSequence>
+								</modelSequence>
+								<!-- /end case 3 -->
+								<!-- case 4 -->
+								<modelSequence predicate="@type='webpage'">
+									<!-- author -->
+									<model behaviour="inline">
+										<param name="content">monogr/author</param>
+									</model>
+									<!-- title website -->
+									<model behaviour="inline">
+										<param name="content">monogr/title[not(@type='short')]</param>
+									</model>
+									<model behaviour="text">
+										<param name="content">', '</param>
+									</model>
+									<!-- url -->
+									<modelSequence predicate="monogr/idno[@type='url'] or note[@type='url']">
+										<model behaviour="text">
+											<param name="content">'retrieved on '</param>
+										</model>
+										<model behaviour="inline">
+											<param name="content">monogr/note[@type='accessed']/date</param>
+										</model>
+										<model behaviour="text">
+											<param name="content">' from &lt;'</param>
+										</model>
+										<modelGrp>
+											<model predicate="monogr/idno[@type='url']" behaviour="inline">
+												<param name="content">*/idno</param>
+											</model>
+											<model predicate="note[@type='url']" behaviour="inline">
+												<param name="content">note[@type='url']</param>
+											</model>
+										</modelGrp>
+										<model behaviour="text">
+											<param name="content">'&gt;'</param>
+										</model>
+									</modelSequence>
+									<!-- note  -->
+									<modelSequence predicate="note">
+										<model behaviour="inline" predicate="note">
+												<param name="content">note</param>
+										</model>
+									</modelSequence>
+								</modelSequence>
+								<!-- /end case 4 -->
+							</modelGrp>
+						</modelSequence>
+						<modelSequence predicate="not(@type='webpage')">
+							<model predicate="*/idno[@type='url']" behaviour="inline">
+								<param name="content" value="*/idno[@type='url']"/>
+							</model>
+						</modelSequence>
+						<!-- end dot -->
+						<model predicate=".//*[position()=last()][not(local-name()='note')][not(ends-with(normalize-space(text()),'.'))]" behaviour="text">
+							<param name="content">'.'</param>
+						</model>
+						<model predicate=".//note[position()=last()][@type='thesisType' or @type='url' or @type='tags']" behaviour="text">
+							<param name="content">'.'</param>
+						</model>
+					</modelSequence>
+					</model>
+				</elementSpec>
+    
 				<elementSpec mode="change" ident="div">
 					<attList>
 						<attDef ident="type" mode="replace" usage="req">
@@ -290,6 +587,65 @@
 							<outputRendition scope="after">content: ' ';</outputRendition>
 						</model>
 					</modelSequence>
+				</elementSpec>
+				
+
+				<!-- ==== title ==== -->
+				<elementSpec mode="change" ident="title">
+					<model predicate="$parameters?header='short'" behaviour="inline"/>
+					<modelSequence predicate="@type='translation' and ancestor::biblStruct">
+						<model behaviour="text">
+							<param name="content">' '</param>
+						</model>
+						<modelGrp>
+							<!-- you only open the square bracket if the transcription is absent -->
+							<model predicate="preceding-sibling::*[1][@type='transcription']" behaviour="text">
+								<param name="content">' — '</param>
+							</model>
+							<model predicate="preceding-sibling::*[1][local-name()='title']" behaviour="text">
+								<param name="content">'['</param>
+							</model>
+						</modelGrp>
+						<model behaviour="inline"/>
+						<model behaviour="text">
+							<param name="content">']'</param>
+						</model>
+					</modelSequence>
+					<modelSequence predicate="@type='transcription' and ancestor::biblStruct">
+						<model predicate="preceding-sibling::*[1][local-name()='title']" behaviour="text">
+							<param name="content">' '</param>
+						</model>
+						<model predicate="preceding-sibling::*[1][local-name()='title']" behaviour="text">
+							<param name="content">'['</param>
+						</model>
+						<model behaviour="inline">
+							<!-- other way to have some combined property = @level and @type -->
+							<modelGrp>
+								<model predicate="(@level='a' or @level='s' or @level='u') and ancestor::biblStruct" behaviour="inline">
+									<outputRendition>font-style:normal;</outputRendition>
+								</model>
+								<model predicate="(@level='j' or @level='m') and ancestor::biblStruct" behaviour="inline">
+									<outputRendition>font-style:italic;</outputRendition>
+								</model>
+								<model behaviour="inline">
+									<outputRendition>font-style: italic;</outputRendition>
+								</model>
+							</modelGrp>
+						</model>
+						<model predicate="not(following-sibling::*[1][@type='translation'])" behaviour="text">
+							<param name="content">']'</param>
+						</model>
+						<model predicate="not(@level) and parent::bibl" behaviour="inline"/>
+					</modelSequence>
+					<model predicate="@type='short' and ancestor::biblStruct" behaviour="inline" cssClass="vedette">
+						<outputRendition>font-style: normal;</outputRendition>
+					</model>
+					<model predicate="(@level='a' or @level='s' or @level='u') and ancestor::biblStruct" behaviour="inline">
+						<outputRendition>font-style:normal;</outputRendition>
+					</model>
+					<model predicate="(@level='j' or @level='m') and ancestor::biblStruct" behaviour="inline">
+						<outputRendition>font-style:italic;</outputRendition>
+					</model>
 				</elementSpec>
     </schemaSpec>
   </body>

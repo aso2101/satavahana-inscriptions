@@ -453,34 +453,43 @@ else
                                                     if (@reason='illegible' and @unit='line' and @extent='unknown') then
                                                         html:inline($config, ., ("tei-gap9", "italic"), .)
                                                     else
-                                                        if (@unit='aksarapart' and @quantity=1) then
-                                                            html:inline($config, ., ("tei-gap10", "aksarapart"), '.')
+                                                        if (@reason='lost' and @extent='unknown') then
+                                                            html:inline($config, ., ("tei-gap10", "italic"), .)
                                                         else
-                                                            if ((@reason='lost' or @reason='illegible') and @extent='unknown') then
-                                                                html:inline($config, ., ("tei-gap11"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
-							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' /// ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
-							@reason || ')' else ' /// ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
+                                                            if (@unit='aksarapart' and @quantity=1) then
+                                                                html:inline($config, ., ("tei-gap11", "aksarapart"), '.')
                                                             else
-                                                                if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::*[1][local-name()='lb']) then
-                                                                    html:inline($config, ., ("tei-gap12", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
-							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' /// ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
-							@reason || ')' else ' /// ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
+                                                                if ((@unit='character' or @unit='chars') and @quantity=1 and @reason='lost') then
+                                                                    html:inline($config, ., ("tei-gap12"), '+')
                                                                 else
-                                                                    if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and preceding-sibling::*[1][local-name()='lb']) then
-                                                                        html:inline($config, ., ("tei-gap13", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
+                                                                    if ((@unit='character' or @unit='chars') and @quantity=1 and @reason='illegible') then
+                                                                        html:inline($config, ., ("tei-gap13"), '?')
+                                                                    else
+                                                                        if ((@reason='lost' or @reason='illegible') and @extent='unknown') then
+                                                                            html:inline($config, ., ("tei-gap14"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
+							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
+							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
+							@reason || ')' else ' ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
+                                                                        else
+                                                                            if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::*[1][local-name()='lb']) then
+                                                                                html:inline($config, ., ("tei-gap15", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
+							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
+							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
+							@reason || ')' else ' ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
+                                                                            else
+                                                                                if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and preceding-sibling::*[1][local-name()='lb']) then
+                                                                                    html:inline($config, ., ("tei-gap16", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
 							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
 							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||
-							')' || ' /// ' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || ' /// ' || $sep )
-                                                                    else
-                                                                        if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::text()[1]) then
-                                                                            html:inline($config, ., ("tei-gap14", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
+							')' || ' ' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || ' ' || $sep )
+                                                                                else
+                                                                                    if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::text()[1]) then
+                                                                                        html:inline($config, ., ("tei-gap17", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
 							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
 							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||
 							')' else (string-join((for $i in 1 to xs:integer($quantity) return ' ' || $charToRepeat),' ')) || $sep)
-                                                                        else
-                                                                            $config?apply($config, ./node())
+                                                                                    else
+                                                                                        $config?apply($config, ./node())
                 case element(graphic) return
                     html:graphic($config, ., ("tei-graphic"), ., @url, (), (), (), ())
                 case element(group) return
@@ -540,7 +549,7 @@ else
                         if ($parameters?break='Logical') then
                             epub:block($config, ., ("tei-l4"), if (@n) then
     (
-        epub:block($config, ., ("tei-l5", "verse-number"), @n || '*'),
+        epub:block($config, ., ("tei-l5", "verse-number"), @n),
         epub:block($config, ., ("tei-l6"), .)
     )
 
@@ -555,19 +564,23 @@ else
                     html:inline($config, ., ("tei-label"), .)
                 case element(lb) return
                     (: More than one model without predicate found for ident lb. Choosing first one. :)
-                    if ($parameters?break='Physical') then
+                    if (ancestor::lg and $parameters?break='Physical') then
                         (: No function found for behavior: breakPyu :)
                         $config?apply($config, ./node())
                     else
-                        if (ancestor::lg and $parameters?break='Physical') then
+                        if ($parameters?break='Physical') then
                             (: No function found for behavior: breakPyu :)
                             $config?apply($config, ./node())
                         else
-                            if ($parameters?break='Logical') then
+                            if (ancestor::lg and $parameters?break='Logical') then
                                 (: No function found for behavior: breakPyu :)
                                 $config?apply($config, ./node())
                             else
-                                $config?apply($config, ./node())
+                                if ($parameters?break='Logical') then
+                                    (: No function found for behavior: breakPyu :)
+                                    $config?apply($config, ./node())
+                                else
+                                    $config?apply($config, ./node())
                 case element(lg) return
                     if (ancestor::div[@type='edition'] and $parameters?break='XML') then
                         (: No function found for behavior: xml :)
@@ -750,7 +763,15 @@ else
                                                 else
                                                     epub:block($config, ., ("tei-p11"), .)
                 case element(pb) return
-                    epub:break($config, ., css:get-rendition(., ("tei-pb")), ., 'page', (concat(if(@n) then concat(@n,' ') else '',if(@facs) then                   concat('@',@facs) else '')))
+                    if (@type and $parameters?break='Physical') then
+                        (: No function found for behavior: milestone :)
+                        $config?apply($config, ./node())
+                    else
+                        if (@type and $parameters?break='Logical') then
+                            (: No function found for behavior: milestone :)
+                            $config?apply($config, ./node())
+                        else
+                            html:omit($config, ., ("tei-pb3"), .)
                 case element(pc) return
                     html:inline($config, ., ("tei-pc"), .)
                 case element(postscript) return
@@ -793,20 +814,23 @@ else
                             (: If it is inside a paragraph then it is inline, otherwise it is block level :)
                             epub:block($config, ., css:get-rendition(., ("tei-quote3")), .)
                 case element(ref) return
-                    if (ancestor::div[@type='translation']) then
-                        epub:block($config, ., ("tei-ref1", "translation-ref"), .)
+                    if (@rend='no-link') then
+                        html:inline($config, ., ("tei-ref1"), .)
                     else
-                        if (bibl[ptr[@target]]) then
-                            html:inline($config, ., ("tei-ref2"), bibl/ptr)
+                        if (ancestor::div[@type='translation']) then
+                            epub:block($config, ., ("tei-ref2", "translation-ref"), .)
                         else
-                            if (starts-with(@target,'#EIAD')) then
-                                (: For corpus internal links (refs starts with '#'). To customize with corpus prefix (here 'EIAD') but needs declare namespace somewhere for config: :)
-                                html:link($config, ., ("tei-ref3"), ., substring-after(@target,'#') || '.xml' || "?odd=" || request:get-parameter("odd", ()))
+                            if (bibl[ptr[@target]]) then
+                                html:inline($config, ., ("tei-ref3"), bibl/ptr)
                             else
-                                if (not(@target)) then
-                                    html:inline($config, ., ("tei-ref4"), .)
+                                if (starts-with(@target,'#EIAD')) then
+                                    (: For corpus internal links (refs starts with '#'). To customize with corpus prefix (here 'EIAD') but needs declare namespace somewhere for config: :)
+                                    html:link($config, ., ("tei-ref4"), ., substring-after(@target,'#') || '.xml' || "?odd=" || request:get-parameter("odd", ()))
                                 else
-                                    html:link($config, ., ("tei-ref5"), @target, @target)
+                                    if (not(@target)) then
+                                        html:inline($config, ., ("tei-ref5"), .)
+                                    else
+                                        html:link($config, ., ("tei-ref6"), @target, @target)
                 case element(reg) return
                     if (ancestor::biblStruct and @type='popular') then
                         html:inline($config, ., ("tei-reg1"), .)
@@ -842,25 +866,19 @@ else
                     if (@type='check') then
                         html:inline($config, ., ("tei-seg1", "seg"), .)
                     else
-                        if (@type='continuous') then
-                            html:inline($config, ., ("tei-seg2"), w)
+                        if (@type='graphemic') then
+                            html:inline($config, ., ("tei-seg2", "seg"), .)
                         else
-                            if (@type='graphemic') then
+                            if (@type='phonetic') then
                                 html:inline($config, ., ("tei-seg3", "seg"), .)
                             else
-                                if (@type='phonetic') then
+                                if (@type='phonemic') then
                                     html:inline($config, ., ("tei-seg4", "seg"), .)
                                 else
-                                    if (@type='phonemic') then
-                                        html:inline($config, ., ("tei-seg5", "seg"), .)
+                                    if (@type='translatedlines') then
+                                        html:inline($config, ., ("tei-seg5"), .)
                                     else
-                                        if (@type='t1') then
-                                            html:inline($config, ., ("tei-seg6", "seg"), .)
-                                        else
-                                            if (@type='translatedlines') then
-                                                html:inline($config, ., ("tei-seg7"), .)
-                                            else
-                                                html:inline($config, ., ("tei-seg8"), .)
+                                        html:inline($config, ., ("tei-seg6"), .)
                 case element(sic) return
                     if (parent::choice and count(parent::*/*) gt 1) then
                         html:inline($config, ., ("tei-sic1"), .)
@@ -1035,11 +1053,6 @@ else
                             if (lem) then
                                 html:inline($config, ., ("tei-app1"), lem)
                             else
-                                (),
-                            if (rdg) then
-                                (: No function found for behavior: popover :)
-                                $config?apply($config, ./node())
-                            else
                                 ()
                         )
 
@@ -1055,11 +1068,10 @@ else
                 case element(authority) return
                     html:omit($config, ., ("tei-authority"), .)
                 case element(biblStruct) return
-                    if (parent::listBibl) then
-                        html:listItem($config, ., ("tei-biblStruct1", "list-group-item"), (
+                    epub:block($config, ., ("tei-biblStruct1"), (
     (
         html:inline($config, ., ("tei-biblStruct2"), if (.//title[@type='short']) then
-    (: No function found for behavior: tooltip-link :)
+    (: No function found for behavior: bibl-link :)
     $config?apply($config, ./node())
 else
     (
@@ -1262,20 +1274,40 @@ else
         ()
 )
 )
-                    else
-                        $config?apply($config, ./node())
                 case element(dimensions) return
-                    (
-                        if (ancestor::support) then
-                            html:inline($config, ., ("tei-dimensions1"), .)
-                        else
-                            (),
-                        if (@unit) then
-                            html:inline($config, ., ("tei-dimensions2"), @unit)
-                        else
-                            ()
-                    )
+                    if (ancestor::support) then
+                        (
+                            html:inline($config, ., ("tei-dimensions1"), .),
+                            if (@unit) then
+                                html:inline($config, ., ("tei-dimensions2"), @unit)
+                            else
+                                ()
+                        )
 
+                    else
+                        if (ancestor::layoutDesc) then
+                            (
+                                if (not(preceding-sibling::dimensions)) then
+                                    html:text($config, ., ("tei-dimensions3"), ' Inscribed area: ')
+                                else
+                                    (),
+                                html:inline($config, ., ("tei-dimensions4"), .),
+                                if (following-sibling::dimensions) then
+                                    html:text($config, ., ("tei-dimensions5"), ';')
+                                else
+                                    (),
+                                if (@unit) then
+                                    html:inline($config, ., ("tei-dimensions6"), @unit)
+                                else
+                                    (),
+                                if (@extent) then
+                                    html:inline($config, ., ("tei-dimensions7"), @extent)
+                                else
+                                    ()
+                            )
+
+                        else
+                            html:inline($config, ., ("tei-dimensions8"), .)
                 case element(height) return
                     if (parent::dimensions and @precision='unknown') then
                         html:omit($config, ., ("tei-height1"), .)
@@ -1289,7 +1321,10 @@ else
                                 if (parent::dimensions and not(following-sibling::*)) then
                                     html:inline($config, ., ("tei-height4"), if (@extent) then concat('(',@extent,') ',.) else .)
                                 else
-                                    html:inline($config, ., ("tei-height5"), .)
+                                    if (not(ancestor::layoutDesc or ancestor::supportDesc)) then
+                                        html:inline($config, ., ("tei-height5"), .)
+                                    else
+                                        $config?apply($config, ./node())
                 case element(width) return
                     if (parent::dimensions and count(following-sibling::*) >= 1) then
                         html:inline($config, ., ("tei-width1"), if (@extent) then concat('(',@extent,') ',.) else .)
@@ -1297,7 +1332,10 @@ else
                         if (parent::dimensions) then
                             html:inline($config, ., ("tei-width2"), if (@extent) then concat('(',@extent,') ',.) else .)
                         else
-                            html:inline($config, ., ("tei-width3"), .)
+                            if (not(ancestor::layoutDesc or ancestor::supportDesc)) then
+                                html:inline($config, ., ("tei-width3"), .)
+                            else
+                                $config?apply($config, ./node())
                 case element(depth) return
                     if (parent::dimensions and @precision='unknown') then
                         html:omit($config, ., ("tei-depth1"), .)
@@ -1316,7 +1354,10 @@ else
                         if (@type='diameter' and (parent::dimensions and not(following-sibling::*))) then
                             html:inline($config, ., ("tei-dim2"), if (@extent) then concat('(',@extent,') ',.) else .)
                         else
-                            html:inline($config, ., ("tei-dim3"), .)
+                            if (not(ancestor::layoutDesc or ancestor::supportDesc)) then
+                                html:inline($config, ., ("tei-dim3"), .)
+                            else
+                                $config?apply($config, ./node())
                 case element(handDesc) return
                     html:inline($config, ., ("tei-handDesc"), .)
                 case element(handNote) return
@@ -1430,22 +1471,22 @@ else
                             else
                                 $config?apply($config, ./node())
                 case element(layout) return
-                    html:inline($config, ., ("tei-layout"), p)
+                    html:inline($config, ., ("tei-layout"), .)
                 (: There should be no dot before note if this element follows immediately after lem. This rule should be refined and limited to cases where lem had no source or rend. :)
                 case element(lem) return
                     if (ancestor::listApp) then
                         (
                             html:inline($config, ., ("tei-lem1"), .),
                             if (@rend and not(following-sibling::*[1][local-name()='rdg'])) then
-                                html:inline($config, ., ("tei-lem2", "author-rend"), if (contains(.,'.')) then substring-before(@rend,'.') else @rend)
+                                html:inline($config, ., ("tei-lem2", "bibl-rend"), if (ends-with(@rend,'.')) then substring-before(@rend,'.') else @rend)
                             else
                                 (),
                             if (@rend and following-sibling::*[1][local-name()='rdg']) then
-                                html:inline($config, ., ("tei-lem3", "author-rend"), @rend)
+                                html:inline($config, ., ("tei-lem3", "bibl-rend"), @rend)
                             else
                                 (),
                             if (@source) then
-                                (: No function found for behavior: bibl-author-key :)
+                                (: No function found for behavior: bibl-initials-for-ref :)
                                 $config?apply($config, ./node())
                             else
                                 (),

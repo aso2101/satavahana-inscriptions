@@ -157,6 +157,7 @@
 /* All content styling should go here.                               */
 /* Do not modify other .less files except this one                   */
 /*********************************************************************/
+.mentions { margin-top:5px; }
 .modal-backdrop, .modal-backdrop.in {
   opacity:0 !important;
   background:rgb(0,0,0,1)!important;
@@ -1008,10 +1009,10 @@ h3.popover-title i { color: @color-lem-lighter !important; }
 .list-group { font-family: @font-sans-serif-default; margin-top:3em; }
 .list-group li { margin:0; padding:0; padding: 1em 0 !important; padding-left: 4em !important; }
 .list-group li .vedette { margin-left: -3.5em !important;}
-.list-group li:nth-child(odd){
+.list-group li.list-group-item:nth-child(odd){
   background-color: @color-odd;
 }
-.list-group li:nth-child(even){
+.list-group li.list-group-item:nth-child(even){
   background-color: @color-even;
 }
 .translation-ref { text-align: right; font-size: small; margin-top: 1em; margin-bottom: 1em; }
