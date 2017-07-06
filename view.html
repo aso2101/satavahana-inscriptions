@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <html data-template="pages:app-root">
     <head>
         <title data-template="config:app-title">App Title</title>
@@ -30,7 +29,7 @@
         <script>
         $( document ).ready(function() {
             $('.modal').detach().appendTo("body")
-        };
+        });
         </script>
         <!--#SAICustom - Include SAI maps -->
         <script src="https://api.mapbox.com/mapbox.js/v3.1.0/mapbox.js"/>
@@ -49,6 +48,7 @@
                 <main id="main-container" class="container-fluid">
                     <div class="row">
                         <!-- Table of contents -->
+                        <!-- 
                         <aside id="sidebar" class="hidden-xs col-md-3 toc offcanvas">
                             <h3>
                                 <i18n:text key="contents">Contents</i18n:text>
@@ -57,16 +57,19 @@
                                 <span id="toc-loading">Loading ...</span>
                             </div>
                         </aside>
+                        -->
                         <section id="right-panel" class="col-md-12 col-xs-12">
                             <div class="container-fluid">
                                 <section class="row" data-template="pages:navigation">
                                     <div class="col-md-1 hidden-xs hidden-sm">
+                                        <!--
                                         <a class="btn btn-primary btn-fab toc-toggle" data-toggle="offcanvas" data-target="#sidebar" data-canvas="#main-container">
                                             <i class="material-icons">view_list</i>
                                         </a>
                                         <a data-template="pages:navigation-link" data-template-direction="previous" class="nav-prev page-nav btn btn-primary btn-fab" title="i18n(previous-page)">
                                             <i class="material-icons">navigate_before</i>
                                         </a>
+                                        -->
                                     </div>
                                     <div class="col-md-10 col-sm-12">
                                         <div class="navigation-top row">
@@ -90,7 +93,7 @@
                                         </div>
                                         <!-- Document pane -->
                                         <div id="content-inner">
-                                            <div id="content-container">
+                                            <div>
                                                 <!--#SAICustom - Include SAI maps -->
 
                                                 <!--<div data-template="pages:view" class="content"/>-->
@@ -110,9 +113,11 @@
                                         </div>
                                     </div>
                                     <div class="col-md-1 hidden-xs hidden-sm">
+                                        <!--
                                         <a data-template="pages:navigation-link" data-template-direction="next" class="nav-next page-nav btn btn-primary btn-fab" title="i18n(next-page)">
                                             <i class="material-icons">navigate_next</i>
                                         </a>
+                                        -->
                                     </div>
                                 </section>
                             </div>
