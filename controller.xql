@@ -94,7 +94,9 @@ else if (ends-with($exist:resource, ".xql")) then (
         else if ($exist:resource = ("search.html", "toc.html")) then
             $exist:resource
         else if (starts-with($exist:path, "/person/")) then
-           "person.html"                
+           "person.html"
+        else if (starts-with($exist:path, "/place/")) then
+           "place.html"
         else if (starts-with($exist:path, "/bibliography/")) then
            "bibl.html"            
         else

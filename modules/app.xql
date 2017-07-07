@@ -888,6 +888,9 @@ return
         </tr>
 };
 
+(:~
+ : Build link to record view used by app:loc(), app:person-browse-hits(), app:view-hits()
+:)
 declare function app:rec-link($rec, $type, $title){
 let $id := string($rec//@xml:id[1]) 
 let $med := if($type = 'Bibliography') then '/bibliography/'
@@ -899,22 +902,7 @@ return
     <a href="{$path}" class="search-title">{ $title }</a>
 };
 
-(:~
- : Decode record type based on root or text/child elements
- : @param $rec record node
- :)
-declare function app:rec-type($rec as node()*){
-    if($rec/descendant::tei:text/tei:body/tei:biblStruct) then 'Bibliography'
-    else if($rec/descendant-or-self::tei:text/tei:body/tei:listPerson or (local-name($rec/child::*[1]) = 'person')) then 'Person'
-    else if($rec/descendant-or-self::tei:text/tei:body/tei:listPlace or (local-name($rec/child::*[1]) = 'place')) then 'Place'
-    else 'Inscription'
-};
-
-(:~
- : HTML output for search results
- : @param $start
- : @param $per-page
- :)
+(:template function in search.html:)
 declare 
     %templates:wrap
     %templates:default("start", 1)
@@ -924,8 +912,13 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
     for $hit at $p in subsequence($model("hits"), $start, $per-page)
     let $r := $hit
     let $root-el := root($r)
-    let $type := app:rec-type($root-el)
-    let $hit-root := if($type = 'Inscription') then $root-el else  $r    
+    let $type := 
+        if(($root-el/name(.) = ('TEI','teiHeader')) or ($root-el/child::*/name(.) = ('TEI','teiHeader'))) then 'Inscription'
+        else if($root-el/child::*/name(.) = 'biblStruct') then 'Bibliography'
+        else if($root-el/child::*/name(.) = 'person') then 'Person'
+        else if($root-el/child::*/name(.) = 'place') then 'Place'
+        else $root-el/child::*/name(.)
+    let $hit-root := if($type = 'Inscription') then root($r) else  $r    
     let $hit-padded := <hit>{($hit/preceding-sibling::*[1], $hit, $hit/following-sibling::*[1])}</hit>        
     let $matchId := ($hit/@xml:id, util:node-id($hit))[1]
     let $config := <config width="80" table="yes"/>
@@ -946,6 +939,127 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
 (:  Number of hits :)
 declare function app:hit-count($node as node()*, $model as map(*)) {
     <span xmlns="http://www.w3.org/1999/xhtml" id="hit-count">{ count($model("hits")) }</span>
+};
+
+
+(:~
+ : Extensible generic browse function. gets all results adds them to 'hits' map
+ : Used by Browse Inscriptions, Browse Persons, Browse Places and Browse Bibliography HTML pages
+ : @param $path path to data relative to $config:remote-root
+ : @param $type data type accepted values, defaults to Inscription 'Bibliography|Person|Place|Inscription'
+ : @param $facets path to facet-definition file relative to $config:app-root
+ : @param $date-slider include date slider, date type to use 'bibl|inscriptions'
+:)
+declare function app:browse($node as node()*, $model as map(*), $path as xs:string?, $type as xs:string?, $facets as xs:string?, $date-slider as xs:string?) {
+    map {
+            "hits" :=
+                    let $browse-path :=
+                        if($path != '') then ($config:remote-root || $path)
+                        else $config:remote-data-root
+                    let $abc-filter :=
+                        if($type != '') then
+                            if($type != 'Place') then
+                               app:abc-filter('descendant::tei:placeName[1]/text()')
+                            else if($type != 'Person') then
+                                app:abc-filter('descendant::tei:persName[1]/text()')
+                            else app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()')
+                        else app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()')
+                    let $facet-filter :=
+                        if($facets != '') then
+                            if(doc($config:app-root || $facets)) then
+                                facet:facet-filter(doc($config:app-root || $facets))
+                            else ()
+                        else ()
+                    let $slider-filter :=
+                        if($date-slider != '') then
+                            slider:date-filter($date-slider)
+                        else ()
+                    (:
+                    let $main-hits := util:eval(concat("collection($browse-path)",$facet-filter,$slider-filter))
+                    let $hits :=
+                        if(count($main-hits) gt 50) then
+                             util:eval(concat('$main-hits',$abc-filter))
+                        else $main-hits
+                     :)
+                   let $hits := util:eval(concat("collection($browse-path)",$abc-filter,$facet-filter,$slider-filter))
+                   for $h in $hits
+                   let $sortOrder :=
+                        if($type = 'Place') then
+                            $h/descendant::tei:placeName[1]
+                        else if($type = 'Person') then
+                            $h/descendant::tei:persName[1]
+                        else $h/descendant::tei:titleStmt/descendant::tei:title[1]
+                   order by $sortOrder
+                   return $h
+            }
+};
+
+(:~
+ : HTML output for browse hits. Includes paging and sorting.
+ : @param $start default 1
+ : @param $per-page default 10
+ : @param $type data type accepted values, defaults to Inscription 'Bibliography|Person|Place|Inscription'
+:)
+declare
+    %templates:default("start", 1)
+    %templates:default("per-page", 10)
+function app:browse-display-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer, $type as xs:string?) {
+    for $p in subsequence($model("hits"), $start, $per-page)
+    let $docNode :=
+        if($type='Bibliography') then
+            $p/descendant::tei:biblStruct[1]
+        else $p
+    let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) },$model?config?odd)
+    (: NOTE, may be to complicated? TEI button just uses $doc/@xml:id:)
+    let $id :=
+        if($type='Bibliography') then
+            $p/descendant::tei:biblStruct/@xml:id
+        else if($type='Place') then
+            $p/descendant::tei:place[1]/@xml:id
+        else if($type='Person') then
+            $p/descendant::tei:person[1]/@xml:id
+        else $p/@xml:id
+    let $ref-id :=
+        if($type='Bibliography') then
+            concat('bibl:',$id)
+        else if($type='Place') then
+            concat('pl:',$id)
+        else if($type='Person') then
+            concat('pers:',$id)
+        else $id
+    let $inscriptions :=
+        for $i in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target=$ref-id] or .//@key[. = $ref-id]]
+        return <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($i/@xml:id)}">{($i/tei:teiHeader, $i//tei:div[@type='edition'][@xml:lang])}</TEI>
+    let $related-records :=
+        if ($inscriptions) then
+            <div class="row mentions">
+                <div class="col-sm-12">
+                    <p>Mentioned in these records:</p>
+                    <div class="indent">
+                        {app:view-hits($inscriptions, $ref-id)}
+                    </div>
+                </div>
+            </div>
+        else ()
+    return
+        <li class="list-group-item">
+          {string($id)}: { $html }{ $related-records }
+        </li>
+};
+
+(:~
+ : Browse Bibliography
+:)
+declare function app:browse-bibl-data($node as node(), $model as map(*), $view as xs:string?) {
+    map {
+                "config" := map { "odd": $config:odd },
+                "hits" :=
+                    let $browse-path := concat($config:remote-root,'/contextual/Bibliography')
+                    let $facet-def :=  doc($config:app-root || '/browse-bibl-facet-def.xml')
+                    for $i in util:eval(concat("collection($browse-path)/tei:TEI",app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()'),facet:facet-filter($facet-def),slider:date-filter('bibl')))
+                    order by $i//tei:titleStmt/tei:title[1]
+                    return $i
+        }
 };
 
 (:~
@@ -1028,48 +1142,6 @@ declare function app:browse-get-persons($node as node(), $model as map(*)){
                     return $i
         }     
 };
-
-(:~
- : Show browse hits. 
- : @param $start default 1 
- : @param $per-page default 10
-:)
-declare
-    %templates:default("start", 1)
-    %templates:default("per-page", 10)
-function app:bibl-browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
-    for $p in subsequence($model("hits"), $start, $per-page)
-    let $docNode := util:eval("$p//tei:biblStruct[1]")
-    let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) },$model?config?odd)
-    let $id := $p/descendant::tei:biblStruct/@xml:id
-    let $bibl-id := concat('bibl:',$id)
-    let $title := $p/descendant::tei:titleStmt/tei:title[1]/text()
-    let $inscriptions := 
-        for $i in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target=$bibl-id]]
-        return <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($i/@xml:id)}">{($i/tei:teiHeader, $i//tei:div[@type='edition'][@xml:lang])}</TEI>
-    let $related-records :=
-        if ($inscriptions) then 
-            <div class="row mentions">
-                <div class="col-sm-12">
-                    <p>Mentioned in these records:</p>
-                    <div class="indent">
-                        {app:view-hits($inscriptions, $bibl-id)}
-                    </div>
-                </div>
-            </div>
-        else ""
-    return 
-        <li class="list-group-item">
-          { $html }{ $related-records }
-        </li>
-};
-(: old return:
-    <div id="{$bibl-id}">
-        <h4>{app:rec-link($p, 'Bibliography', $title)}</h4>
-        {$related-records}
-    </div>  
-:)
-
 
 (:~
  : Show browse hits. 
@@ -1233,12 +1305,14 @@ declare function app:abc-filter($node){
  : Browse Alphabetical Menu
 :)
 declare %templates:wrap function app:browse-abc-menu($node as node(), $model as map(*)){
-    for $letter in tokenize('A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ALL', ' ')
-    return 
-        <li role="presentation"
-            class="{if(request:get-parameter('abc-filter', '') = string($letter)) then 'active' else 'clickable'}">
-            <a href="?abc-filter={$letter}">{$letter}</a>
-        </li>
+    if(app:hit-count($node, $model) cast as xs:integer gt 50) then
+        for $letter in tokenize('A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ALL', ' ')
+        return
+            <li role="presentation"
+                class="{if(request:get-parameter('abc-filter', '') = string($letter)) then 'active' else 'clickable'}">
+                <a href="?abc-filter={$letter}">{$letter}</a>
+            </li>
+    else ()
 };
 
 (:~
@@ -1277,10 +1351,6 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
         return $p
 };
 
-(:~ 
- : Builds map HTML and javascript elements 
- : Uses dynamic data based on page data 
-:)
 declare function app:map($node as node(), $model as map(*)) { 
     if(not(empty(app:dynamic-map-data($node, $model)))) then 
         <div class="map panel panel-default">
@@ -1305,8 +1375,8 @@ declare function app:map($node as node(), $model as map(*)) {
  : Date slider pulls functions from lib/date-slider.xqm
  : Build Javascript Date Slider. 
 :)
-declare function app:browse-date-slider($node as node(), $model as map(*), $mode as xs:string?){   
-    slider:browse-date-slider($model("hits"), $mode)
+declare function app:browse-date-slider($node as node(), $model as map(*)){   
+    slider:browse-date-slider($model("hits"))
 };
                     
 (:~
@@ -1396,18 +1466,9 @@ let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, 
 return 
     if(not(empty($docNode))) then 
         $html
-    (:
-        <div class="map panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">title</h3>
-            </div>
-            <div class="panel-collapse collapse in" id="map-panel">
-                {$html}
-            </div>
-        </div>    
-      :)  
     else ()
 };
+
 (: this is jugar, since the modal can't be programmatically placed at the bottom of the page
  : due to the templating functions, and so it's covered by the backdrop. i've made the backdrop
  : transparent in the css, but it would be nice to fix this for real. :)
@@ -1491,24 +1552,27 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
 :)
 declare function app:related-inscriptions($node as node(), $model as map(*)) {
     let $doc := $model?data
+    let $id := string($doc/@xml:id)
     let $type := 
-        if(name($doc) = 'person') then 
+        if($doc/descendant::tei:body/tei:text/tei:body/tei:listPerson or name($doc) = 'person') then
             'person'
-        else if(name($doc) = 'place') then 
+        else if($doc/descendant::tei:body/tei:text/tei:body/tei:listPlace or name($doc) = 'place') then
             'place'   
         else if($doc/descendant::tei:body/tei:text/tei:biblStruct or name($doc) = 'biblStruct') then 
             'bibl'               
         else 'inscription'
     let $key := 
-        if($type='person') then 
-            concat('pers:',string($doc/@xml:id))
-        else if($type='place') then 
-            concat('place:',string($doc/@xml:id))   
-        else if($type='bibl') then 
-            concat('bibl:',string($doc/@xml:id))               
-        else $doc/@xml:id
+        if($type='bibl') then
+            concat('bibl:',$id)
+        else if($type='place') then
+            concat('pl:',$id)
+        else if($type='person') then
+            concat('pers:',$id)
+        else $id
     let $inscriptions := if($type='bibl') then 
                             collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='bibliography']//@target=$key]
+                         else if($type = 'place') then
+                            collection($config:remote-data-root)//tei:TEI[descendant::tei:origPlace/tei:placeName/@key=$key]
                          else collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//@key=$key]
     let $places := 
         for $placekey in distinct-values($inscriptions//tei:origPlace/tei:placeName[1]/@key)
