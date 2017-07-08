@@ -703,9 +703,14 @@ a.sai-navbar-brand {
 }
 .navbar-right .form-control {
   width: auto!important;
+  padding: 4px;
+}
+.navbar-right .form-control option {
+  background-color: #35424b!important;
+  padding: 4px;
 }
 .inverse-dropdown {
-  background-color: #35424b !important;
+  background-color: #35424b;
   border-color: #080808;
 }
 .inverse-dropdown > li > a {
