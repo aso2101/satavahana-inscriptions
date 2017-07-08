@@ -447,6 +447,8 @@ return
  : @param $rec record node
  :)
 declare function app:rec-type($rec as node()*){
+let $root-el := root($rec)
+return 
     if(($root-el/name(.) = ('TEI','teiHeader')) or ($root-el/child::*/name(.) = ('TEI','teiHeader'))) then 'Inscription'
     else if($root-el/child::*/name(.) = 'biblStruct') then 'Bibliography'
     else if($root-el/child::*/name(.) = 'person') then 'Person'
