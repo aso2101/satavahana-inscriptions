@@ -705,7 +705,7 @@ a.sai-navbar-brand {
   width: auto!important;
 }
 .inverse-dropdown {
-  background-color: #35424b;
+  background-color: #35424b !important;
   border-color: #080808;
 }
 .inverse-dropdown > li > a {
