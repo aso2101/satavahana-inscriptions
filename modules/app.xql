@@ -691,46 +691,29 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
     (: Otherwise perform the query :)
     else 
         let $facet-def := doc($config:app-root || '/search-facet-def.xml')/child::*
-        let $context := collection($config:remote-data-root)/tei:TEI
+        let $inscriptions := concat("collection($config:remote-data-root)/tei:TEI[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
+        let $persons := concat("collection($config:remote-context-root || '/Persons')//tei:person[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
+        let $places := concat("collection($config:remote-context-root || '/Places')//tei:place[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
+        let $bibl := concat("collection($config:remote-context-root || '/Bibliography')//tei:biblStruct[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
         let $hits :=
-            if(request:get-parameter('filter', '') = 'translation') then
-                let $hits := util:eval(concat("$context//tei:div[@type='translation'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def)))
-                for $hit in $hits
+            if(request:get-parameter('filter', '') = 'Inscriptions') then
+                for $hit in util:eval($inscriptions)
                 order by ft:score($hit) descending
                 return $hit
-            else if(request:get-parameter('filter', '') = 'metadata') then
-                let $persons-data := collection(replace($config:remote-data-root,'/data','/contextual/Persons'))//tei:person
-                let $places-data := collection(replace($config:remote-data-root,'/data','/contextual/Places'))//tei:place
-                (: Change to contextual/Bibliography when data has been moved :)
-                let $bibl-data := collection(replace($config:remote-data-root,'/data','/contextual'))//tei:biblStruct
-                let $path := concat(
-                        "($persons-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
-                        ",$places-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
-                        ",$bibl-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
-                        ",$context//tei:teiHeader[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
-                        ",$context//tei:div[@type='bibliography'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
-                        ",$context//tei:div[@type='commentary'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),")"
-                    )
-                let $hits := util:eval($path)
-                for $hit in $hits
-                order by ft:score($hit) descending
-                return $hit                
-            else if(request:get-parameter('filter', '') = 'text') then 
-                for $hit in util:eval(concat("$context[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def)))
+            else if(request:get-parameter('filter', '') = 'People') then
+                for $hit in util:eval($persons)
                 order by ft:score($hit) descending
                 return $hit
-            else    
-                let $persons-data := collection(replace($config:remote-data-root,'/data','/contextual/Persons'))//tei:person
-                let $places-data := collection(replace($config:remote-data-root,'/data','/contextual/Places'))//tei:place
-                let $bibl-data := collection(replace($config:remote-data-root,'/data','/contextual'))//tei:bibl
-                let $path := concat(
-                        "($persons-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
-                        ",$places-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
-                        ",$bibl-data[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),
-                        ",$context[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def),")"
-                    )
-                let $hits := util:eval($path)
-                for $hit in $hits
+            else if(request:get-parameter('filter', '') = 'Places') then
+                for $hit in util:eval($places)
+                order by ft:score($hit) descending
+                return $hit
+            else if(request:get-parameter('filter', '') = 'Bibliography') then
+                for $hit in util:eval($bibl)
+                order by ft:score($hit) descending
+                return $hit
+            else 
+                for $hit in util:eval(concat($inscriptions,'|', $persons, '|', $places, '| ', $bibl))
                 order by ft:score($hit) descending
                 return $hit
         (: The hits are not returned directly, but processed by the nested templates :)
@@ -738,13 +721,12 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
             session:set-attribute("apps.sai", $hits),
             session:set-attribute("apps.sai.query", $query)
         )
-        return
+        return 
             map {
                 "hits" := $hits,
                 "query" := $query
             }
 };
-
 (:~
  : Default search options to be passed to Lucene via ft:query()
 :)
@@ -889,12 +871,10 @@ declare function app:loc($hit-root, $type, $start, $p){
 let $title :=     
     if($hit-root/descendant::tei:titleStmt/tei:title) then 
         $hit-root/descendant::tei:titleStmt/tei:title[1]/text()
-    else if($hit-root/descendant::tei:title) then 
-        $hit-root/descendant::tei:title[1]/text()
     else if($hit-root/tei:persName) then
         $hit-root/tei:persName[1]/text()
     else if($hit-root/tei:placeName) then
-        $hit-root/tei:placeName[1]/text()
+        $hit-root/tei:placeName[1]/text()        
     else if($hit-root/descendant::tei:title) then 
         $hit-root/descendant::tei:title[1]/text()   
     else (name($hit-root/child::*[1]), ' ', $hit-root/child::*[1]/text())  
@@ -910,16 +890,31 @@ return
 
 declare function app:rec-link($rec, $type, $title){
 let $id := string($rec//@xml:id[1]) 
-let $med := if($type = 'Bibliography') then 'bibliography/'
-            else if($type = 'Person') then 'person/'
-            else if($type = 'Place') then 'place/'                    
-            else 'inscription/'
-let $path := concat(concat('/exist/apps/SAI/',$med),$id)
+let $med := if($type = 'Bibliography') then '/bibliography/'
+            else if($type = 'Person') then '/person/'
+            else if($type = 'Place') then '/place/'                    
+            else '/inscription/'
+let $path := concat(concat($config:app-nav-base,$med),$id)
 return             
     <a href="{$path}" class="search-title">{ $title }</a>
 };
 
-(:template function in search.html:)
+(:~
+ : Decode record type based on root or text/child elements
+ : @param $rec record node
+ :)
+declare function app:rec-type($rec as node()*){
+    if($rec/descendant::tei:text/tei:body/tei:biblStruct) then 'Bibliography'
+    else if($rec/descendant-or-self::tei:text/tei:body/tei:listPerson or (local-name($rec/child::*[1]) = 'person')) then 'Person'
+    else if($rec/descendant-or-self::tei:text/tei:body/tei:listPlace or (local-name($rec/child::*[1]) = 'place')) then 'Place'
+    else 'Inscription'
+};
+
+(:~
+ : HTML output for search results
+ : @param $start
+ : @param $per-page
+ :)
 declare 
     %templates:wrap
     %templates:default("start", 1)
@@ -929,13 +924,8 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
     for $hit at $p in subsequence($model("hits"), $start, $per-page)
     let $r := $hit
     let $root-el := root($r)
-    let $type := 
-        if(($root-el/name(.) = ('TEI','teiHeader')) or ($root-el/child::*/name(.) = ('TEI','teiHeader'))) then 'Inscription'
-        else if($root-el/child::*/name(.) = 'biblStruct') then 'Bibliography'
-        else if($root-el/child::*/name(.) = 'person') then 'Person'
-        else if($root-el/child::*/name(.) = 'place') then 'Place'
-        else $root-el/child::*/name(.)
-    let $hit-root := if($type = 'Inscription') then root($r) else  $r    
+    let $type := app:rec-type($root-el)
+    let $hit-root := if($type = 'Inscription') then $root-el else  $r    
     let $hit-padded := <hit>{($hit/preceding-sibling::*[1], $hit, $hit/following-sibling::*[1])}</hit>        
     let $matchId := ($hit/@xml:id, util:node-id($hit))[1]
     let $config := <config width="80" table="yes"/>
@@ -948,7 +938,6 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
                 {$kwic}
             </td>
         </tr>
-        
         )
 )        
 };

@@ -191,7 +191,7 @@ declare function facet:element-type($results as item()*, $facet-definitions as e
     group by $facet-grp := $f
     let $label := 
         if($facet-grp = ('TEI','teiHeader')) then 'Inscriptions'
-        else if($facet-grp = ('listBibl','bibl')) then 'Bibliography'
+        else if($facet-grp = ('listBibl','bibl', 'biblStruct')) then 'Bibliography'
         else if($facet-grp = 'person') then 'Person'
         else if($facet-grp = 'place') then 'Place'
         else $facet-grp
@@ -201,6 +201,7 @@ declare function facet:element-type($results as item()*, $facet-definitions as e
         descending
     return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$facet-grp}" label="{$label}"/>
 };
+
 
 (:~
  : SAI language filter.
