@@ -949,15 +949,31 @@ declare function app:hit-count($node as node()*, $model as map(*)) {
 };
 
 (:~
+ : Browse Bibliography
+:)
+declare function app:browse-bibl-data($node as node(), $model as map(*), $view as xs:string?) {
+    map {
+                "config" := map { "odd": $config:odd },
+                "hits" := 
+                    let $browse-path := concat($config:remote-root,'/contextual/Bibliography')
+                    let $facet-def :=  doc($config:app-root || '/browse-bibl-facet-def.xml')
+                    for $i in util:eval(concat("collection($browse-path)/tei:TEI",app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()'),facet:facet-filter($facet-def),slider:date-filter('bibl')))
+                    order by $i//tei:titleStmt/tei:title[1]
+                    return $i
+        }  
+};
+
+(:~
  : Browse inscriptions  
  : Group inscriptions by place/@key
  : @sort  
 :)
 declare function app:browse-get-inscriptions($node as node(), $model as map(*)) {
     map {
+                "config" := map { "odd": $config:odd },
                 "hits" := 
                     let $facet-def := doc($config:app-root || '/browse-facet-def.xml')
-                    for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def),slider:date-filter()))
+                    for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def),slider:date-filter('inscriptions')))
                     return $i
         }  
 };
@@ -969,6 +985,7 @@ declare function app:browse-get-inscriptions($node as node(), $model as map(*)) 
 :)
 declare function app:browse-get-places($node as node(), $model as map(*)){
     map {
+                "config" := map { "odd": $config:odd },
                 "places" := 
                     let $places := distinct-values($model("hits")//descendant::tei:origPlace/tei:placeName/@key)
                     for $p in $places
@@ -1011,6 +1028,48 @@ declare function app:browse-get-persons($node as node(), $model as map(*)){
                     return $i
         }     
 };
+
+(:~
+ : Show browse hits. 
+ : @param $start default 1 
+ : @param $per-page default 10
+:)
+declare
+    %templates:default("start", 1)
+    %templates:default("per-page", 10)
+function app:bibl-browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
+    for $p in subsequence($model("hits"), $start, $per-page)
+    let $docNode := util:eval("$p//tei:biblStruct[1]")
+    let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) },$model?config?odd)
+    let $id := $p/descendant::tei:biblStruct/@xml:id
+    let $bibl-id := concat('bibl:',$id)
+    let $title := $p/descendant::tei:titleStmt/tei:title[1]/text()
+    let $inscriptions := 
+        for $i in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target=$bibl-id]]
+        return <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($i/@xml:id)}">{($i/tei:teiHeader, $i//tei:div[@type='edition'][@xml:lang])}</TEI>
+    let $related-records :=
+        if ($inscriptions) then 
+            <div class="row mentions">
+                <div class="col-sm-12">
+                    <p>Mentioned in these records:</p>
+                    <div class="indent">
+                        {app:view-hits($inscriptions, $bibl-id)}
+                    </div>
+                </div>
+            </div>
+        else ""
+    return 
+        <li class="list-group-item">
+          { $html }{ $related-records }
+        </li>
+};
+(: old return:
+    <div id="{$bibl-id}">
+        <h4>{app:rec-link($p, 'Bibliography', $title)}</h4>
+        {$related-records}
+    </div>  
+:)
+
 
 (:~
  : Show browse hits. 
@@ -1166,7 +1225,7 @@ declare function app:abc-filter($node){
  if(request:get-parameter('abc-filter', '') != '') then
     if(request:get-parameter('abc-filter', '') = 'ALL') then () 
     else 
-     concat('[',$node,'[starts-with(., "',request:get-parameter('abc-filter', ''),'")]]')
+     concat('[',$node,'[matches(., "^',request:get-parameter('abc-filter', ''),'")]]')
  else()
 };
 
@@ -1218,6 +1277,10 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
         return $p
 };
 
+(:~ 
+ : Builds map HTML and javascript elements 
+ : Uses dynamic data based on page data 
+:)
 declare function app:map($node as node(), $model as map(*)) { 
     if(not(empty(app:dynamic-map-data($node, $model)))) then 
         <div class="map panel panel-default">
@@ -1242,8 +1305,8 @@ declare function app:map($node as node(), $model as map(*)) {
  : Date slider pulls functions from lib/date-slider.xqm
  : Build Javascript Date Slider. 
 :)
-declare function app:browse-date-slider($node as node(), $model as map(*)){   
-    slider:browse-date-slider($model("hits"))
+declare function app:browse-date-slider($node as node(), $model as map(*), $mode as xs:string?){   
+    slider:browse-date-slider($model("hits"), $mode)
 };
                     
 (:~
@@ -1464,7 +1527,7 @@ declare function app:related-inscriptions($node as node(), $model as map(*)) {
     return 
         if($places) then 
             <div>
-                <h3>Mentioned in these inscriptions:</h3>
+                <h3>Mentioned in these records:</h3>
                 { $places }
             </div>
         else ()

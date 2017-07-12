@@ -66,14 +66,13 @@
 				<elementSpec mode="change" ident="app">
 					<modelSequence predicate="ancestor::div[@type='edition']">
 						<model predicate="lem" behaviour="inline">
-							<param name="content">lem</param>
+							<param name="content" value="lem"/>
 						</model>
-						<model predicate="rdg" behaviour="popover">
+						<!--<model predicate="rdg" behaviour="popover">
 							<param name="note-ref">'v'</param>
-							<!--						<param name="pop-title">concat('Variant(s) for ','<i>',lem,'</i>')</param>-->
 							<param name="pop-title">'Variant(s) for: '</param>
 							<param name="pop-content">rdg</param>
-						</model>
+						</model>-->
 					</modelSequence>
 					<modelSequence predicate="ancestor::div[@type='apparatus'] or ancestor::div[@type='commentary']">
 						<model behaviour="listItem-app">
@@ -133,8 +132,9 @@
 				<!-- ==== B ==== -->
 				<elementSpec mode="change" ident="bibl">
 					<constraintSpec mode="add" ident="noEmptyBibl" scheme="isoschematron">
-						<constraint> <assert xmlns="http://purl.oclc.org/dsdl/schematron" test="child::* or child::text()[normalize-space()]" role="ERROR"> Element "<name/>" may not be empty.
-							</assert> </constraint>
+						<constraint>
+							<assert xmlns="http://purl.oclc.org/dsdl/schematron" test="child::* or child::text()[normalize-space()]" role="ERROR"> Element "<name/>" may not be empty. </assert>
+						</constraint>
 					</constraintSpec>
 					<model predicate="parent::listBibl[@ana='#photo']" behaviour="listItemImage">
 						<param name="material-icons">'photo_camera'</param>
@@ -167,7 +167,8 @@
 					<modelGrp>
 						<modelSequence predicate="ancestor::biblStruct and @unit='series'">
 							<model behaviour="inline">
-								<!--  <outputRendition>color:red;</outputRendition>--> </model>
+								<!--  <outputRendition>color:red;</outputRendition>-->
+							</model>
 							<model predicate="following-sibling::*" behaviour="text">
 								<param name="content" value="', '"/>
 							</model>
@@ -350,7 +351,7 @@
 										<!-- series  -->
 										<model predicate=".//series" behaviour="inline">
 											<param name="content">series</param>
-											<!-- <ouputRendition>background-color:yellow;</ouputRendition>-->
+											
 										</model>
 										<!-- !!! warning !!! biblScope specificity in eiad (follows tei.js) !!!! -->
 										<!-- volume  -->
@@ -413,28 +414,28 @@
 											<outputRendition scope="after">content:'”'; </outputRendition>
 										</model>
 										<model behaviour="text">
-											<param name="content">', '</param>
-											<!--											<ouputRendition>background-color:yellow;</ouputRendition>-->
+											<param name="content" value="', '"/>
+											
 										</model>
 										<!-- series  -->
 										<model predicate=".//series" behaviour="inline">
-											<param name="content">series</param>
-											<ouputRendition>background-color:yellow;</ouputRendition>
+											<param name="content" value="series"/>
+											
 										</model>
 										<!-- volume  -->
 										<model predicate=".//series/biblScope[@unit='volume']" behaviour="inline">
-											<param name="content">biblScope[@unit='volume']</param>
+											<param name="content" value="biblScope[@unit='volume']"/>
 										</model>
 										<!-- imprint  -->
 										<modelSequence predicate="monogr/imprint">
 											<model predicate="@type='manuscript'" behaviour="text">
-												<param name="content">' manuscript '</param>
+												<param name="content" value="' manuscript '"/>
 											</model>
 											<model predicate="@type='thesis'" behaviour="text">
-												<param name="content">' unpublished Ph.D., '</param>
+												<param name="content" value="' unpublished Ph.D., '"/>
 											</model>
 											<model behaviour="inline">
-												<param name="content">monogr/imprint</param>
+												<param name="content" value="monogr/imprint"/>
 											</model>
 										</modelSequence>
 										<!-- note  -->
@@ -572,14 +573,35 @@
 					</model>
 				</elementSpec>
 				<elementSpec mode="change" ident="dimensions">
-					<modelSequence>
-						<model predicate="ancestor::support" behaviour="inline">
-							<param name="content">.</param>
+					<modelSequence predicate="ancestor::support">
+						<model behaviour="inline">
+							<param name="content" value="."/>
 						</model>
 						<model predicate="@unit" behaviour="inline">
 							<param name="content">@unit</param>
 						</model>
 					</modelSequence>
+					<modelSequence predicate="ancestor::layoutDesc">
+						<desc>The text "inscribed area" only before the first <gi>dimensions</gi> of the <gi>layout</gi> parent.</desc>
+						<model predicate="not(preceding-sibling::dimensions)" behaviour="text">
+							<param name="content" value="' Inscribed area: '"/>
+						</model>
+						<model behaviour="inline">
+							<outputRendition scope="after">content: " ";</outputRendition>
+						</model>
+						<model predicate="following-sibling::dimensions" behaviour="text">
+							<param name="content" value="';'"/>
+						</model>
+						<model predicate="@unit" behaviour="inline">
+							<param name="content" value="@unit"/>
+						</model>
+						<model predicate="@extent" behaviour="inline">
+							<param name="content" value="@extent"/>
+							<outputRendition scope="before">content: ' (';</outputRendition>
+							<outputRendition scope="after">content: ')';</outputRendition>
+						</model>
+					</modelSequence>
+					<model behaviour="inline"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="div">
 					<attList>
@@ -762,7 +784,11 @@
 											<outputRendition scope="after">content: ' ';</outputRendition>
 										</model>
 										<model behaviour="inline">
-											<param name="content">sourceDesc/msDesc/physDesc/decoDesc </param>
+											<param name="content">sourceDesc/msDesc/physDesc/objectDesc/layoutDesc/layout</param>
+											<outputRendition scope="after">content: ' ';</outputRendition>
+										</model>
+										<model behaviour="inline">
+											<param name="content">sourceDesc/msDesc/physDesc/decoDesc</param>
 										</model>
 									</modelSequence>
 								</model>
@@ -893,61 +919,72 @@
 					</model>
 					<!-- 1 line possibly lost (3)-->
 					<model predicate="@reason='lost' and @unit='line' and child::certainty[@locus] and @quantity=1" behaviour="inline" cssClass="italic">
-						<outputRendition scope="before">content:"(3line lost?)";</outputRendition>
+						<outputRendition scope="before">content:"(line lost?)";</outputRendition>
 					</model>
 					<!-- 1 line possibly illegible (4)-->
 					<model predicate="@reason='illegible' and @unit='line' and child::certainty[@locus] and @quantity=1" behaviour="inline" cssClass="italic">
-						<outputRendition scope="before">content:"(4line illegible?)";</outputRendition>
+						<outputRendition scope="before">content:"(line illegible?)";</outputRendition>
 					</model>
 					<!--  lines possibly lost at start and end of text (7)-->
 					<model predicate="(@reason='lost' and @unit='line') and child::certainty[@locus='name']" behaviour="inline" cssClass="italic">
-						<outputRendition scope="before">content:"(7lines lost?)";</outputRendition>
+						<outputRendition scope="before">content:"(lines lost?)";</outputRendition>
 					</model>
 					<!-- lines possibly illegible at start and end of text (8) -->
 					<model predicate="(@reason='illegible' and @unit='line') and child::certainty[@locus='name']" behaviour="inline" cssClass="italic">
-						<outputRendition scope="before">content:"(8lines illegible?)";</outputRendition>
+						<outputRendition scope="before">content:"(lines illegible?)";</outputRendition>
 					</model>
 					<!--  1 line lost (1)-->
 					<model predicate="@reason='lost' and @unit='line' and @quantity= 1" behaviour="inline" cssClass="italic">
-						<outputRendition scope="before">content:"(1line lost)";</outputRendition>
+						<outputRendition scope="before">content:"(line lost)";</outputRendition>
 					</model>
 					<!--  1 line illegible (2)-->
 					<model predicate="@reason='illegible' and @unit='line' and @quantity= 1" behaviour="inline" cssClass="italic">
-						<outputRendition scope="before">content:"(2line illegible)";</outputRendition>
+						<outputRendition scope="before">content:"(line illegible)";</outputRendition>
 					</model>
 					<!-- lines lost at start and end of text (5)-->
 					<model predicate="@reason='lost' and @unit='line' and @extent='unknown'" behaviour="inline" cssClass="italic">
-						<outputRendition scope="before">content:"(5lines lost)";</outputRendition>
+						<outputRendition scope="before">content:"(lines lost)";</outputRendition>
 					</model>
 					<!-- lines illegible at start and end of text (6)-->
 					<model predicate="@reason='illegible' and @unit='line' and @extent='unknown'" behaviour="inline" cssClass="italic">
-						<outputRendition scope="before">content:"(6lines illegible)";</outputRendition>
+						<outputRendition scope="before">content:"(lines illegible)";</outputRendition>
 					</model>
 					<!--  ==== character -->
-					<!-- aksara part -->
+					<!-- character extent unknown -->
+					<model predicate="@reason='lost' and @extent='unknown'" behaviour="inline" cssClass="italic">
+						<outputRendition scope="before">content:' … '</outputRendition>
+					</model>
+					<!-- 1 aksara part -->
 					<model predicate="@unit='aksarapart' and @quantity=1" behaviour="inline" cssClass="aksarapart">
 						<param name="content">'.'</param>
+					</model>
+					<!-- 1 character -->
+					<model predicate="(@unit='character' or @unit='chars') and @quantity=1 and @reason='lost'" behaviour="inline">
+						<param name="content">'+'</param>
+					</model>
+					<model predicate="(@unit='character' or @unit='chars') and @quantity=1 and @reason='illegible'" behaviour="inline">
+						<param name="content">'?'</param>
 					</model>
 					<!-- lacuna extent unknown  -->
 					<model predicate="(@reason='lost' or @reason='illegible') and @extent='unknown'" behaviour="inline">
 						<param name="content"> let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity &gt; 1) then @unit || 's'
 							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
-							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' /// ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
-							@reason || ')' else ' /// ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep </param>
+							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
+							@reason || ')' else ' ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep </param>
 					</model>
 					<!-- following  lb : text /// +++ -->
 					<model predicate="(@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::*[1][local-name()='lb']" behaviour="inline" cssClass="italic">
 						<param name="content"> let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity &gt; 1) then @unit || 's'
 							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
-							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' /// ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
-							@reason || ')' else ' /// ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep </param>
+							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
+							@reason || ')' else ' ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep </param>
 					</model>
 					<!-- preceding  lb : +++ /// text -->
 					<model predicate="(@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and preceding-sibling::*[1][local-name()='lb']" behaviour="inline" cssClass="italic">
 						<param name="content"> let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity &gt; 1) then @unit || 's'
 							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
 							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||
-							')' || ' /// ' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || ' /// ' || $sep </param>
+							')' || ' ' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || ' ' || $sep </param>
 					</model>
 					<!-- insider -->
 					<model predicate="(@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::text()[1]" behaviour="inline" cssClass="italic">
@@ -965,61 +1002,61 @@
 						<param name="title">desc</param>
 					</model>
 				</elementSpec>
-				<!-- ==== H ==== -->
+				<!-- ==== Height ==== -->
 				<elementSpec mode="change" ident="height">
 					<model predicate="parent::dimensions and @precision='unknown'" behaviour="omit"/>
 					<model predicate="parent::dimensions and following-sibling::*" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"h. ";</outputRendition>
-						<outputRendition scope="after">content:" × ";</outputRendition>
+						<outputRendition scope="before">content:"h.&#160;";</outputRendition>
+						<outputRendition scope="after">content:" ×&#160;";</outputRendition>
 					</model>
 					<model predicate="parent::dimensions and following-sibling::*" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"h. ";</outputRendition>
-						<outputRendition scope="after">content:" × ";</outputRendition>
+						<outputRendition scope="before">content:"h.&#160;";</outputRendition>
+						<outputRendition scope="after">content:" ×&#160;";</outputRendition>
 					</model>
 					<model predicate="parent::dimensions and not(following-sibling::*)" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"h. ";</outputRendition>
+						<outputRendition scope="before">content:"h.&#160;";</outputRendition>
 					</model>
-					<model behaviour="inline"/>
+					<model predicate="not(ancestor::layoutDesc or ancestor::supportDesc)" behaviour="inline"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="width">
 					<model predicate="parent::dimensions and count(following-sibling::*) &gt;= 1" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"w. ";</outputRendition>
-						<outputRendition scope="after">content:" × ";</outputRendition>
+						<outputRendition scope="before">content:"w.&#160;";</outputRendition>
+						<outputRendition scope="after">content:"&#160;×&#160;";</outputRendition>
 					</model>
 					<model predicate="parent::dimensions" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"w. ";</outputRendition>
+						<outputRendition scope="before">content:"w.&#160;";</outputRendition>
 					</model>
-					<model behaviour="inline"/>
+					<model predicate="not(ancestor::layoutDesc or ancestor::supportDesc)" behaviour="inline"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="depth">
 					<model predicate="parent::dimensions and @precision='unknown'" behaviour="omit"/>
 					<model predicate="parent::dimensions and following-sibling::*" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"d. ";</outputRendition>
-						<outputRendition scope="after">content:" × ";</outputRendition>
+						<outputRendition scope="before">content:"d.&#160;";</outputRendition>
+						<outputRendition scope="after">content:"&#160;×&#160;";</outputRendition>
 					</model>
 					<model predicate="parent::dimensions" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"d. ";</outputRendition>
+						<outputRendition scope="before">content:"d.&#160;";</outputRendition>
 					</model>
 					<model behaviour="inline"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="dim">
 					<model predicate="@type='diameter' and (parent::dimensions and following-sibling::*)" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"dia. ";</outputRendition>
-						<outputRendition scope="after">content:" × ";</outputRendition>
+						<outputRendition scope="before">content:"dia.&#160;";</outputRendition>
+						<outputRendition scope="after">content:"&#160;×&#160;";</outputRendition>
 					</model>
 					<model predicate="@type='diameter' and (parent::dimensions and not(following-sibling::*))" behaviour="inline">
 						<param name="content">if (@extent) then concat('(',@extent,') ',.) else .</param>
-						<outputRendition scope="before">content:"dia. ";</outputRendition>
+						<outputRendition scope="before">content:"dia.&#160;";</outputRendition>
 					</model>
-					<model behaviour="inline"/>
+					<model predicate="not(ancestor::layoutDesc or ancestor::supportDesc)" behaviour="inline"/>
 				</elementSpec>
 				<!-- ==== H ==== -->
 				<elementSpec ident="handDesc">
@@ -1059,19 +1096,24 @@
 				</elementSpec>
 				<!-- ==== I ==== -->
 				<elementSpec mode="change" ident="idno">
-					<!--<model predicate="ancestor::biblStruct[not(@type='webpage')]" behaviour="omit"/>--> <model predicate="ancestor::biblStruct[@type='webpage'] and @type='url'" behaviour="link">
-					<param name="link"/>
-					</model> <modelSequence predicate="ancestor::biblStruct and @type='url'">
-					<model behaviour="text">
-						<param name="content">'. URL: &lt;'</param>
+					<!--<model predicate="ancestor::biblStruct[not(@type='webpage')]" behaviour="omit"/>-->
+					<model predicate="ancestor::biblStruct[@type='webpage'] and @type='url'" behaviour="link">
+						<param name="link"/>
 					</model>
-					<model behaviour="link"/>
-					<model behaviour="text">
-						<param name="content">'&gt;'</param>
+					<modelSequence predicate="ancestor::biblStruct and @type='url'">
+						<model behaviour="text">
+							<param name="content">'. URL: &lt;'</param>
+						</model>
+						<model behaviour="link"/>
+						<model behaviour="text">
+							<param name="content">'&gt;'</param>
+						</model>
+					</modelSequence>
+					<model predicate="$parameters?header='short'" behaviour="inline">
+						<outputRendition scope="after">content: " - ";</outputRendition>
 					</model>
-					</modelSequence> <model predicate="$parameters?header='short'" behaviour="inline">
-					<outputRendition scope="after">content: " - ";</outputRendition>
-					</model> <model predicate="ancestor::publicationStmt" behaviour="inline"/>--&gt; <model behaviour="inline"/> </elementSpec>
+					<model predicate="ancestor::publicationStmt" behaviour="inline"/>--&gt; <model behaviour="inline"/>
+				</elementSpec>
 				<!-- ====== imprint ====== -->
 				<elementSpec ident="imprint" mode="change">
 					<!-- !!!! warning specificity eiad followls tei.js imprint structure !!!! -->
@@ -1174,7 +1216,8 @@
 					<model predicate="$parameters?break='Logical'" behaviour="block">
 						<modelSequence predicate="@n">
 							<model behaviour="block" cssClass="verse-number">
-								<param name="content">@n || '*'</param>
+								<!--<param name="content">@n || '*'</param>-->
+								<param name="content" value="@n"/>
 							</model>
 							<model behaviour="block"/>
 						</modelSequence>
@@ -1183,12 +1226,17 @@
 					<model behaviour="block"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="layout">
-					<model behaviour="inline">
-						<param name="content">p</param>
-					</model>
+					<model behaviour="inline"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="lb">
 					<modelGrp output="web">
+						<model predicate="ancestor::lg and $parameters?break='Physical'" behaviour="breakPyu">
+							<param name="type">'line'</param>
+							<param name="break">'yes'</param>
+							<param name="label">if (@n) then @n else count(preceding-sibling::lb) + 1</param>
+							<cssClass>if (@break='no') then 'break-no' else ()</cssClass>
+							<param name="hyphen">if (@break='no') then 'yes' else 'no'</param>
+						</model>
 						<model predicate="$parameters?break='Physical'" behaviour="breakPyu">
 							<param name="type">'line'</param>
 							<param name="break">'yes'</param>
@@ -1196,9 +1244,9 @@
 							<cssClass>if (@break='no') then 'break-no' else ()</cssClass>
 							<param name="hyphen">if (@break='no') then 'yes' else 'no'</param>
 						</model>
-						<model predicate="ancestor::lg and $parameters?break='Physical'" behaviour="breakPyu">
+						<model predicate="ancestor::lg and $parameters?break='Logical'" behaviour="breakPyu">
 							<param name="type">'line'</param>
-							<param name="break">'yes'</param>
+							<param name="break">'no'</param>
 							<param name="label">if (@n) then @n else count(preceding-sibling::lb) + 1</param>
 							<cssClass>if (@break='no') then 'break-no' else ()</cssClass>
 							<param name="hyphen">if (@break='no') then 'yes' else 'no'</param>
@@ -1226,7 +1274,8 @@
 					</model>
 				</elementSpec>
 				<elementSpec ident="lem" mode="change">
-					<desc>There should be no dot before <gi>note</gi> if this element follows immediately after <gi>lem</gi>. This rule should be refined and limited to cases where  <gi>lem</gi> had no <att>source</att> or <att>rend</att>.</desc>
+					<desc>There should be no dot before <gi>note</gi> if this element follows immediately after <gi>lem</gi>. This rule should be refined and limited to cases where <gi>lem</gi> had no
+							<att>source</att> or <att>rend</att>.</desc>
 					<modelSequence predicate="ancestor::listApp">
 						<!-- the content -->
 						<model behaviour="inline">
@@ -1235,18 +1284,18 @@
 						</model>
 						<!-- if @rend -->
 						<!-- if @rend and no following rdg -->
-						<model predicate="@rend and not(following-sibling::*[1][local-name()='rdg'])" behaviour="inline" cssClass="author-rend">
-							<param name="content" value="if (contains(.,'.')) then substring-before(@rend,'.') else @rend"/>
+						<model predicate="@rend and not(following-sibling::*[1][local-name()='rdg'])" behaviour="inline" cssClass="bibl-rend">
+							<param name="content" value="if (ends-with(@rend,'.')) then substring-before(@rend,'.') else @rend"/>
 							<!-- for cases when the value of @rend is something like 'Ed.', as it's the last of range, a period will be put see below -->
 							<outputRendition scope="before">content: ' ';</outputRendition>
 						</model>
 						<!-- if @rend and following rdg -->
-						<model predicate="@rend and following-sibling::*[1][local-name()='rdg']" behaviour="inline" cssClass="author-rend">
+						<model predicate="@rend and following-sibling::*[1][local-name()='rdg']" behaviour="inline" cssClass="bibl-rend">
 							<param name="content" value="@rend"/>
 							<outputRendition scope="before">content: ' ';</outputRendition>
 						</model>
 						<!-- if @source -->
-						<model predicate="@source" behaviour="bibl-author-key" cssClass="author-initials">
+						<model predicate="@source" behaviour="bibl-initials-for-ref" cssClass="bibl-initials">
 							<param name="content" value="@source"/>
 							<outputRendition>font-style:normal;</outputRendition>
 							<outputRendition scope="before">content: ' ';</outputRendition>
@@ -1400,7 +1449,8 @@
 						</modelSequence>
 					</model>
 					<model behaviour="inline">
-						<!--<outputRendition>color:blue;</outputRendition>--> </model>
+						<!--<outputRendition>color:blue;</outputRendition>-->
+					</model>
 				</elementSpec>
 				<elementSpec mode="change" ident="notesStmt">
 					<model behaviour="list"/>
@@ -1457,17 +1507,14 @@
 						<modelSequence>
 							<model behaviour="inline" cssClass="stance-number">
 								<param name="content" value="concat(@n,'.')"/>
-								<!--								<outputRendition scope="after">'.'</outputRendition>-->
 							</model>
 							<model behaviour="paragraph">
 								<param name="content">.</param>
 							</model>
 						</modelSequence>
-						<outputRendition>margin-left:6em; </outputRendition>
+						<outputRendition>margin-left:2em; </outputRendition>
 					</model>
-					<model predicate="ancestor::div[@type='translation']" behaviour="block">
-						<outputRendition>text-indent:3em;</outputRendition>
-					</model>
+					<model predicate="ancestor::div[@type='translation']" behaviour="block"/>
 					<model predicate="parent::surrogates" behaviour="paragraph"/>
 					<model predicate="parent::div[@type='bibliography']" behaviour="inline"/>
 					<model predicate="parent::support" behaviour="inline"/>
@@ -1478,15 +1525,27 @@
 				</elementSpec>
 				<elementSpec ident="pb" mode="change">
 					<constraintSpec ident="pbposition" scheme="isoschematron">
-						<constraint> <report xmlns="http://purl.oclc.org/dsdl/schematron" test="parent::*/text() and not           (preceding-sibling::text() and           following-sibling::text())">please make sure pb elements are not at the start or end of mixed content </report> </constraint>
+						<constraint>
+							<report xmlns="http://purl.oclc.org/dsdl/schematron" test="parent::*/text() and not           (preceding-sibling::text() and           following-sibling::text())">please
+								make sure pb elements are not at the start or end of mixed content </report>
+						</constraint>
 					</constraintSpec>
-					<model behaviour="break" useSourceRendition="true">
+					<!--<model predicate="@type and $parameters?break='Physical'" behaviour="break" useSourceRendition="true">
 						<param name="type" value="'page'"/>
-						<param name="label" value="(concat(if(@n) then concat(@n,' ') else '',if(@facs) then                   concat('@',@facs) else ''))"/>
+						<param name="label" value="(concat(if(@n) then concat(@n,' ') else '',if(@facs) then concat('@',@facs) else ''))"/>
 						<outputRendition> display: block; margin-left: 4pt; color: grey; float: right; </outputRendition>
 						<outputRendition scope="before">content: '[plate ';</outputRendition>
 						<outputRendition scope="after">content: ']';</outputRendition>
+					</model>-->
+					<model predicate="@type and $parameters?break='Physical'" behaviour="milestone">
+						<param name="unit" value="'pb-phys'"/>
+						<param name="label">let $n := if (@n) then @n else (count(preceding-sibling::milestone[@unit='face']) + 1) return @type || ' ' || $n</param>
 					</model>
+					<model predicate="@type and $parameters?break='Logical'" behaviour="milestone">
+						<param name="unit" value="'pb'"/>
+						<param name="label">if (@n) then @n else (count(preceding-sibling::milestone[@unit='face']) + 1)</param>
+					</model>
+					<model behaviour="omit"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="persName">
 					<!-- pb with  forname surname without space between the two -->
@@ -1549,7 +1608,8 @@
 							<param name="content" value="idno"/>
 							<outputRendition scope="after">content: " - ";</outputRendition>
 						</model>
-					</modelSequence>--> </elementSpec>
+					</modelSequence>-->
+				</elementSpec>
 				<!-- publisher-->
 				<elementSpec ident="publisher" mode="change">
 					<modelSequence>
@@ -1566,7 +1626,8 @@
 				<!-- pubPlace-->
 				<elementSpec ident="pubPlace" mode="change">
 					<model predicate="ancestor::biblStruct" behaviour="inline">
-						<!-- <outputRendition>color:red;</outputRendition>--> </model>
+						<!-- <outputRendition>color:red;</outputRendition>-->
+					</model>
 				</elementSpec>
 				<!-- ==== Q ==== -->
 				<elementSpec ident="quote" mode="change">
@@ -1599,18 +1660,18 @@
 							<outputRendition scope="after">content: ' ';</outputRendition>
 						</model>
 						<!-- if @rend and no following rdg -->
-						<model predicate="@rend and not(following-sibling::*[1][local-name()='rdg'])" behaviour="inline" cssClass="author-rend">
-							<param name="content" value="if (contains(.,'.')) then substring-before(@rend,'.') else @rend"/>
+						<model predicate="@rend and not(following-sibling::*[1][local-name()='rdg'])" behaviour="inline" cssClass="bibl-rend">
+							<param name="content" value="if (ends-with(@rend,'.')) then substring-before(@rend,'.') else @rend"/>
 							<!-- for cases when the value of @rend is something like 'Ed.', as it's the last of range, a period will be put see below -->
 							<outputRendition scope="before">content: ' ';</outputRendition>
 						</model>
 						<!-- if @rend  and following rdg-->
-						<model predicate="@rend and following-sibling::*[1][local-name()='rdg']" behaviour="inline" cssClass="author-rend">
+						<model predicate="@rend and following-sibling::*[1][local-name()='rdg']" behaviour="inline" cssClass="bibl-rend">
 							<param name="content" value="@rend"/>
 							<outputRendition scope="before">content: ' ';</outputRendition>
 						</model>
 						<!-- if @source -->
-						<model predicate="@source" behaviour="bibl-author-key" cssClass="author-initials">
+						<model predicate="@source" behaviour="bibl-initials-for-ref" cssClass="bibl-initials">
 							<param name="content" value="@source"/>
 							<outputRendition scope="before">content: ' ';</outputRendition>
 							<outputRendition scope="after">content: ' ';</outputRendition>
@@ -1644,6 +1705,9 @@
 					</model>
 				</elementSpec>
 				<elementSpec mode="change" ident="ref">
+					<model predicate="@rend='no-link'" behaviour="inline">
+						<param name="content" value="."/>
+					</model>
 					<model predicate="ancestor::div[@type='translation']" behaviour="block" cssClass="translation-ref"/>
 					<model predicate="bibl[ptr[@target]]" behaviour="inline">
 						<param name="content">bibl/ptr</param>
@@ -1670,7 +1734,8 @@
 						<param name="content">persName</param>
 					</model>
 					<model behaviour="inline">
-						<!-- <outputRendition> color: red;</outputRendition> --> </model>
+						<!-- <outputRendition> color: red;</outputRendition> -->
+					</model>
 				</elementSpec>
 				<elementSpec mode="change" ident="revisionDesc">
 					<model predicate="$parameters?headerType='epidoc'" behaviour="omit"/>
@@ -1685,10 +1750,10 @@
 					<model predicate="@type='check'" behaviour="inline" cssClass="seg">
 						<outputRendition> color:red; background-color:yellow; </outputRendition>
 					</model>
-					<model predicate="@type='continuous'" behaviour="inline">
+					<!--<model predicate="@type='continuous'" behaviour="inline">
 						<param name="content">w</param>
 						<outputRendition> color:red; </outputRendition>
-					</model>
+					</model>-->
 					<model predicate="@type='graphemic'" behaviour="inline" cssClass="seg">
 						<outputRendition scope="before">content:"&lt;";</outputRendition>
 						<outputRendition scope="after">content:"&gt;";</outputRendition>
@@ -1701,13 +1766,13 @@
 						<outputRendition scope="before">content:"/";</outputRendition>
 						<outputRendition scope="after">content:"/";</outputRendition>
 					</model>
-					<model predicate="@type='t1'" behaviour="inline" cssClass="seg">
+					<!--<model predicate="@type='t1'" behaviour="inline" cssClass="seg">
 						<outputRendition>background:yellow; color:red</outputRendition>
 						<outputRendition scope="before">content:"***";</outputRendition>
 						<outputRendition scope="after">content:"***";</outputRendition>
-					</model>
+					</model>-->
 					<model predicate="@type='translatedlines'" behaviour="inline">
-						<outputRendition> font-weight:bold; display:inline-block;</outputRendition>
+						<outputRendition>font-weight:bold; margin-left:2em; margin-right:.25em;</outputRendition>
 					</model>
 					<model behaviour="inline"/>
 				</elementSpec>
