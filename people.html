@@ -7,15 +7,14 @@
                 <h2>People</h2>
             </div>
         </div>
-<!--        <div data-template="app:browse-get-persons">-->
-        <div class="browse" data-template="app:browse" data-template-path="/contextual/Persons" data-template-type="Person" data-template-facets="/browse-person-facet-def.xml">
+        <div data-template="app:browse" data-template-type="Persons" data-template-facets="browse-person-facet-def.xml">
             <div class="row">
                 <div class="col-md-3">
                     <div class="well well-sm">
                         <h5>Matching persons: <span id="hit-count" data-template="app:hit-count"/>
                             </h5>
                         <hr/>
-                        <div data-template="app:display-facets" data-template-facet-def="browse-person-facet-def.xml"/>
+                        <div data-template="app:display-facets" data-template-facets="browse-person-facet-def.xml"/>
                     </div>
                 </div>
                 <div class="col-md-9">
@@ -36,9 +35,7 @@
                             </div>
                             <hr/>
                             <br/>
-
-<!--                            <div data-template="app:person-browse-hits" data-template-per-page="20"/>-->
-                            <div data-template="app:browse-display-hits" data-template-per-page="20" data-template-type="Person"/>
+                            <div data-template="app:browse-display-hits" data-template-per-page="20" data-template-type="Persons"/>
                             
                             <!-- pagination for small device -->
                             <div class="hidden-md hidden-lg hidden-sm pull-right">
