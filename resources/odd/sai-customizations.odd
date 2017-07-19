@@ -565,16 +565,14 @@
  				</elementSpec>
 				<!-- PERSON !-->
 				<elementSpec mode="change" ident="person">
-				    <modelSequence predicate="ancestor::listPerson">
+				    <modelSequence predicate="ancestor::listPerson" behaviour="block">
 			            <model behaviour="dl">
 			                <modelSequence>
                                 <modelSequence predicate="persName[not(@type)]">
                                     <model behaviour="dt">
                                         <param name="content">'Attested form: '</param>
                                     </model>
-                                    <model behaviour="dd">
-                                        <param name="content">persName[not(@type)]</param>
-                                    </model>
+                                    <model behaviour="name-orthography"/>
                                 </modelSequence>
                                 <modelSequence predicate="persName[@type='pra-reconstruction']">
                                     <model behaviour="dt">

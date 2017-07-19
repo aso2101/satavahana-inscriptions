@@ -23,85 +23,6 @@ declare namespace json="http://www.json.org";
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 
-(:
- : Much of this code is adapted from the SARIT project,
- : which was the inspiration for this database. :)
-declare function app:generate-place-entry($id as xs:string,$name as xs:string) {
-    if ($id instance of xs:NCName)
-    then 
-        <place xmlns="http://www.tei-c.org/ns/1.0" xml:id="{$id}">
-            <placeName>{ $name }</placeName>
-        </place>
-    else 
-        <place xmlns="http://www.tei-c.org/ns/1.0">
-            <placeName>{ $name } (not a valid NCName)</placeName>
-        </place>
-};
-declare function app:generate-person-entry($id as xs:string,$name as xs:string) {
-    if ($id instance of xs:NCName)
-    then 
-        <person xmlns="http://www.tei-c.org/ns/1.0" xml:id="{$id}">
-            <persName>{ $name }</persName>
-        </person>
-    else
-        <person xmlns="http://www.tei-c.org/ns/1.0">
-            <persName>{ $name } (not a valid NCName)</persName>
-        </person>
-};
-
-(: This lists all of the places mentioned anywhere in the corpus. :)
-declare function app:list-places($node as node(), $model as map(*)) {
-    map {
-        "places" :=
-            for $key in distinct-values(collection($config:remote-data-root)//tei:placeName/@key)
-            let $name := 
-                if (contains($key,'pl:'))
-                then substring-after($key,'pl:')
-                else $key
-            let $id := xs:NCName($name)
-            order by $name
-            return
-                (:  I am excluding place-names that aren't either find-spots 
-                    or mentioned in the text. :)
-                if (collection($config:remote-data-root)//tei:div[@type='edition']//tei:placeName[@key=$key] or
-                    collection($config:remote-data-root)//tei:origPlace//tei:placeName[1][@key=$key])
-                then app:generate-place-entry($id,$id)
-                else ()
-    }  
-};
-
-(:  This returns a list of <place> nodes for all of the places mentioned in the
-    TEXT of inscriptions. :)
-declare function app:list-places-mentioned($node as node(), $model as map(*)) {
-    map {
-        "places" :=
-            for $key in distinct-values(collection($config:remote-data-root)//tei:div[@type='edition']//tei:placeName/@key)
-            let $name := 
-                if (contains($key,'pl:'))
-                then substring-after($key,'pl:')
-                else $key
-            let $id := xs:NCName($name)
-            order by $name
-            return app:generate-place-entry($id,$name)
-    }  
-};
-
-(:  This returns a list of <place> nodes for all of the places mentioned as the
-    LOCATION where inscriptions are found :)
-declare function app:list-places-location($node as node(), $model as map(*)) {
-    map {
-        "places" :=
-            for $key in distinct-values(collection($config:remote-data-root)//tei:origPlace//tei:placeName/@key)
-            let $name := 
-                if (contains($key,'pl:'))
-                then substring-after($key,'pl:')
-                else $key
-            let $id := xs:NCName($name)
-            order by $name
-            return app:generate-place-entry($id,$name)
-    }  
-};
-
 (:  This should get everyone in the person authority file who is a King
     Currently ordered by regnal years :) 
 declare function app:list-rulers($node as node(), $model as map(*)) {
@@ -115,13 +36,6 @@ declare function app:list-rulers($node as node(), $model as map(*)) {
     }
 };
 
-declare function app:place($node as node(), $model as map(*), $key as xs:string) {
-    let $id := substring-after($key,'pl:')
-    let $place := $model("places")//id($id)
-    return
-        map { "place" := $place[1] }
-};
-
 declare function app:ruler($node as node(), $model as map(*), $key as xs:string) {
     let $id := substring-after($key,'pers:')
     let $ruler := $model("rulers")//id($id)
@@ -129,125 +43,10 @@ declare function app:ruler($node as node(), $model as map(*), $key as xs:string)
         map { "ruler" := $ruler[1] }
 };
 
-declare function app:place-name($node as node(), $model as map(*)) {
-    let $place := $model("place") | $model("browse-places")
-    let $text :=
-        if ($place//tei:placeName[@type='ancient'])
-        then $place//tei:placeName[@type='ancient'][1]/text()
-        else $place//tei:placeName/text()
-    return
-        if (contains(request:get-url(),'places.html'))
-        then 
-            <span class="{$text}">{$text}<a id="{$text}"/></span>
-        else 
-            <a href="places.html#{$text}" id="{$text}"><span class="{$text}">{$text}</span></a>
-};
-
 declare function app:ruler-name($node as node(), $model as map(*), $type as xs:string?) {
     let $ruler := $model("ruler")
     return
         $ruler/tei:persName/text()
-};
-
-(: Trying to get this to sort by date. :)
-(: @note: possibly depreciated :)
-declare function app:list-inscriptions($node as node(), $model as map(*)) {
-  map {
-     "inscriptions" := 
-        for $inscription in collection($config:remote-data-root)//tei:TEI
-        order by 
-            if ($inscription//tei:origDate/@when-custom)
-            then xs:integer($inscription//tei:origDate/@when-custom)
-            else xs:integer($inscription//tei:origDate/@notBefore-custom)
-        return
-            $inscription
-  }  
-};
-(: @note: possibly depreciated :)
-declare function app:list-inscriptions-by-place-mentioned($node as node(), $model as map(*)) {
-    map {
-        "inscriptions" :=
-            let $place := $model("place")/@xml:id
-            let $key := concat('pl:',$place)
-            for $inscription in collection($config:remote-data-root)//tei:TEI
-            where $inscription//tei:div[@type='edition']//tei:placeName[@key=$key]
-            order by 
-                if ($inscription//tei:origDate/@when-custom)
-                then xs:integer($inscription//tei:origDate/@when-custom)
-                else xs:integer($inscription//tei:origDate/@notBefore-custom)
-            return $inscription
-    }  
-};
-(: @note: possibly depreciated :)
-declare function app:list-inscriptions-by-place-location($node as node(), $model as map(*)) {
-    map {
-        "inscriptions" :=
-            let $place := $model("place")/@xml:id
-            let $key := concat('pl:',$place)
-            for $inscription in collection($config:remote-data-root)//tei:TEI
-            where $inscription//tei:origPlace//tei:placeName[@key=$key]
-            order by 
-                if ($inscription//tei:origDate/@when-custom)
-                then xs:integer($inscription//tei:origDate/@when-custom)
-                else xs:integer($inscription//tei:origDate/@notBefore-custom)
-            return $inscription
-    }  
-};
-
-declare function app:list-inscriptions-by-ruler($node as node(), $model as map(*)) {
-    map {
-        "inscriptions" :=
-            let $ruler := $model("ruler")/@xml:id
-            let $key := concat('pers:',$ruler)
-            for $inscription in collection($config:remote-data-root)//tei:TEI
-            where $inscription//tei:persName[@key=$key]
-            order by $inscription//tei:origDate/@notBefore-custom
-                return $inscription
-    }  
-};
-
-declare
-    %templates:wrap
-function app:inscription($node as node(), $model as map(*), $id as xs:string) {
-    let $inscription := collection($config:remote-data-root)//id($id)
-    return
-        map { "inscription" := $inscription[1] }
-};
-
-declare function app:inscription-title($node as node(), $model as map(*), $type as xs:string?) {
-    let $suffix := if ($type) then "." || $type else ()
-    let $inscription := $model("inscription")
-    let $title := $inscription//tei:titleStmt/tei:title/text()
-    return
-        <a xmlns="http://www.w3.org/1999/xhtml" href="/exist/apps/SAI/inscriptions/{$inscription/@xml:id}{$suffix}">{ $title }</a>
-};
-
-(: @note: possibly depreciated :)
-declare function app:inscription-regnal_year($node as node(), $model as map(*)) {
-    let $inscription := $model("inscription")
-    let $test := xs:string($model("ruler")/@xml:id)
-    (: We use the first regnal year found in the EDITION,
-       even if there may be others. :)
-    let $date := $inscription//tei:div[@type='edition']//tei:date[@datingMethod='regnal'][1]
-    let $rulerasstated := substring-after($date/@datingPoint,'pers:')
-    order by xs:integer($date/@when-custom)
-    return 
-        if ($test = $rulerasstated)
-        then xs:string($date/@when-custom)
-        else ''
-};
-(: @note: possibly depreciated :)
-declare function app:inscription-date($node as node(), $model as map(*)) {
-    let $inscription := $model("inscription")
-    let $date := $inscription//tei:origDate/text()
-    return 
-        $date
-};
-(: @note: possibly depreciated :)
-declare function app:inscription-id($node as node(), $model as map(*)) {
-    let $inscription := $model("inscription")
-    let $id := $inscription//tei:idno
-    return $id
 };
 
 (: ~
@@ -267,58 +66,10 @@ declare function app:inscription-language($node as node(), $model as map(*)) {
         $script
 };
 
-(: @note: possibly depreciated :)
-(: This also needs work. :)
-declare function app:download-epidoc($node as node(), $model as map(*)) {
-    let $doc-path := document-uri(root($model("inscription")))
-    let $rest-link := '/exist/rest' || $doc-path
-    return
-        <a xmlns="http://www.w3.org/1999/xhtml" href="{$rest-link}" target="_blank">{ $node/node() }</a>
-};
-
-(: List of persons. Sorting still needs work. :)
-(: @note: possibly depreciated :)
-declare function app:list-people($node as node(), $model as map(*)) {
-    map {
-        "people" := 
-            for $key in distinct-values(collection($config:remote-data-root)//tei:persName/@key)
-            let $id := 
-                if (contains($key,'pers:'))
-                    then substring-after($key,'pers:')
-                else $key
-            let $nid := xs:NCName($id)
-            let $name := 
-                if (collection($config:remote-context-root)//tei:person[@xml:id=$id]/tei:persName[1]/text())
-                then collection($config:remote-context-root)//tei:person[@xml:id=$id]/tei:persName[1]/text()
-                else $id
-            order by $name
-            return app:generate-person-entry($nid,$name)
-    }
-};
-
-(: @note: possibly depreciated :)
-declare 
-    %templates:wrap
-function app:person($node as node(), $model as map(*), $key as xs:string) {
-    let $id := 
-        if (contains($key,"pers:")) then
-            substring-after($key,'pers:')
-        else $key
-    let $person := $model("people")//id($id)
-    return
-        map { "person" := $person[1] }
-};
-
 (:
- : Retrieve person node by xml:id from remote context root directory. 
+ : Used by person.html
+ : DEPRECATED 
 :)
-(: @note: possibly depreciated :)
-declare function app:person-revised($node as node(), $model as map(*), $id as xs:string) {
-    let $person := collection($config:remote-context-root)//@xml:id[. = $id]
-    return
-        map { "person" := $person }
-};
-(: @note: possibly depreciated :)
 declare function app:person-name-revised($node as node(), $model as map(*)) {
     let $id := $model?data/@xml:id
     let $data := $model('data')
@@ -338,34 +89,10 @@ declare function app:person-name-revised($node as node(), $model as map(*)) {
         </div>
 };
 
-(: @note: possibly depreciated use app:related-inscriptions :)
-declare function app:inscriptions-related-to-person-revised($node as node(), $model as map(*)) {
-    let $person := $model?data
-    let $key := concat('pers:',string($person/@xml:id))
-    (: get the root node of all inscriptions that mention the person :)
-    let $inscriptions := collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
-    let $places := 
-        for $placekey in distinct-values($inscriptions//tei:origPlace/tei:placeName[1]/@key)
-        let $name := 
-            if (contains($placekey,'pl:')) then substring-after($placekey,'pl:')
-            else $placekey
-        let $inscriptions-by-place := $inscriptions[descendant::tei:placeName[@key=$placekey]]
-        order by $name
-        return 
-            <div>
-            <h4>{ $name }</h4>
-                {
-                    app:view-hits($inscriptions-by-place, $placekey)
-                }
-            </div>
-    return
-        if($places) then 
-            <div>
-                <h3>Mentioned in these inscriptions:</h3>
-                { $places }
-            </div>
-        else ()
-};
+(:~
+ : Generate person name orthography from $data
+ : $param $model, data passed to templating function from main query. 
+:)
 declare function app:person-name-orthography($node as node(), $model as map(*)) {
     let $id := $model?data/@xml:id
     let $key := concat('pers:',$id)
@@ -462,84 +189,6 @@ declare function app:person-relations($node as node(), $model as map(*)) {
             </div>
 };
 
-(: @note: possibly depreciated use teiPublisher :)
-declare function app:person-name($node as node(), $model as map(*)) {
-    let $person := $model("person")
-    let $anchor := $person/@xml:id
-    return 
-        <h4><a name="{$person/@xml:id}" href="/exist/apps/SAI/person/{ $anchor }">{ $person/tei:persName/text() }</a></h4>
-};
-
-(: @note: possibly depreciated use app:related-inscriptions :)
-declare function app:inscriptions-related-to-person($node as node(), $model as map(*), $type as xs:string?) {
-    let $suffix := if ($type) then "." || $type else ()
-    let $personid := $model("person")/@xml:id
-    let $key := concat('pers:',$personid)
-    return
-        <div>
-        Mentioned in these inscriptions:
-        {   for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key=$key]]
-            let $idno := $inscription//tei:idno
-            let $namestring :=
-                for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
-                return 
-                    app:flatten-app($name)
-            (:where $inscription//tei:persName[@key=$key]:)
-            return 
-                <span>
-                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
-                    (<em>{ $namestring }</em>)
-                </span>
-        }
-        </div>
-};
-
-(:  List of bibliography items :)
-declare function app:list-bibitems($node as node(), $model as map(*)) {
-    map {
-        "bibitems" :=
-            for $bibitem in collection($config:bibl-authority-dir)//tei:biblStruct
-            let $orderkey :=
-                if ($bibitem//tei:author) then $bibitem//tei:author[1]/tei:name/tei:surname/text()
-                else if ($bibitem//tei:editor) then $bibitem//tei:editor[1]/tei:name/tei:surname/text()
-                else $bibitem//tei:title[1]/text()
-            order by $orderkey,$bibitem//tei:date
-            return $bibitem 
-    }
-};
-
-(:  Generate short name for bibliography item :)
-declare function app:bibl-shortname($node as node(), $model as map(*)) {
-    let $bibitem := $model("bibitem")
-    return $bibitem(:tei-to-html:bibl-shortname($bibitem):)
-};
-
-declare function app:bibitem($node as node(), $model as map(*)) {
-    let $bibitem := $model("bibitem")
-    return $bibitem (:tei-to-html:biblStruct($bibitem):)
-};
-
-declare function app:places-inscriptions-located($node as node(), $model as map(*), $type as xs:string?) {
-    let $suffix := if ($type) then "." || $type else ()
-    let $place := $model("place")
-    let $id := $place/@xml:id
-    let $key := concat('pl:',$id)
-    return
-        if (collection($config:remote-data-root)//tei:origPlace//tei:placeName[@key=$key])
-        then
-            <div>
-            Inscriptions located here:
-            {
-                for $inscription in collection($config:remote-data-root)//tei:TEI
-                let $idno := $inscription//tei:idno
-                where $inscription//tei:origPlace//tei:placeName[@key=$key]
-                return
-                    <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
-            }
-            </div>
-        else ()
-};
-
 declare function app:flatten-app($node as node()*) {
     let $elements :=
         for $i in $node//text()
@@ -550,41 +199,6 @@ declare function app:flatten-app($node as node()*) {
         normalize-space(string-join($elements,''))
 };
 
-declare function app:places-inscriptions-mentioned($node as node(), $model as map(*), $type as xs:string?) {
-    let $suffix := if ($type) then "." || $type else ()
-    let $place := $model("place")
-    let $id := $place/@xml:id
-    let $key := concat('pl:',$id)
-    return
-        if (collection($config:remote-data-root)//tei:div[@type='edition']//tei:placeName[@key=$key])
-        then
-            <div>
-            Mentioned in these inscriptions:
-            {
-                for $inscription in collection($config:remote-data-root)//tei:TEI
-                let $idno := $inscription//tei:idno
-                let $namelist := 
-                    for $name in $inscription//tei:div[@type='edition']//tei:placeName[@key=$key]
-                    return
-                        app:flatten-app($name)
-                let $namestring := string-join(distinct-values($namelist),', ')
-                where $inscription//tei:div[@type='edition']//tei:placeName[@key=$key]
-                return
-                    <span>
-                        <a xmlns="http://www.w3.org/1999/xhtml" href="{$node/@href}inscription/{$inscription/@xml:id}{$suffix}">{ $idno }</a>
-                        (<em>{ $namestring }</em>)
-                    </span>
-            }
-            </div>
-        else ()
-};
-
-(: @note: possibly depreciated use teiPublihser :)
-declare function app:view($node as node(), $model as map(*)) {
-    let $inscription := $model("inscription")
-    return $inscription
-        (:tei-to-html:render($inscription):)
-};
 
 (:  declare function app:view-facsimiles($node as node(), $model as map(*)) {
     let $inscription := $model("inscription")
@@ -727,6 +341,7 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
                 "query" := $query
             }
 };
+
 (:~
  : Default search options to be passed to Lucene via ft:query()
 :)
@@ -891,8 +506,8 @@ return
 declare function app:rec-link($rec, $type, $title){
 let $id := string($rec//@xml:id[1]) 
 let $med := if($type = 'Bibliography') then '/bibliography/'
-            else if($type = 'Person') then '/person/'
-            else if($type = 'Place') then '/place/'                    
+            else if($type = ('Person','Persons')) then '/person/'
+            else if($type = ('Place','Places')) then '/place/'                    
             else '/inscription/'
 let $path := concat(concat($config:app-nav-base,$med),$id)
 return             
@@ -949,177 +564,150 @@ declare function app:hit-count($node as node()*, $model as map(*)) {
 };
 
 (:~
- : Browse Bibliography
-:)
-declare function app:browse-bibl-data($node as node(), $model as map(*), $view as xs:string?) {
+ : Extensible generic browse function. 
+ : Used by Browse Inscriptions, Browse Persons, Browse Places and Browse Bibliography and Browse HTML pages
+ : @param $path path to data relative to $config:remote-root, use if to browse data not in $config:remote-data-root, or browse a subset of $config:remote-data-root
+ : @param $type data type accepted values, defaults to Inscription 'Bibliography|Person|Place|Inscription'
+ : @param $facets path to facet-definition file relative to $config:app-root
+ : @param $date-slider include date slider, date type to use 'bibl|inscriptions'
+:) 
+declare function app:browse($node as node()*, $model as map(*), 
+    $path as xs:string?, 
+    $type as xs:string?, 
+    $facets as xs:string?, 
+    $date-slider as xs:string?) {
     map {
                 "config" := map { "odd": $config:odd },
                 "hits" := 
-                    let $browse-path := concat($config:remote-root,'/contextual/Bibliography')
-                    let $facet-def :=  doc($config:app-root || '/browse-bibl-facet-def.xml')
-                    for $i in util:eval(concat("collection($browse-path)/tei:TEI",app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()'),facet:facet-filter($facet-def),slider:date-filter('bibl')))
-                    order by $i//tei:titleStmt/tei:title[1]
-                    return $i
-        }  
+                    let $browse-path := 
+                        if($path != '') then ($config:remote-root || $path)                            
+                        else $config:remote-data-root    
+                    let $abc-filter := 
+                            if($type = ('Place','Places')) then 
+                               app:abc-filter('descendant::tei:placeName[1]/text()')
+                            else if($type = ('Person','Persons')) then
+                                app:abc-filter('descendant::tei:persName[1]/text()')
+                            else app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()')
+                    let $facet-filter :=  
+                        if($facets != '') then
+                            if(doc($config:app-root || '/' || $facets)) then
+                                facet:facet-filter(doc($config:app-root || '/' || $facets))
+                            else ()
+                        else ()
+                    let $slider-filter := 
+                        if($date-slider != '') then
+                            slider:date-filter($date-slider)
+                        else ()
+                   let $filter-ids :=  
+                        if($type = 'Places') then 
+                            distinct-values(collection($config:remote-data-root)//tei:placeName/@key)
+                        else if($type = 'Persons') then
+                            distinct-values(collection($config:remote-data-root)//tei:persName/@key)
+                        else if($type = 'Bibliography') then
+                            distinct-values(collection($config:remote-data-root)//tei:bibl/tei:ptr/@target)
+                        else ()
+                   let $hits := 
+                        if($filter-ids != '') then
+                            for $h in $filter-ids
+                            return 
+                                <hit id="{$h}">
+                                    {
+                                        let $r := collection($config:remote-context-root)//*[@xml:id = substring-after($h,':')]
+                                        let $i :=                                                     
+                                           if($type = 'Bibliography') then 
+                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target = $h]]
+                                                return 
+                                                    <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI>
+                                           else if($type = 'Persons') then  
+                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key = $h]]
+                                                return 
+                                                    <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI>
+                                           else if($type = 'Places') then
+                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:placeName[@key = $h]]
+                                                return 
+                                                    <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI>                                                    
+                                           else ()                                                     
+                                        return ($r,$i)
+                                    }
+                                </hit> 
+                        else
+                            for $h in collection($browse-path)
+                            return 
+                                <hit>{$h}</hit>   
+                  for $h in util:eval(concat("$hits",$abc-filter,$facet-filter,$slider-filter)) 
+                  let $sortOrder := 
+                        if($type = 'Places') then 
+                            $h/descendant::tei:place[1]/tei:placeName[1]
+                        else if($type = 'Persons') then
+                            $h/descendant::tei:person[1]/tei:persName[1]
+                        else $h/descendant::tei:titleStmt[1]/descendant::tei:title[1]
+                  order by $sortOrder
+                  return $h  
+        }   
 };
 
 (:~
- : Browse inscriptions  
- : Group inscriptions by place/@key
- : @sort  
-:)
-declare function app:browse-get-inscriptions($node as node(), $model as map(*)) {
-    map {
-                "config" := map { "odd": $config:odd },
-                "hits" := 
-                    let $facet-def := doc($config:app-root || '/browse-facet-def.xml')
-                    for $i in util:eval(concat("collection($config:remote-data-root)//tei:TEI",facet:facet-filter($facet-def),slider:date-filter('inscriptions')))
-                    return $i
-        }  
-};
-
-(:~
- : Browse inscriptions group by places  
- : Group inscriptions by place/@key
- : @sort  
-:)
-declare function app:browse-get-places($node as node(), $model as map(*)){
-    map {
-                "config" := map { "odd": $config:odd },
-                "places" := 
-                    let $places := distinct-values($model("hits")//descendant::tei:origPlace/tei:placeName/@key)
-                    for $p in $places
-                    let $id := 
-                                if (contains($p,'pl:')) then substring-after($p,'pl:')
-                                else $p
-                    for $place in collection($config:remote-context-root || '/Places')//@xml:id[. = $id]
-                    let $p := root($place)
-                    return $p
-        }  
-};
-
-(:~
- : Browse persons with inscriptions 
-:)
-declare function app:browse-get-persons($node as node(), $model as map(*)){
-    map {
-                "hits" := 
-                    let $pids := distinct-values(collection($config:remote-data-root)//tei:persName/@key)
-                    let $persons := 
-                        for $person in $pids
-                        return 
-                            <person id="{$person}">
-                                {
-                                    let $p := collection($config:remote-context-root)//tei:person[@xml:id= replace($person,'pers:','')]
-                                    let $i := 
-                                        for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key= $person]]
-                                        return 
-                                        <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI> 
-                                    return ($p,$i)
-                                }
-                            </person>  
-                            (:
-                            $hit[matches(substring(global:build-sort-string(.,$browse:computed-lang),1,1),browse:get-sort(),'i')]
-                            :)
-                    let $facet-def := doc($config:app-root || '/browse-person-facet-def.xml')
-                    for $i in util:eval(concat("$persons",app:abc-filter('tei:person[1]/tei:persName[1]'),facet:facet-filter($facet-def)))
-                    let $name := $i//tei:person[1]/tei:persName[1]
-                    order by $name
-                    return $i
-        }     
-};
-
-(:~
- : Show browse hits. 
+ : HTML output for browse hits. Includes paging and sorting. 
  : @param $start default 1 
  : @param $per-page default 10
+ : @param $type data type accepted values, defaults to Inscription 'Bibliography|Persons|Places|Inscriptions'
 :)
 declare
     %templates:default("start", 1)
     %templates:default("per-page", 10)
-function app:bibl-browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
+function app:browse-display-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer, $type as xs:string?) {
     for $p in subsequence($model("hits"), $start, $per-page)
-    let $docNode := util:eval("$p//tei:biblStruct[1]")
-    let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) },$model?config?odd)
-    let $id := $p/descendant::tei:biblStruct/@xml:id
-    let $bibl-id := concat('bibl:',$id)
-    let $title := $p/descendant::tei:titleStmt/tei:title[1]/text()
-    let $inscriptions := 
-        for $i in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target=$bibl-id]]
-        return <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($i/@xml:id)}">{($i/tei:teiHeader, $i//tei:div[@type='edition'][@xml:lang])}</TEI>
+    let $docNode := $p/child::*[1]
+    (:let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) },$model?config?odd):)
+    let $title := 
+        if($type='Places') then
+            $p/descendant::tei:place[1]/descendant::tei:placeName[1]/text()
+        else if($type='Persons') then
+            $p/descendant::tei:person[1]/descendant::tei:persName[1]/text()           
+        else if($p/descendant::tei:title[@type='short']) then
+            $p/descendant::tei:title[@type='short'][1]/text()
+        else $p/descendant::tei:title[1]/text()
+    let $html := 
+        <h4>{app:rec-link($p, $type, $title)}
+            {
+            if($p/tei:person/tei:sex/@value) then  concat(' (',string-join($p/tei:person/tei:sex/@value,' '),') ')
+            else()
+            }
+        </h4>
+    let $id := 
+        if($type='Bibliography') then 
+            $p/descendant::tei:biblStruct/@xml:id
+        else if($type='Places') then
+            $p/descendant::tei:place[1]/@xml:id
+        else if($type='Persons') then
+            $p/descendant::tei:person[1]/@xml:id            
+        else $p/@xml:id
+    let $ref-id := 
+        if($type='Bibliography') then 
+            concat('bibl:',$id)
+        else if($type='Places') then
+            concat('pl:',$id)
+        else if($type='Persons') then
+            concat('pers:',$id)
+        else $id
+    let $inscriptions := app:view-hits($p/descendant::tei:TEI, $ref-id)
     let $related-records :=
         if ($inscriptions) then 
             <div class="row mentions">
                 <div class="col-sm-12">
                     <p>Mentioned in these records:</p>
                     <div class="indent">
-                        {app:view-hits($inscriptions, $bibl-id)}
+                        {$inscriptions}
                     </div>
                 </div>
             </div>
-        else ""
+        else ()    
     return 
         <li class="list-group-item">
           { $html }{ $related-records }
         </li>
 };
-(: old return:
-    <div id="{$bibl-id}">
-        <h4>{app:rec-link($p, 'Bibliography', $title)}</h4>
-        {$related-records}
-    </div>  
-:)
 
-
-(:~
- : Show browse hits. 
- : @param $start default 1 
- : @param $per-page default 10
-:)
-declare
-    %templates:default("start", 1)
-    %templates:default("per-page", 10)
-function app:person-browse-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
-    for $p in subsequence($model("hits"), $start, $per-page)
-    let $id := 
-        if (contains($p/@id,'pers:')) then xs:NCName(substring-after($p/@id,'pers:'))
-        else xs:NCName($p)
-    let $name := 
-        if ($p/tei:person/tei:persName[1]) then $p/tei:person/tei:persName[1]/text()
-        else $id
-    order by $id
-    return 
-     <div id="pers-{$id}">
-        <h4>{app:rec-link($p, 'Person', $name)}
-            {
-            if($p/tei:person/tei:sex/@value) then  concat(' (',string-join($p/tei:person/tei:sex/@value,' '),') ')
-            else()
-            }
-        </h4>
-        {(
-            if($p/tei:person/tei:residence/tei:placeName) then
-                    <p>{concat('From ', $p/tei:person/tei:residence/tei:placeName/text(), '. ')}</p>
-            else(),
-            if($p/tei:person/descendant::tei:state or $p/tei:person/descendant::tei:trait or $p/tei:person/descendant::tei:faith) then
-                <p>Identifiers: 
-                    {
-                        let $identifiers := $p/tei:person/descendant::tei:state | 
-                                  $p/tei:person/descendant::tei:trait |
-                                  $p/tei:person/descendant::tei:faith
-                        let $last := count($identifiers)
-                        for $i at $pos in $identifiers
-                        return 
-                        (<span class="person-identifiers">{$i/text()} {if($i/@type) then concat(' [',string($i/@type),'] ') else ()}</span>, if($i[$pos != $last]) then ', ' else())                                 
-                    }
-                </p>
-            else()
-        )}
-        <p>Mentioned in these inscriptions:</p>
-        <div class="indent">
-        {app:view-hits($p/descendant::tei:TEI, $id)}
-        </div>
-    </div>     
-};
 
 (:~
  : Show browse hits. 
@@ -1219,7 +807,9 @@ declare function app:view-hits($inscriptions, $placeId){
 };
 
 (:
- : May need to add filters for accented letters?
+ : Apply abc filter to get record by first letter matching abc filter.
+ : @param $node tei node to apply filter to. 
+ : @NOTE May need to add filters for accented letters?
 :)
 declare function app:abc-filter($node){
  if(request:get-parameter('abc-filter', '') != '') then
@@ -1231,6 +821,7 @@ declare function app:abc-filter($node){
 
 (:~
  : Browse Alphabetical Menu
+ : Used by browse pages: people.html, places.html, bibliography.html
 :)
 declare %templates:wrap function app:browse-abc-menu($node as node(), $model as map(*)){
     for $letter in tokenize('A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ALL', ' ')
@@ -1249,9 +840,9 @@ declare %templates:wrap function app:browse-abc-menu($node as node(), $model as 
  : @param $node nodes to be faceted on, passed from search and browse
  : @param $facet-def facet-definition file, passed from html page. 
 :)
-declare function app:display-facets($node as node(), $model as map(*), $facet-def as xs:string?) {
+declare function app:display-facets($node as node(), $model as map(*), $facets as xs:string?) {
     let $hits := $model("hits")
-    let $facet-def := doc($config:app-root || '/' || $facet-def)
+    let $facet-def := doc($config:app-root || '/' || $facets)
     return
         if($facet-def) then 
             facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
@@ -1304,6 +895,8 @@ declare function app:map($node as node(), $model as map(*)) {
 (:~
  : Date slider pulls functions from lib/date-slider.xqm
  : Build Javascript Date Slider. 
+ : $param @model data passed from initial query
+ : @param $mode selects which date element to use for filter. Current modes are 'inscription' and 'bibl'
 :)
 declare function app:browse-date-slider($node as node(), $model as map(*), $mode as xs:string?){   
     slider:browse-date-slider($model("hits"), $mode)
@@ -1488,6 +1081,7 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
 
 (:~
  : Get related inscriptions. 
+ : Used in person.html, bibl.html and place.html
 :)
 declare function app:related-inscriptions($node as node(), $model as map(*)) {
     let $doc := $model?data
@@ -1527,7 +1121,7 @@ declare function app:related-inscriptions($node as node(), $model as map(*)) {
     return 
         if($places) then 
             <div>
-                <h3>Mentioned in these records:</h3>
+                <h3>Mentioned in these inscriptions:</h3>
                 { $places }
             </div>
         else ()

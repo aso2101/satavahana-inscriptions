@@ -546,3 +546,47 @@ declare function pmf:separator($config as map(*), $node as element(), $class as 
      		{ attribute class { $class } 
      	}
 };
+
+(: FUNCTIONS SPECIFIC TO THE SĀTAVĀHANA INSCRIPTIONS
+ : PROJECT - ANDREW OLLETT :)
+declare function pmf:name-orthography($config as map(*), $node as element(), $content) {
+    let $attested := $node/tei:persName[not(@type)][1]
+    let $key := concat('pers:',string($node/@xml:id))
+    let $spellings :=
+        let $inscriptions := collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//tei:persName[@key=$key]]
+        let $length := count($inscriptions)
+        for $inscription at $pos in $inscriptions
+        let $idno := 
+            if ($inscription//tei:publicationStmt/tei:idno) then $inscription//tei:publicationStmt/tei:idno/text()
+            else $inscription//tei:idno[1]/text()
+        let $namestring :=
+            for $name in $inscription//tei:div[@type='edition']//tei:persName[@key=$key]
+            return
+                pmf:name-element-to-string($name)
+        let $joiner :=
+            if ($pos eq $length) then "" else ", "
+        return 
+            if($inscription) then 
+                <span><em>{ $namestring }</em>{' '}<a href="/exist/apps/SAI/inscription/{$inscription/@xml:id}">{$idno}</a>{ $joiner }</span>
+            else ()
+    return 
+        <dd>{$attested}{" "}({ $spellings })</dd>
+};
+(: 
+
+    return
+        if($spellings) then 
+            <dd>{ $ attested } ({ $spellings })</dd>
+        else ()
+};
+ :)
+declare function pmf:name-element-to-string($node as element()) {
+    let $string := ""
+    let $output := 
+        for $i in ($node//text())
+        let $text :=
+            if (not($i/ancestor::tei:rdg) and not($i/ancestor::tei:corr) and not($i/ancestor::tei:note)) then $i
+            else ""
+        return concat($string,$text)
+    return $output
+};

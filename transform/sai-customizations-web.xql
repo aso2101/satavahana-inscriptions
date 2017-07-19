@@ -1692,7 +1692,7 @@ else
     if (persName[not(@type)]) then
         (
             ext-html:dt($config, ., ("tei-person2"), 'Attested form: '),
-            ext-html:dd($config, ., ("tei-person3"), persName[not(@type)])
+            ext-html:name-orthography($config, ., ("tei-person3"))
         )
 
     else
