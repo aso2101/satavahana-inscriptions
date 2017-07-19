@@ -636,9 +636,9 @@ declare function app:browse($node as node()*, $model as map(*),
                   for $h in util:eval(concat("$hits",$abc-filter,$facet-filter,$slider-filter)) 
                   let $sortOrder := 
                         if($type = 'Places') then 
-                            $h/descendant::tei:person[1]/tei:placeName[1]
+                            $h/descendant::tei:place[1]/tei:placeName[1]
                         else if($type = 'Persons') then
-                            $h/descendant::tei:place[1]/tei:persName[1]
+                            $h/descendant::tei:person[1]/tei:persName[1]
                         else $h/descendant::tei:titleStmt[1]/descendant::tei:title[1]
                   order by $sortOrder
                   return $h  
