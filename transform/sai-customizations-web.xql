@@ -1592,9 +1592,15 @@ else
                     html:inline($config, ., ("tei-orgName"), .)
                 case element(persName) return
                     if (ancestor::div[@type]) then
-                        ext-html:link2($config, ., ("tei-persName"), ., ())
+                        ext-html:link2($config, ., ("tei-persName1"), ., ())
                     else
-                        $config?apply($config, ./node())
+                        if (ancestor::person and @type) then
+                            html:inline($config, ., ("tei-persName2"), .)
+                        else
+                            if (ancestor::person) then
+                                html:inline($config, ., ("tei-persName3"), .)
+                            else
+                                $config?apply($config, ./node())
                 case element(physDesc) return
                     html:inline($config, ., ("tei-physDesc"), .)
                 case element(provenance) return
@@ -1680,12 +1686,39 @@ else
                         )
 
                 case element(person) return
-                    (
-                        ext-html:dt($config, ., ("tei-person1"), 'Reconstructed spellings '),
-                        ext-html:dd($config, ., ("tei-person2"), persName),
-                        ext-html:dt($config, ., ("tei-person3"), 'Attested spellings ')
-                    )
+                    if (ancestor::listPerson) then
+                        (
+                            ext-html:dl($config, ., ("tei-person1"), (
+    if (persName[not(@type)]) then
+        (
+            ext-html:dt($config, ., ("tei-person2"), 'Attested form: '),
+            ext-html:dd($config, ., ("tei-person3"), persName[not(@type)])
+        )
 
+    else
+        (),
+    if (persName[@type='pra-reconstruction']) then
+        (
+            ext-html:dt($config, ., ("tei-person4"), 'Normalized form: '),
+            ext-html:dd($config, ., ("tei-person5"), persName[@type='pra-reconstruction'])
+        )
+
+    else
+        (),
+    if (persName[@type='san-reconstruction']) then
+        (
+            ext-html:dt($config, ., ("tei-person6"), 'Sanskrit equivalent: '),
+            ext-html:dd($config, ., ("tei-person7"), persName[@type='san-reconstruction'])
+        )
+
+    else
+        ()
+)
+)
+                        )
+
+                    else
+                        $config?apply($config, ./node())
                 case element(placeName) return
                     if (ancestor::div[@type]) then
                         ext-html:link2($config, ., ("tei-placeName"), ., ())

@@ -176,6 +176,7 @@
 .tei-lem8:after { content: ' '; }
 .tei-listApp1 { list-style:none; font-size:small; }
 .tei-listApp2 { list-style:none; }
+.tei-persName2 { opacity:0.8; }
 .tei-rdg1 { font-style: italic; color:#55b559; }
 .tei-rdg1:after { content: ' '; }
 .tei-rdg2 { font-style:italic; }

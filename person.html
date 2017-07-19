@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <html data-template="pages:app-root">
     <head>
         <title data-template="config:app-title">App Title</title>
@@ -48,7 +49,7 @@
                         <section id="right-panel" class="col-md-12 col-xs-12">
                             <div class="container-fluid">
                                 <section class="row" data-template="pages:navigation">
-                                    <div class="col-md-1 hidden-xs hidden-sm"></div>
+                                    <div class="col-md-1 hidden-xs hidden-sm"/>
                                     <div class="col-md-10 col-sm-12">
                                         <div class="navigation-top row">
                                             <!-- Document title -->
@@ -60,17 +61,18 @@
                                         <div id="content-inner">
                                             <div>
                                                 <div class="content">
-                                                <!-- these first two functions could be replaced by the ODD !-->
-                                                    <div data-template="app:person-name-revised"/>
-                                                    <div data-template="app:person-name-orthography"/>
+                                                <!-- replaced with the pm app:display-node 
+                                                    <div data-template="app:person-name-revised"/> !-->
+                                                    <div data-template="app:display-node" data-template-path="self::*" class="content"/>
                                                     <!-- these will still require XQuery routines !-->
+                                                    <div data-template="app:person-name-orthography"/>
                                                     <div data-template="app:person-relations"/>
-                                                    <div data-template="app:inscriptions-related-to-person-revised"/>
+                                                    <div data-template="app:related-inscriptions"/>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-1 hidden-xs hidden-sm"></div>
+                                    <div class="col-md-1 hidden-xs hidden-sm"/>
                                 </section>
                             </div>
                         </section>

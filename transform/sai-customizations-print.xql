@@ -1500,7 +1500,13 @@ else
                         (: No function found for behavior: link2 :)
                         $config?apply($config, ./node())
                     else
-                        $config?apply($config, ./node())
+                        if (ancestor::person and @type) then
+                            fo:inline($config, ., ("tei-persName2"), .)
+                        else
+                            if (ancestor::person) then
+                                fo:inline($config, ., ("tei-persName3"), .)
+                            else
+                                $config?apply($config, ./node())
                 case element(physDesc) return
                     fo:inline($config, ., ("tei-physDesc"), .)
                 case element(provenance) return
@@ -1585,15 +1591,14 @@ else
                         )
 
                 case element(person) return
-                    (
-                        (: No function found for behavior: dt :)
-                        $config?apply($config, ./node()),
-                        (: No function found for behavior: dd :)
-                        $config?apply($config, ./node()),
-                        (: No function found for behavior: dt :)
-                        $config?apply($config, ./node())
-                    )
+                    if (ancestor::listPerson) then
+                        (
+                            (: No function found for behavior: dl :)
+                            $config?apply($config, ./node())
+                        )
 
+                    else
+                        $config?apply($config, ./node())
                 case element(placeName) return
                     if (ancestor::div[@type]) then
                         (: No function found for behavior: link2 :)
