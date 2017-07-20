@@ -1,27 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <div xmlns:i18n="http://exist-db.org/xquery/i18n" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
     <div data-template="templates:include" data-template-path="templates/menu.html"/>
     <section class="container-fluid sai-content">
-        <!--
-    <div class="container">
-        <div class="row">
-            <div class="bibitems" data-template="app:list-bibitems" data-template-key="{$id}">
-                <div class="bibitem" data-template="templates:each" data-template-from="bibitems" data-template-to="bibitem">
-                    <h4>
-                        <a href="" data-template="app:bibl-shortname"/>
-                    </h4>
-                    <div data-template="app:bibitem"/>
-                </div>
-            </div>
-        </div>
-    </div>-->
         <div class="container">
             <div class="row">
                 <div class="page-header">
                     <h2>Bibliography</h2>
                 </div>
             </div>
-            <div class="bibitems" data-template="app:browse-bibl-data" data-template-path="/contextual/Bibliography">
+            <div class="bibitems" data-template="app:browse" data-template-type="Bibliography" data-template-facets="browse-bibl-facet-def.xml" data-template-date-slider="bibl">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="well well-sm">
@@ -32,7 +18,7 @@
                                 <div id="slider" data-template="app:browse-date-slider" data-template-mode="bibl"/>
                             </div>
                             <hr/>
-                            <div data-template="app:display-facets" data-template-facet-def="browse-bibl-facet-def.xml"/>
+                            <div data-template="app:display-facets" data-template-facets="browse-bibl-facet-def.xml"/>
                         </div>
                     </div>
                     <div class="col-md-9">
@@ -54,7 +40,7 @@
                                 <hr/>
                                 <br/>
                                 <ul class="list-group">
-                                    <div data-template="app:bibl-browse-hits" data-template-per-page="20"/>
+                                    <div data-template="app:browse-display-hits" data-template-per-page="20" data-template-type="Bibliography"/>
                                 </ul>
                                 
                                 <!-- pagination for small device -->
