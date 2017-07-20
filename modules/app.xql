@@ -774,9 +774,9 @@ declare function app:view-hits($inscriptions, $placeId){
                 let $title := $i/descendant::tei:title[1]/text()
                 let $type := $i/descendant::tei:profileDesc/tei:textClass/tei:keywords/tei:term/text()
                 let $lang := app:translate-lang(string($i/descendant::tei:div[@type='edition'][1]/@xml:lang))
-                let $date-text := $i/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/text()
+                let $date-text := $i/descendant::tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/text()
                 (: Deal with dates for sorting... if notBefore... :)
-                let $date := $i/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom
+                let $date := $i/descendant::tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom
                 order by $title
                 return 
                     <tr>
