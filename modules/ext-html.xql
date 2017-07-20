@@ -572,14 +572,6 @@ declare function pmf:name-orthography($config as map(*), $node as element(), $co
     return 
         <dd>{$attested}{" "}({ $spellings })</dd>
 };
-(: 
-
-    return
-        if($spellings) then 
-            <dd>{ $ attested } ({ $spellings })</dd>
-        else ()
-};
- :)
 declare function pmf:name-element-to-string($node as element()) {
     let $string := ""
     let $output := 
@@ -589,4 +581,43 @@ declare function pmf:name-element-to-string($node as element()) {
             else ""
         return concat($string,$text)
     return $output
+};
+declare function pmf:date-range($begin as xs:string,$end as xs:string) {
+    let $begin := number($begin)
+    let $end := number($end)
+    return 
+        (: if both dates are BCE :)
+        if ($begin lt 0 and $end lt 0) then 
+            <span>{ string($begin * -1) }–{ string($end * -1) }{' '}<span class="era">bce</span></span>
+        (: if both dates are CE :)
+        else if ($begin gt 0 and $end gt 0) then
+            <span>{ string($begin) }–{ string($end) }{' '}<span class="era">ce</span></span>
+        (: if the starting date is BCE and the ending date is CE :)
+        else
+            <span>{ string($begin) }{' '}<span class="era">ce</span>–{ string($end) }{' '}<span class="era">ce</span></span>
+};
+declare function pmf:word-list($key as xs:string, $desc as xs:string) {
+   (: eventually we will have a word list of terms that have a key, :)
+   (: i.e., those that appear with @key='terms:' etc. :) 
+   (: for now these are just strings :)
+   <span>{ $desc }</span>
+};
+declare function pmf:state-or-trait($config as map(*), $node as element(), $content) {
+    let $states := $node/tei:state  (: add traits :)
+    let $length := count($states)
+    let $output := 
+        for $state at $pos in $states
+            let $state-key := substring-after($state/@key,'terms:')
+            let $state-desc := $state/tei:desc
+            let $cert := 
+                if ($state/@precision eq 'low') then "c. " else ()
+            let $joiner :=
+                if ($pos eq $length) then "" else ", "
+            let $duration := 
+                if ($state/@notBefore-custom and $state/@notAfter-custom)
+                then <span>{' '}({$cert}{ pmf:date-range($state/@notBefore-custom,$state/@notAfter-custom) })</span>
+                else ()
+        return <span>{ pmf:word-list($state-key,$state-desc) }{ $duration }{ $joiner }</span>
+    return
+        <dd>{ $output }</dd>
 };

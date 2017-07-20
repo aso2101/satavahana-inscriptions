@@ -1594,7 +1594,12 @@ else
                     if (ancestor::listPerson) then
                         (
                             (: No function found for behavior: dl :)
-                            $config?apply($config, ./node())
+                            $config?apply($config, ./node()),
+                            if (state or trait) then
+                                (: No function found for behavior: dl :)
+                                $config?apply($config, ./node())
+                            else
+                                ()
                         )
 
                     else

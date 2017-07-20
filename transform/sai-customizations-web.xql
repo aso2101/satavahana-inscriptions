@@ -1689,32 +1689,44 @@ else
                     if (ancestor::listPerson) then
                         (
                             ext-html:dl($config, ., ("tei-person1"), (
+    html:heading($config, ., ("tei-person2"), 'Name', 4),
     if (persName[not(@type)]) then
         (
-            ext-html:dt($config, ., ("tei-person2"), 'Attested form: '),
-            ext-html:name-orthography($config, ., ("tei-person3"))
+            ext-html:dt($config, ., ("tei-person3"), 'Attested form: '),
+            ext-html:name-orthography($config, ., ("tei-person4"))
         )
 
     else
         (),
     if (persName[@type='pra-reconstruction']) then
         (
-            ext-html:dt($config, ., ("tei-person4"), 'Normalized form: '),
-            ext-html:dd($config, ., ("tei-person5"), persName[@type='pra-reconstruction'])
+            ext-html:dt($config, ., ("tei-person5"), 'Normalized form: '),
+            ext-html:dd($config, ., ("tei-person6"), persName[@type='pra-reconstruction'])
         )
 
     else
         (),
     if (persName[@type='san-reconstruction']) then
         (
-            ext-html:dt($config, ., ("tei-person6"), 'Sanskrit equivalent: '),
-            ext-html:dd($config, ., ("tei-person7"), persName[@type='san-reconstruction'])
+            ext-html:dt($config, ., ("tei-person7"), 'Sanskrit equivalent: '),
+            ext-html:dd($config, ., ("tei-person8"), persName[@type='san-reconstruction'])
         )
 
     else
         ()
 )
-)
+),
+                            if (state or trait) then
+                                ext-html:dl($config, ., ("tei-person9"), if (state[@type='political']) then
+    (
+        ext-html:dt($config, ., ("tei-person10"), 'Political roles: '),
+        ext-html:state-or-trait($config, ., ("tei-person11"))
+    )
+
+else
+    $config?apply($config, ./node()))
+                            else
+                                ()
                         )
 
                     else
