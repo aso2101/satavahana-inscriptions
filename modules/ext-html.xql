@@ -602,8 +602,7 @@ declare function pmf:word-list($key as xs:string, $desc as xs:string) {
    (: for now these are just strings :)
    <span>{ $desc }</span>
 };
-declare function pmf:state-or-trait($config as map(*), $node as element(), $content) {
-    let $states := $node/tei:state  (: add traits :)
+declare function pmf:state-or-trait($config as map(*), $node as element(), $content, $states as element()) {
     let $length := count($states)
     let $output := 
         for $state at $pos in $states
@@ -617,7 +616,7 @@ declare function pmf:state-or-trait($config as map(*), $node as element(), $cont
                 if ($state/@notBefore-custom and $state/@notAfter-custom)
                 then <span>{' '}({$cert}{ pmf:date-range($state/@notBefore-custom,$state/@notAfter-custom) })</span>
                 else ()
-        return <span>{ pmf:word-list($state-key,$state-desc) }{ $duration }{ $joiner }</span>
+        return <span>{ $state-desc }{ $duration }{ $joiner }</span>
     return
         <dd>{ $output }</dd>
 };

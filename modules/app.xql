@@ -184,7 +184,7 @@ declare function app:person-relations($node as node(), $model as map(*)) {
         if (empty($list)) then ()
         else
             <div>
-                <h3>Relations with other persons:</h3>
+                <h4>Relations with other persons:</h4>
                 <ul>{ $list }</ul>
             </div>
 };
@@ -1121,7 +1121,7 @@ declare function app:related-inscriptions($node as node(), $model as map(*)) {
     return 
         if($places) then 
             <div>
-                <h3>Mentioned in these inscriptions:</h3>
+                <h4>Mentioned in these inscriptions:</h4>
                 { $places }
             </div>
         else ()

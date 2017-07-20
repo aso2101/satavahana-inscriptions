@@ -1689,7 +1689,7 @@ else
                     if (ancestor::listPerson) then
                         (
                             ext-html:dl($config, ., ("tei-person1"), (
-    html:heading($config, ., ("tei-person2"), 'Name', 4),
+    html:heading($config, ., ("tei-person2"), 'Name:', 4),
     if (persName[not(@type)]) then
         (
             ext-html:dt($config, ., ("tei-person3"), 'Attested form: '),
@@ -1716,15 +1716,54 @@ else
         ()
 )
 ),
-                            if (state or trait) then
-                                ext-html:dl($config, ., ("tei-person9"), if (state[@type='political']) then
-    (
-        ext-html:dt($config, ., ("tei-person10"), 'Political roles: '),
-        ext-html:state-or-trait($config, ., ("tei-person11"))
-    )
+                            if (state or trait or residence or occupation) then
+                                (
+                                    ext-html:dl($config, ., ("tei-person9"), (
+    html:heading($config, ., ("tei-person10"), 'Additional information:', 4),
+    if (state[@type='political']) then
+        (
+            ext-html:dt($config, ., ("tei-person11"), 'Political roles: '),
+            ext-html:state-or-trait($config, ., ("tei-person12"), state[@type='political'])
+        )
 
-else
-    $config?apply($config, ./node()))
+    else
+        (),
+    if (state[@type='social']) then
+        (
+            ext-html:dt($config, ., ("tei-person13"), 'Social identifiers: '),
+            ext-html:state-or-trait($config, ., ("tei-person14"), state[@type='social'])
+        )
+
+    else
+        (),
+    if (trait[@type='ethnicity']) then
+        (
+            ext-html:dt($config, ., ("tei-person15"), 'Ethnicity: '),
+            ext-html:state-or-trait($config, ., ("tei-person16"), trait[@type='ethnicity'])
+        )
+
+    else
+        (),
+    if (trait[@type='gotra']) then
+        (
+            ext-html:dt($config, ., ("tei-person17"), 'Gotra: '),
+            ext-html:state-or-trait($config, ., ("tei-person18"), trait[@type='gotra'])
+        )
+
+    else
+        (),
+    if (occupation) then
+        (
+            ext-html:dt($config, ., ("tei-person19"), 'Occupation: '),
+            ext-html:state-or-trait($config, ., ("tei-person20"), occupation)
+        )
+
+    else
+        ()
+)
+)
+                                )
+
                             else
                                 ()
                         )

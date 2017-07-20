@@ -570,7 +570,7 @@
 			                <modelSequence>
         						<model behaviour="heading">
         							<param name="level">4</param>
-        							<param name="content">'Name'</param>
+        							<param name="content">'Name:'</param>
         						</model>
                                 <modelSequence predicate="persName[not(@type)]">
                                     <model behaviour="dt">
@@ -596,14 +596,56 @@
                                 </modelSequence>
                             </modelSequence>
                         </model>
-                        <model predicate="state or trait" behaviour="dl">
-                            <modelSequence predicate="state[@type='political']">
-                                <model behaviour="dt">
-                                    <param name="content">'Political roles: '</param>
-                                </model>
-                                <model behaviour="state-or-trait"/>
-                            </modelSequence>
-			            </model>
+                        <modelSequence predicate="state or trait or residence or occupation" behaviour="block">
+                            <model behaviour="dl">
+                                <modelSequence>
+                                    <model behaviour="heading">
+                                        <param name="level">4</param>
+                                        <param name="content">'Additional information:'</param>
+                                    </model>
+                                    <modelSequence predicate="state[@type='political']">
+                                        <model behaviour="dt">
+                                            <param name="content">'Political roles: '</param>
+                                        </model>
+                                        <model behaviour="state-or-trait">
+                                            <param name="states">state[@type='political']</param>
+                                        </model>
+                                    </modelSequence>
+                                    <modelSequence predicate="state[@type='social']">
+                                        <model behaviour="dt">
+                                            <param name="content">'Social identifiers: '</param>
+                                        </model>
+                                        <model behaviour="state-or-trait">
+                                            <param name="states">state[@type='social']</param>
+                                        </model>
+                                    </modelSequence>
+                                    <modelSequence predicate="trait[@type='ethnicity']">
+                                        <model behaviour="dt">
+                                            <param name="content">'Ethnicity: '</param>
+                                        </model>
+                                        <model behaviour="state-or-trait">
+                                            <param name="states">trait[@type='ethnicity']</param>
+                                        </model>
+                                    </modelSequence>
+                                    <modelSequence predicate="trait[@type='gotra']">
+                                        <model behaviour="dt">
+                                            <param name="content">'Gotra: '</param>
+                                        </model>
+                                        <model behaviour="state-or-trait">
+                                            <param name="states">trait[@type='gotra']</param>
+                                        </model>
+                                    </modelSequence>
+                                    <modelSequence predicate="occupation">
+                                        <model behaviour="dt">
+                                            <param name="content">'Occupation: '</param>
+                                        </model>
+                                        <model behaviour="state-or-trait">
+                                            <param name="states">occupation</param>
+                                        </model>
+                                    </modelSequence>
+                                </modelSequence>
+                            </model>
+			            </modelSequence>
 			        </modelSequence>
 				</elementSpec>
 				<!-- PLACENAME !-->

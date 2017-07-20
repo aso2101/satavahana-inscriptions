@@ -1635,9 +1635,12 @@ else
                         (
                             (: No function found for behavior: dl :)
                             $config?apply($config, ./node()),
-                            if (state or trait) then
-                                (: No function found for behavior: dl :)
-                                $config?apply($config, ./node())
+                            if (state or trait or residence or occupation) then
+                                (
+                                    (: No function found for behavior: dl :)
+                                    $config?apply($config, ./node())
+                                )
+
                             else
                                 ()
                         )
