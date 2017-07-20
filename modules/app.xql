@@ -305,6 +305,10 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
     else 
         let $facet-def := doc($config:app-root || '/search-facet-def.xml')/child::*
         let $inscriptions := concat("collection($config:remote-data-root)/tei:TEI[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
+        let $iText := concat("collection($config:remote-data-root)//tei:div[@type='apparatus'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
+        let $iTranslation := concat("collection($config:remote-data-root)//tei:div[@type='translation'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))        
+        let $iCommentary := concat("collection($config:remote-data-root)//tei:div[@type='commentary'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
+        let $iMetadata := concat("collection($config:remote-data-root)/tei:TEI[descendant::tei:teiHeader[ft:query(.,'", $query,"', app:search-options())] or //tei:biblStruct[ft:query(.,'", $query,"', app:search-options())]]",facet:facet-filter($facet-def))        
         let $persons := concat("collection($config:remote-context-root || '/Persons')//tei:person[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
         let $places := concat("collection($config:remote-context-root || '/Places')//tei:place[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
         let $bibl := concat("collection($config:remote-context-root || '/Bibliography')//tei:biblStruct[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
@@ -312,7 +316,23 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
             if(request:get-parameter('filter', '') = 'Inscriptions') then
                 for $hit in util:eval($inscriptions)
                 order by ft:score($hit) descending
+                return kwic:expand($hit)
+            else if(request:get-parameter('filter', '') = 'iText') then
+                for $hit in util:eval($iText)
+                order by ft:score($hit) descending
                 return $hit
+            else if(request:get-parameter('filter', '') = 'iTranslation') then
+                for $hit in util:eval($iTranslation)
+                order by ft:score($hit) descending
+                return $hit  
+            else if(request:get-parameter('filter', '') = 'iCommentary') then
+                for $hit in util:eval($iCommentary)
+                order by ft:score($hit) descending
+                return $hit   
+            else if(request:get-parameter('filter', '') = 'iMetadata') then
+                for $hit in util:eval($iMetadata)
+                order by ft:score($hit) descending
+                return $hit                    
             else if(request:get-parameter('filter', '') = 'People') then
                 for $hit in util:eval($persons)
                 order by ft:score($hit) descending
@@ -750,7 +770,7 @@ declare function app:view-hits($inscriptions, $placeId){
         <tbody id="results">
             {
                 for $i in $inscriptions
-                let $id := string($i/@xml:id)
+                let $id := string($i//@xml:id[1])
                 let $title := $i/descendant::tei:title[1]/text()
                 let $type := $i/descendant::tei:profileDesc/tei:textClass/tei:keywords/tei:term/text()
                 let $lang := app:translate-lang(string($i/descendant::tei:div[@type='edition'][1]/@xml:lang))
