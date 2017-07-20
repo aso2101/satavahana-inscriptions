@@ -367,6 +367,8 @@ mark {
 .pagination > li > span {
   color: #607d8b;
 }
+.pagination > .sort-menu > span {margin:0; padding:0;line-height:1em;}
+.pagination > .sort-menu > span > .btn-group {margin:0 !important; padding:0 !important; line-height:1em !important;}
 .well {
   box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.12), 0 1px 6px 0 rgba(0, 0, 0, 0.12) !important;
 }
