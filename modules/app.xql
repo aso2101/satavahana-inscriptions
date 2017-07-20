@@ -750,7 +750,7 @@ declare function app:view-hits($inscriptions, $placeId){
         <tbody id="results">
             {
                 for $i in $inscriptions
-                let $id := string($i/@xml:id)
+                let $id := string($i//@xml:id[1])
                 let $title := $i/descendant::tei:title[1]/text()
                 let $type := $i/descendant::tei:profileDesc/tei:textClass/tei:keywords/tei:term/text()
                 let $lang := app:translate-lang(string($i/descendant::tei:div[@type='edition'][1]/@xml:lang))
