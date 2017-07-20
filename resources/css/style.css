@@ -367,8 +367,6 @@ mark {
 .pagination > li > span {
   color: #607d8b;
 }
-.pagination > .sort-menu > span {margin:0; padding:0;line-height:1em;}
-.pagination > .sort-menu > span > .btn-group {margin:0 !important; padding:0 !important; line-height:1em !important;}
 .well {
   box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.12), 0 1px 6px 0 rgba(0, 0, 0, 0.12) !important;
 }
@@ -705,11 +703,9 @@ a.sai-navbar-brand {
 }
 .navbar-right .form-control {
   width: auto!important;
-  padding: 4px;
 }
 .navbar-right .form-control option {
   background-color: #35424b!important;
-  padding: 4px;
 }
 .inverse-dropdown {
   background-color: #35424b;
@@ -811,6 +807,22 @@ h4.slider {
 }
 .pagination {
   margin-top: .25em;
+}
+.pagination > .sort-menu > span {
+  margin: 0;
+  padding: 0;
+  line-height: 1.42857143!important;
+}
+.pagination > .sort-menu > span > .btn-group {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1em !important;
+}
+.pagination > .sort-menu > span > .btn-group > div > .btn {
+  margin-left: -1px !important;
+  padding: 6px 12px!important;
+  line-height: 1.42857143!important;
+  font-size: .75em!important;
 }
 .nav-justified li {
   padding: 0;
