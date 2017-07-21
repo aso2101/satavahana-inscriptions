@@ -385,8 +385,8 @@ declare
     %templates:default("min-hits", 0)
     %templates:default("max-pages", 10)
 function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-page as xs:int, $min-hits as xs:int,
-    $max-pages as xs:int) {
-    if ($min-hits < 0 or count($model("hits")) >= $min-hits) then
+    $max-pages as xs:int, $sort-options as xs:string?) {
+    (if ($min-hits < 0 or count($model("hits")) >= $min-hits) then
         let $count := xs:integer(ceiling(count($model("hits"))) div $per-page) + 1
         let $middle := ($max-pages + 1) idiv 2
         (: get all parameters to pass to paging function, strip start parameter :)
@@ -434,7 +434,27 @@ function app:paginate($node as node(), $model as map(*), $start as xs:int, $per-
                 </li>
             )
         ) else
-            ()
+            (),
+    if($sort-options != '') then
+        <li class="sort-menu"><span>
+            <div class="btn-group">
+                <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Sort <span class="caret"/></button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        {
+                            let $url-params := replace(replace(request:get-query-string(), '&amp;sort=(\w+)', ''),'sort=(\w+)','')
+                            let $sort-param-string := if($url-params != '') then concat('?',$url-params,'&amp;sort=') else '?sort='
+                            for $option in tokenize($sort-options,',')
+                            return 
+                            <li role="presentation">
+                                <a role="menuitem" tabindex="-1" href="{concat($sort-param-string,$option)}">{$option}</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div></span>
+        </li>
+    else ())
 };
 
 (:  Number of hits :)
@@ -656,7 +676,15 @@ declare function app:browse($node as node()*, $model as map(*),
                                 <hit>{$h}</hit>   
                   for $h in util:eval(concat("$hits",$abc-filter,$facet-filter,$slider-filter)) 
                   let $sortOrder := 
-                        if($type = 'Places') then 
+                        if(request:get-parameter('sort', '') != '') then 
+                            if(request:get-parameter('sort', '') = 'date') then
+                                $h/descendant::tei:date[1]
+                            else if(request:get-parameter('sort', '') = 'author') then     
+                                if($h/descendant::tei:author[1]) then 
+                                    $h/descendant::tei:author[1]
+                                else $h/descendant::tei:editor[1]
+                            else $h/descendant::tei:titleStmt[1]/descendant::tei:title[1]
+                        else if($type = 'Places') then 
                             $h/descendant::tei:place[1]/tei:placeName[1]
                         else if($type = 'Persons') then
                             $h/descendant::tei:person[1]/tei:persName[1]
