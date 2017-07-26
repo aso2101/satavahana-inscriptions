@@ -1,0 +1,10 @@
+<facets xmlns="http://expath.org/ns/facet">
+    <!-- Need a local function to browse by data type -->
+    <facet-definition name="Type">
+        <group-by function="facet:places-found">
+            <sub-path>self::*[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]</sub-path>
+        </group-by>
+        <max-values show="5">40</max-values>
+        <order-by direction="ascending">count</order-by>
+    </facet-definition>
+</facets>
