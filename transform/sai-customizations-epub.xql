@@ -19,6 +19,8 @@ import module namespace html="http://www.tei-c.org/tei-simple/xquery/functions";
 
 import module namespace epub="http://www.tei-c.org/tei-simple/xquery/functions/epub";
 
+import module namespace config="http://www.tei-c.org/tei-simple/config" at "xmldb:exist:///db/apps/tei-publisher/modules/config.xqm";
+
 (:~
 
     Main entry point for the transformation.
@@ -72,7 +74,7 @@ declare function model:apply($config as map(*), $input as node()*) {
                                             epub:block($config, ., ("tei-ab6"), .)
                                         else
                                             if (ancestor::div[@type='translation']) then
-                                                epub:block($config, ., ("tei-ab7", "well"), .)
+                                                epub:block($config, ., ("tei-ab7"), .)
                                             else
                                                 epub:block($config, ., ("tei-ab8"), .)
                 case element(abbr) return
@@ -80,10 +82,7 @@ declare function model:apply($config as map(*), $input as node()*) {
                 case element(actor) return
                     html:inline($config, ., ("tei-actor"), .)
                 case element(add) return
-                    if (@place='below') then
-                        html:inline($config, ., ("tei-add"), .)
-                    else
-                        $config?apply($config, ./node())
+                    html:inline($config, ., ("tei-add"), .)
                 case element(address) return
                     epub:block($config, ., ("tei-address"), .)
                 case element(addrLine) return
@@ -95,112 +94,65 @@ declare function model:apply($config as map(*), $input as node()*) {
                 case element(argument) return
                     epub:block($config, ., ("tei-argument"), .)
                 case element(author) return
-                    if (ancestor::teiHeader) then
-                        epub:block($config, ., ("tei-author1"), .)
-                    else
-                        if (ancestor::biblStruct) then
-                            html:inline($config, ., ("tei-author2"), if (surname or forename) then
-    (
-        html:inline($config, ., ("tei-author3"), surname),
-        if (surname and forename) then
-            html:text($config, ., ("tei-author4"), ', ')
-        else
-            (),
-        html:inline($config, ., ("tei-author5"), forename),
-        if (following-sibling::* or position()=last()) then
-            html:text($config, ., ("tei-author6"), ', ')
-        else
-            ()
-    )
-
-else
-    if (name) then
-        (
-            if (addName) then
-                (: doesn't use element spec for addName because of whitespace caused by linefeed in xml :)
-                html:inline($config, ., ("tei-author7"), normalize-space(concat(name,' (',addName,')')))
-            else
-                (: doesn't use element spec for addName because of whitespace caused by linefeed in xml :)
-                html:inline($config, ., ("tei-author8"), name),
-            if (following-sibling::*[2][local-name()='imprint']) then
-                html:inline($config, ., ("tei-author9"), ' +and+ ')
-            else
-                if (following-sibling::* or position()=last()) then
-                    html:text($config, ., ("tei-author10"), ', ')
-                else
-                    $config?apply($config, ./node())
-        )
-
-    else
-        $config?apply($config, ./node()))
-                        else
-                            $config?apply($config, ./node())
-                case element(back) return
-                    epub:block($config, ., ("tei-back"), .)
-                case element(bibl) return
-                    if (parent::listBibl[@ana='#photo']) then
-                        (: No function found for behavior: listItemImage :)
-                        $config?apply($config, ./node())
-                    else
-                        if (parent::listBibl[@ana='#photo-estampage']) then
-                            (: No function found for behavior: listItemImage :)
-                            $config?apply($config, ./node())
-                        else
-                            if (parent::listBibl[@ana='#rti']) then
-                                (: No function found for behavior: listItemImage :)
-                                $config?apply($config, ./node())
-                            else
-                                if (parent::listBibl and ancestor::div[@type='bibliography']) then
-                                    (: No function found for behavior: listItemImage :)
-                                    $config?apply($config, ./node())
-                                else
-                                    if (parent::cit) then
-                                        html:inline($config, ., ("tei-bibl5"), .)
-                                    else
-                                        if (parent::listBibl) then
-                                            html:listItem($config, ., ("tei-bibl6"), .)
-                                        else
-                                            (: More than one model without predicate found for ident bibl. Choosing first one. :)
-                                            html:inline($config, ., ("tei-bibl7", "bibl"), .)
-                case element(biblScope) return
-                    if (ancestor::biblStruct and @unit='series') then
+                    if (ancestor::biblStruct) then
                         (
-                            html:inline($config, ., ("tei-biblScope1"), .),
-                            if (following-sibling::*) then
-                                html:text($config, ., ("tei-biblScope2"), ', ')
+                            if (name) then
+                                html:inline($config, ., ("tei-author1"), name)
                             else
-                                ()
+                                if (descendant-or-self::surname) then
+                                    (
+                                        html:inline($config, ., ("tei-author2"), descendant-or-self::surname),
+                                        html:text($config, ., ("tei-author3"), ', '),
+                                        html:inline($config, ., ("tei-author4"), descendant-or-self::forename)
+                                    )
+
+                                else
+                                    $config?apply($config, ./node()),
+                            if (child::* and following-sibling::author and (count(following-sibling::author) = 1)) then
+                                html:text($config, ., ("tei-author5"), ' &#x26; ')
+                            else
+                                if (child::* and following-sibling::author and (count(following-sibling::author) > 1)) then
+                                    html:text($config, ., ("tei-author6"), ', ')
+                                else
+                                    if (child::* and not(following-sibling::author)) then
+                                        html:text($config, ., ("tei-author7"), ', ')
+                                    else
+                                        $config?apply($config, ./node())
                         )
 
                     else
-                        if (ancestor::biblStruct and @unit='volume') then
-                            (
-                                if (preceding-sibling::*) then
-                                    html:text($config, ., ("tei-biblScope3"), ', ')
-                                else
-                                    (),
-                                if (ancestor::biblStruct and not(following-sibling::biblScope[1][@unit='issue'])) then
-                                    html:inline($config, ., ("tei-biblScope4"), .)
-                                else
-                                    (),
-                                if (ancestor::biblStruct and following-sibling::biblScope[1][@unit='issue']) then
-                                    html:inline($config, ., ("tei-biblScope5"), .)
-                                else
-                                    ()
-                            )
-
+                        $config?apply($config, ./node())
+                case element(back) return
+                    epub:block($config, ., ("tei-back"), .)
+                case element(bibl) return
+                    if (parent::listBibl[@ana='#photo'] and following-sibling::bibl) then
+                        html:listItem($config, ., ("tei-bibl1", "list-inline-item"), .)
+                    else
+                        if ((parent::listBibl[@ana='#photo'] and not(following-sibling::bibl))) then
+                            html:listItem($config, ., ("tei-bibl2", "list-inline-item"), .)
                         else
-                            if (ancestor::biblStruct and @unit='issue') then
-                                (
-                                    html:inline($config, ., ("tei-biblScope6"), .),
-                                    if (following-sibling::*) then
-                                        html:text($config, ., ("tei-biblScope7"), ', ')
-                                    else
-                                        ()
-                                )
-
+                            if (parent::listBibl[@ana='#photo-estampage'] and following-sibling::bibl) then
+                                html:listItem($config, ., ("tei-bibl3", "list-inline-item"), .)
                             else
-                                $config?apply($config, ./node())
+                                if (parent::listBibl[@ana='#photo-estampage'] and not(following-sibling::bibl)) then
+                                    html:listItem($config, ., ("tei-bibl4", "list-inline-item"), .)
+                                else
+                                    if (parent::listBibl[@ana='#rti'] and following-sibling::bibl) then
+                                        html:listItem($config, ., ("tei-bibl5", "list-inline-item"), .)
+                                    else
+                                        if (parent::listBibl[@ana='#photo'] and not(following-sibling::bibl)) then
+                                            html:listItem($config, ., ("tei-bibl6", "list-inline-item"), .)
+                                        else
+                                            if (parent::listBibl and ancestor::div[@type='bibliography']) then
+                                                (: No function found for behavior: listItemImage :)
+                                                $config?apply($config, ./node())
+                                            else
+                                                html:inline($config, ., ("tei-bibl8", "bibl"), .)
+                case element(biblScope) return
+                    if (ancestor::biblStruct) then
+                        html:inline($config, ., ("tei-biblScope"), .)
+                    else
+                        $config?apply($config, ./node())
                 case element(body) return
                     (
                         html:index($config, ., ("tei-body1"), 'toc', .),
@@ -232,21 +184,21 @@ else
                     html:cell($config, ., ("tei-cell"), ., ())
                 case element(choice) return
                     if (sic and corr) then
-                        html:alternate($config, ., ("tei-choice4"), ., corr[1], sic[1])
+                        (: No function found for behavior: tooltip :)
+                        $config?apply($config, ./node())
                     else
-                        if (abbr and expan) then
-                            html:alternate($config, ., ("tei-choice5"), ., expan[1], abbr[1])
+                        if (reg and not(orig)) then
+                            html:inline($config, ., ("tei-choice2"), reg)
                         else
-                            if (orig and reg) then
-                                html:alternate($config, ., ("tei-choice6"), ., reg[1], orig[1])
-                            else
-                                $config?apply($config, ./node())
+                            $config?apply($config, ./node())
                 case element(cit) return
-                    if (ancestor::teiHeader) then
-                        (: No function found for behavior: :)
-                        $config?apply($config, ./node())
-                    else
-                        $config?apply($config, ./node())
+                    (
+                        html:inline($config, ., ("tei-cit1"), quote),
+                        html:text($config, ., ("tei-cit2"), '('),
+                        html:inline($config, ., ("tei-cit3"), bibl),
+                        html:text($config, ., ("tei-cit4"), ')')
+                    )
+
                 case element(closer) return
                     epub:block($config, ., ("tei-closer"), .)
                 case element(code) return
@@ -258,15 +210,30 @@ else
                     else
                         html:inline($config, ., ("tei-corr2"), .)
                 case element(date) return
-                    if (@type='published') then
-                        html:text($config, ., ("tei-date3"), concat(' (published ',.,')'))
+                    if (@type and ancestor::biblStruct) then
+                        (
+                            if (@type='cover') then
+                                html:inline($config, ., ("tei-date1"), .)
+                            else
+                                (),
+                            if (@type='published') then
+                                (
+                                    html:text($config, ., ("tei-date2"), ' (published '),
+                                    html:inline($config, ., ("tei-date3"), .),
+                                    html:text($config, ., ("tei-date4"), ')')
+                                )
+
+                            else
+                                ()
+                        )
+
                     else
                         if (@when) then
                             (: desactive le comportement alternate de tei_simplePrint :)
-                            html:inline($config, ., ("tei-date4"), .)
+                            html:inline($config, ., ("tei-date7"), .)
                         else
                             if (text()) then
-                                html:inline($config, ., ("tei-date5"), .)
+                                html:inline($config, ., ("tei-date8"), .)
                             else
                                 $config?apply($config, ./node())
                 case element(dateline) return
@@ -339,59 +306,95 @@ else
                 case element(docTitle) return
                     epub:block($config, ., css:get-rendition(., ("tei-docTitle")), .)
                 case element(editor) return
-                    if (ancestor::titleStmt and @role='general' and (count(following-sibling::editor[@role='general']) = 1)) then
-                        html:inline($config, ., ("tei-editor1"), persName)
-                    else
-                        if (ancestor::titleStmt and @role='contributor' and (count(following-sibling::editor[@role='contributor']) = 1)) then
-                            html:inline($config, ., ("tei-editor2"), persName)
-                        else
-                            if (ancestor::titleStmt and @role='general' and following-sibling::editor[@role='general']) then
-                                html:inline($config, ., ("tei-editor3"), persName)
+                    if (ancestor::biblStruct) then
+                        (
+                            if (name) then
+                                html:inline($config, ., ("tei-editor1"), .)
                             else
-                                if (ancestor::titleStmt and @role='contributor' and following-sibling::editor[@role='contributor']) then
-                                    html:inline($config, ., ("tei-editor4"), persName)
+                                if (descendant-or-self::surname) then
+                                    (
+                                        html:inline($config, ., ("tei-editor2"), descendant-or-self::forename),
+                                        html:text($config, ., ("tei-editor3"), ' '),
+                                        html:inline($config, ., ("tei-editor4"), descendant-or-self::surname)
+                                    )
+
                                 else
-                                    if (surname or forename) then
+                                    $config?apply($config, ./node()),
+                            if (following-sibling::editor and (count(following-sibling::editor) = 1)) then
+                                html:text($config, ., ("tei-editor5"), ' &#x26; ')
+                            else
+                                if (following-sibling::editor and (count(following-sibling::editor) > 1)) then
+                                    html:text($config, ., ("tei-editor6"), ', ')
+                                else
+                                    if (not(following-sibling::editor)) then
+                                        html:text($config, ., ("tei-editor7"), ', ')
+                                    else
+                                        $config?apply($config, ./node())
+                        )
+
+                    else
+                        if (ancestor::titleStmt and not(following-sibling::editor)) then
+                            (
+                                html:inline($config, ., ("tei-editor8"), persName),
+                                html:text($config, ., ("tei-editor9"), '. ')
+                            )
+
+                        else
+                            if (ancestor::titleStmt and @role='general' and (count(following-sibling::editor[@role='general']) = 1)) then
+                                (
+                                    html:inline($config, ., ("tei-editor10"), persName),
+                                    html:text($config, ., ("tei-editor11"), ' and ')
+                                )
+
+                            else
+                                if (ancestor::titleStmt and @role='contributor' and (count(following-sibling::editor[@role='contributor']) = 1)) then
+                                    (
+                                        html:inline($config, ., ("tei-editor12"), persName),
+                                        html:text($config, ., ("tei-editor13"), ' and ')
+                                    )
+
+                                else
+                                    if (ancestor::titleStmt and @role='general' and following-sibling::editor[@role='general']) then
                                         (
-                                            html:inline($config, ., ("tei-editor5"), surname),
-                                            if (surname and forename) then
-                                                html:text($config, ., ("tei-editor6"), ', ')
-                                            else
-                                                (),
-                                            html:inline($config, ., ("tei-editor7"), forename),
-                                            if (count(parent::*/editor) = 1) then
-                                                html:text($config, ., ("tei-editor8"), ', ed. ')
-                                            else
-                                                (),
-                                            if (count(parent::*/editor) > 1) then
-                                                html:text($config, ., ("tei-editor9"), ', and ')
-                                            else
-                                                ()
+                                            html:inline($config, ., ("tei-editor14"), persName),
+                                            html:text($config, ., ("tei-editor15"), ', ')
                                         )
 
                                     else
-                                        if (name) then
+                                        if (ancestor::titleStmt and @role='general' and following-sibling::editor[@role='contributor']) then
                                             (
-                                                if (addName) then
-                                                    (: doesn't use element spec for addName because of whitespace caused by linefeed in xml :)
-                                                    html:inline($config, ., ("tei-editor10"), normalize-space(concat(name,' (',addName,')')))
-                                                else
-                                                    (: doesn't use element spec for addName because of whitespace caused by linefeed in xml :)
-                                                    html:inline($config, ., ("tei-editor11"), name),
-                                                if (count(parent::*/editor) = 1) then
-                                                    html:text($config, ., ("tei-editor12"), ', ed., ')
-                                                else
-                                                    if (following-sibling::*[2][local-name()='imprint']) then
-                                                        html:inline($config, ., ("tei-editor13"), ' =and= ')
-                                                    else
-                                                        if (following-sibling::* or position()=last()) then
-                                                            html:text($config, ., ("tei-editor14"), ', eds., ')
-                                                        else
-                                                            $config?apply($config, ./node())
+                                                html:inline($config, ., ("tei-editor16"), persName),
+                                                html:text($config, ., ("tei-editor17"), ', ')
                                             )
 
                                         else
-                                            $config?apply($config, ./node())
+                                            if (ancestor::titleStmt and @role='contributor' and following-sibling::editor[@role='contributor']) then
+                                                (
+                                                    html:inline($config, ., ("tei-editor18"), persName),
+                                                    html:text($config, ., ("tei-editor19"), ', ')
+                                                )
+
+                                            else
+                                                if (surname or forename) then
+                                                    (
+                                                        html:inline($config, ., ("tei-editor20"), surname),
+                                                        if (surname and forename) then
+                                                            html:text($config, ., ("tei-editor21"), ', ')
+                                                        else
+                                                            (),
+                                                        html:inline($config, ., ("tei-editor22"), forename),
+                                                        if (count(parent::*/editor) = 1) then
+                                                            html:text($config, ., ("tei-editor23"), ', ed. ')
+                                                        else
+                                                            (),
+                                                        if (count(parent::*/editor) > 1) then
+                                                            html:text($config, ., ("tei-editor24"), ', and ')
+                                                        else
+                                                            ()
+                                                    )
+
+                                                else
+                                                    $config?apply($config, ./node())
                 case element(email) return
                     html:inline($config, ., ("tei-email"), .)
                 case element(epigraph) return
@@ -419,7 +422,13 @@ else
                 case element(front) return
                     epub:block($config, ., ("tei-front"), .)
                 case element(fw) return
-                    epub:block($config, ., ("tei-fw"), .)
+                    if (@place='marginleft') then
+                        html:inline($config, ., ("tei-fw1", "fw"), .)
+                    else
+                        if (@place='marginright') then
+                            html:inline($config, ., ("tei-fw2", "fw"), .)
+                        else
+                            $config?apply($config, ./node())
                 case element(g) return
                     if (@type) then
                         html:inline($config, ., ("tei-g"), @type)
@@ -427,7 +436,7 @@ else
                         $config?apply($config, ./node())
                 case element(gap) return
                     if (@reason='lost' and @unit='line' and @quantity=1) then
-                        html:text($config, ., ("tei-gap1"), '.')
+                        html:inline($config, ., ("tei-gap1"), '.')
                     else
                         if (@reason='lost' and @unit='line' and child::certainty[@locus] and @quantity=1) then
                             html:inline($config, ., ("tei-gap2", "italic"), .)
@@ -460,34 +469,22 @@ else
                                                                 html:inline($config, ., ("tei-gap11", "aksarapart"), '.')
                                                             else
                                                                 if ((@unit='character' or @unit='chars') and @quantity=1 and @reason='lost') then
-                                                                    html:inline($config, ., ("tei-gap12"), '+')
+                                                                    html:inline($config, ., ("tei-gap12"), ' +')
                                                                 else
                                                                     if ((@unit='character' or @unit='chars') and @quantity=1 and @reason='illegible') then
-                                                                        html:inline($config, ., ("tei-gap13"), '?')
+                                                                        html:inline($config, ., ("tei-gap13"), ' ?')
                                                                     else
                                                                         if ((@reason='lost' or @reason='illegible') and @extent='unknown') then
-                                                                            html:inline($config, ., ("tei-gap14"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
-							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
-							@reason || ')' else ' ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
+                                                                            html:inline($config, ., ("tei-gap14"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'        else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if        (following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||        @reason || ')' else ' ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
                                                                         else
                                                                             if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::*[1][local-name()='lb']) then
-                                                                                html:inline($config, ., ("tei-gap15", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
-							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||
-							@reason || ')' else ' ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
+                                                                                html:inline($config, ., ("tei-gap15", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'        else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if        (following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision = 'low') then ' ' || '([about] ' || @quantity || ' ' || $unit || ' ' ||        @reason || ')' else ' ' || (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || $sep )
                                                                             else
                                                                                 if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and preceding-sibling::*[1][local-name()='lb']) then
-                                                                                    html:inline($config, ., ("tei-gap16", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
-							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||
-							')' || ' ' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || ' ' || $sep )
+                                                                                    html:inline($config, ., ("tei-gap16", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'        else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if        (following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||        ')' || ' ' else (string-join((for $i in 1 to xs:integer($quantity) return $charToRepeat),' ')) || ' ' || $sep )
                                                                                 else
                                                                                     if ((@unit='character' or @unit='akṣara' or @unit='chars') and (@reason='lost' or @reason='illegible') and @quantity and following-sibling::text()[1]) then
-                                                                                        html:inline($config, ., ("tei-gap17", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'
-							else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if
-							(following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||
-							')' else (string-join((for $i in 1 to xs:integer($quantity) return ' ' || $charToRepeat),' ')) || $sep)
+                                                                                        html:inline($config, ., ("tei-gap17", "italic"),  let $charToRepeat := if (@reason = 'lost') then '+' else if (@reason='illegible') then '?' else () let $unit := if (@quantity > 1) then @unit || 's'        else @unit let $quantity := if (@precision = 'low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason || ')' else @quantity let $sep := if        (following-sibling::*[1][local-name()='lb'][@break='no']) then '' else ' ' return if (@precision ='low') then '([about] ' || @quantity || ' ' || $unit || ' ' || @reason ||        ')' else (string-join((for $i in 1 to xs:integer($quantity) return ' ' || $charToRepeat),' ')) || $sep)
                                                                                     else
                                                                                         $config?apply($config, ./node())
                 case element(graphic) return
@@ -649,15 +646,24 @@ else
                             $config?apply($config, ./node())
                 case element(listBibl) return
                     if (child::biblStruct) then
-                        html:list($config, ., ("tei-listBibl1", "list-group"), biblStruct)
+                        html:list($config, ., ("tei-listBibl1", "list-group", "master-bibliography"), biblStruct)
                     else
-                        if (ancestor::surrogates or ancestor::div[@type='bibliography']) then
-                            html:list($config, ., ("tei-listBibl2"), .)
+                        if (@ana='#photo-estampage') then
+                            epub:block($config, ., ("tei-listBibl2"), .)
                         else
-                            if (bibl) then
-                                html:list($config, ., ("tei-listBibl3"), bibl)
+                            if (@ana='#photo') then
+                                epub:block($config, ., ("tei-listBibl3"), .)
                             else
-                                $config?apply($config, ./node())
+                                if (@ana='#rti') then
+                                    epub:block($config, ., ("tei-listBibl4"), .)
+                                else
+                                    if (ancestor::div[@type='bibliography']) then
+                                        html:list($config, ., ("tei-listBibl5"), .)
+                                    else
+                                        if (bibl) then
+                                            html:list($config, ., ("tei-listBibl6"), bibl)
+                                        else
+                                            $config?apply($config, ./node())
                 case element(measure) return
                     html:inline($config, ., ("tei-measure"), .)
                 case element(milestone) return
@@ -671,61 +677,70 @@ else
                         else
                             html:inline($config, ., ("tei-milestone3"), .)
                 case element(name) return
-                    if (child::choice) then
-                        html:inline($config, ., ("tei-name1"), (
-    if (choice/reg[@type='simplified']) then
-        html:inline($config, ., ("tei-name2"), choice/reg[@type='simplified'])
-    else
-        (),
-    html:text($config, ., ("tei-name3"), ' '),
-    if (choice/reg[@type='simplified']) then
-        html:inline($config, ., ("tei-name4"), choice/reg[@type='popular'])
-    else
-        ()
-)
-)
+                    if (child::choice and ancestor::biblStruct) then
+                        html:inline($config, ., ("tei-name1"), if (descendant::reg[@type='simplified'] and descendant::reg[@type='popular']) then
+    (
+        if (./choice/reg[@type='simplified']) then
+            html:inline($config, ., ("tei-name2"), choice/reg[@type='simplified'])
+        else
+            (),
+        html:text($config, ., ("tei-name3"), ' '),
+        if (./choice/reg[@type='simplified']) then
+            html:inline($config, ., ("tei-name4"), choice/reg[@type='popular'])
+        else
+            ()
+    )
+
+else
+    $config?apply($config, ./node()))
                     else
                         html:inline($config, ., ("tei-name5"), .)
                 case element(note) return
-                    if (parent::notesStmt and child::text()[normalize-space(.)]) then
-                        html:listItem($config, ., ("tei-note1"), .)
+                    if (@type='tags' and ancestor::biblStruct) then
+                        html:omit($config, ., ("tei-note1"), .)
                     else
-                        if (ancestor::div[@type='apparatus'] or ancestor::div[@type='commentary']) then
-                            (
-                                html:inline($config, ., ("tei-note2", (ancestor::div/@type || '-note')), .)
-                            )
-
+                        if (@type='tag' and ancestor::biblStruct) then
+                            html:omit($config, ., ("tei-note2"), .)
                         else
-                            if (not(ancestor::biblStruct) and parent::bibl) then
-                                html:inline($config, ., ("tei-note3"), .)
+                            if (@type='accessed' and ancestor::biblStruct) then
+                                html:omit($config, ., ("tei-note3"), .)
                             else
-                                if (@type='tags' and ancestor::biblStruct) then
+                                if (@type='thesisType' and ancestor::biblStruct) then
                                     html:omit($config, ., ("tei-note4"), .)
                                 else
-                                    if (@type='accessed' and ancestor::biblStruct) then
+                                    if (not(@type) and ancestor::biblStruct) then
                                         html:omit($config, ., ("tei-note5"), .)
                                     else
-                                        if (@type='thesisType' and ancestor::biblStruct) then
-                                            html:omit($config, ., ("tei-note6"), .)
+                                        if (preceding-sibling::*[1][local-name()='relatedItem']) then
+                                            (
+                                                html:text($config, ., ("tei-note6"), '. '),
+                                                html:inline($config, ., ("tei-note7"), .),
+                                                html:text($config, ., ("tei-note8"), ' '),
+                                                html:link($config, ., ("tei-note9"), 'See related item',  '?tabs=no&amp;odd=' || request:get-parameter('odd', ()) || '?' || ../relatedItem/ref/@target)
+                                            )
+
                                         else
-                                            if (not(@type='url') and ancestor::biblStruct) then
-                                                html:omit($config, ., ("tei-note7"), .)
+                                            if (@type='url' and ancestor::biblStruct) then
+                                                (
+                                                    html:text($config, ., ("tei-note10"), '. URL: <'),
+                                                    html:link($config, ., ("tei-note11"), ., ()),
+                                                    html:text($config, ., ("tei-note12"), '>')
+                                                )
+
                                             else
-                                                if (ancestor::biblStruct and @type='url') then
+                                                if ((ancestor::listApp or ancestor::listBibl) and (preceding-sibling::*[1][local-name() ='lem' or local-name()='rdg'] or parent::bibl)) then
                                                     (
-                                                        html:text($config, ., ("tei-note8"), '. URL: <'),
-                                                        html:link($config, ., ("tei-note9"), ., .),
-                                                        html:text($config, ., ("tei-note10"), '>')
+                                                        html:inline($config, ., ("tei-note13", (ancestor::div/@type || '-note')), .)
                                                     )
 
                                                 else
-                                                    if (ancestor::biblStruct and not(preceding-sibling::*[not(@type='tags')][ends-with(.,'.')])) then
-                                                        html:inline($config, ., ("tei-note11"), '. ')
+                                                    if (parent::notesStmt and child::text()[normalize-space(.)]) then
+                                                        html:listItem($config, ., ("tei-note14"), .)
                                                     else
-                                                        if (ancestor::listApp) then
-                                                            html:inline($config, ., ("tei-note12"), .)
+                                                        if (not(ancestor::biblStruct) and parent::bibl) then
+                                                            html:inline($config, ., ("tei-note15"), .)
                                                         else
-                                                            html:inline($config, ., ("tei-note13"), .)
+                                                            html:inline($config, ., ("tei-note16"), .)
                 case element(num) return
                     html:inline($config, ., ("tei-num"), .)
                 case element(opener) return
@@ -746,7 +761,7 @@ else
                             if (parent::surrogates) then
                                 html:paragraph($config, ., ("tei-p5"), .)
                             else
-                                if (parent::div[@type='bibliography']) then
+                                if ($parameters?headerType='epidoc' and parent::div[@type='bibliography']) then
                                     html:inline($config, ., ("tei-p6"), .)
                                 else
                                     if (parent::support) then
@@ -761,7 +776,10 @@ else
                                                 if ($parameters?header='short') then
                                                     html:omit($config, ., ("tei-p10"), .)
                                                 else
-                                                    epub:block($config, ., ("tei-p11"), .)
+                                                    if (parent::div[@type='bibliography']) then
+                                                        html:omit($config, ., ("tei-p11"), .)
+                                                    else
+                                                        epub:block($config, ., ("tei-p12"), .)
                 case element(pb) return
                     if (@type and $parameters?break='Physical') then
                         (: No function found for behavior: milestone :)
@@ -777,21 +795,27 @@ else
                 case element(postscript) return
                     epub:block($config, ., ("tei-postscript"), .)
                 case element(publisher) return
-                    (: More than one model without predicate found for ident publisher. Choosing first one. :)
-                    (
-                        if (ancestor::biblStruct and preceding-sibling::pubPlace) then
-                            html:text($config, ., ("tei-publisher1"), ': ')
-                        else
-                            (),
-                        if (ancestor::biblStruct) then
-                            html:inline($config, ., ("tei-publisher2"), normalize-space(.))
-                        else
-                            ()
-                    )
+                    if (ancestor::biblStruct) then
+                        (
+                            html:inline($config, ., ("tei-publisher1"), .),
+                            if (parent::imprint/date) then
+                                html:text($config, ., ("tei-publisher2"), ', ')
+                            else
+                                ()
+                        )
 
+                    else
+                        html:inline($config, ., ("tei-publisher3"), .)
                 case element(pubPlace) return
                     if (ancestor::biblStruct) then
-                        html:inline($config, ., ("tei-pubPlace"), .)
+                        (
+                            html:inline($config, ., ("tei-pubPlace1"), .),
+                            if (parent::imprint/pubPlace) then
+                                html:text($config, ., ("tei-pubPlace2"), ': ')
+                            else
+                                ()
+                        )
+
                     else
                         $config?apply($config, ./node())
                 case element(q) return
@@ -823,24 +847,55 @@ else
                             if (bibl[ptr[@target]]) then
                                 html:inline($config, ., ("tei-ref3"), bibl/ptr)
                             else
-                                if (starts-with(@target,'#EIAD')) then
-                                    (: For corpus internal links (refs starts with '#'). To customize with corpus prefix (here 'EIAD') but needs declare namespace somewhere for config: :)
-                                    html:link($config, ., ("tei-ref4"), ., substring-after(@target,'#') || '.xml' || "?odd=" || request:get-parameter("odd", ()))
+                                if (starts-with(@target, concat('#', $config:project-code))) then
+                                    html:link($config, ., ("tei-ref4"), ., substring-after(@target,'#') || '.xml' || '?odd='|| request:get-parameter('odd', ()))
                                 else
                                     if (not(@target)) then
                                         html:inline($config, ., ("tei-ref5"), .)
                                     else
                                         html:link($config, ., ("tei-ref6"), @target, @target)
                 case element(reg) return
-                    if (ancestor::biblStruct and @type='popular') then
-                        html:inline($config, ., ("tei-reg1"), .)
+                    if (@type='popular') then
+                        (
+                            html:text($config, ., ("tei-reg1"), '['),
+                            html:inline($config, ., ("tei-reg2"), .),
+                            html:text($config, ., ("tei-reg3"), ']')
+                        )
+
                     else
-                        if (ancestor::biblStruct and @type='simplified') then
-                            html:inline($config, ., ("tei-reg2"), .)
+                        if (@type='1' or @type='2' or @type='3'or @type='4'or @type='5'or @type='6' or @type='7') then
+                            (
+                                html:text($config, ., ("tei-reg4"), '['),
+                                html:inline($config, ., ("tei-reg5"), .),
+                                html:text($config, ., ("tei-reg6"), ']')
+                            )
+
                         else
-                            $config?apply($config, ./node())
+                            if (@type='simplified' or not(@type)) then
+                                (
+                                    html:inline($config, ., ("tei-reg7"), .),
+                                    if (following-sibling::reg) then
+                                        html:text($config, ., ("tei-reg8"), ' ')
+                                    else
+                                        ()
+                                )
+
+                            else
+                                html:inline($config, ., ("tei-reg9"), reg)
                 case element(relatedItem) return
-                    html:inline($config, ., ("tei-relatedItem"), .)
+                    (
+                        html:text($config, ., ("tei-relatedItem1"), '. '),
+                        html:inline($config, ., ("tei-relatedItem2"), .),
+                        if (following-sibling::note) then
+                            (
+                                html:text($config, ., ("tei-relatedItem3"), '. '),
+                                html:inline($config, ., ("tei-relatedItem4"), following-sibling::note)
+                            )
+
+                        else
+                            ()
+                    )
+
                 case element(rhyme) return
                     html:inline($config, ., ("tei-rhyme"), .)
                 case element(role) return
@@ -906,17 +961,10 @@ else
                         if (@reason='omitted') then
                             html:inline($config, ., ("tei-supplied2", ('supplied')), .)
                         else
-                            if (@reason='omitted') then
+                            if (@reason='lost' and not(ancestor::seg[@type='join'])) then
                                 html:inline($config, ., ("tei-supplied3", ('supplied')), .)
                             else
-                                if (@reason='lost' and not(ancestor::seg[@type='join'])) then
-                                    html:inline($config, ., ("tei-supplied4", ('supplied')), .)
-                                else
-                                    if (ancestor::seg[@type='join']) then
-                                        (: No function found for behavior: :)
-                                        $config?apply($config, ./node())
-                                    else
-                                        html:inline($config, ., ("tei-supplied6", ('supplied')), .)
+                                html:inline($config, ., ("tei-supplied4", ('supplied')), .)
                 case element(table) return
                     html:table($config, ., ("tei-table"), .)
                 case element(fileDesc) return
@@ -944,7 +992,7 @@ else
                     html:omit($config, ., ("tei-encodingDesc"), .)
                 case element(teiHeader) return
                     if ($parameters?header='short') then
-                        epub:block($config, ., ("tei-teiHeader3"), .)
+                        html:inline($config, ., ("tei-teiHeader3"), .)
                     else
                         if ($parameters?headerType='epidoc') then
                             epub:block($config, ., ("tei-teiHeader4"), .)
@@ -1043,6 +1091,19 @@ else
                 case element(additional) return
                     if ($parameters?headerType='epidoc') then
                         epub:block($config, ., ("tei-additional"), .)
+                    else
+                        $config?apply($config, ./node())
+                case element(analytic) return
+                    if (ancestor::biblStruct) then
+                        (
+                            html:inline($config, ., ("tei-analytic1"), author),
+                            if (following-sibling::*) then
+                                html:text($config, ., ("tei-analytic2"), ', ')
+                            else
+                                (),
+                            html:inline($config, ., ("tei-analytic3"), title)
+                        )
+
                     else
                         $config?apply($config, ./node())
                 case element(addName) return
@@ -1275,7 +1336,7 @@ else
 )
 )
                 case element(dimensions) return
-                    if (ancestor::support) then
+                    if (ancestor::supportDesc or ancestor::layoutDesc) then
                         (
                             html:inline($config, ., ("tei-dimensions1"), .),
                             if (@unit) then
@@ -1285,29 +1346,35 @@ else
                         )
 
                     else
-                        if (ancestor::layoutDesc) then
-                            (
-                                if (not(preceding-sibling::dimensions)) then
-                                    html:text($config, ., ("tei-dimensions3"), ' Inscribed area: ')
-                                else
-                                    (),
-                                html:inline($config, ., ("tei-dimensions4"), .),
-                                if (following-sibling::dimensions) then
-                                    html:text($config, ., ("tei-dimensions5"), ';')
-                                else
-                                    (),
-                                if (@unit) then
-                                    html:inline($config, ., ("tei-dimensions6"), @unit)
-                                else
-                                    (),
-                                if (@extent) then
-                                    html:inline($config, ., ("tei-dimensions7"), @extent)
-                                else
-                                    ()
-                            )
+                        html:inline($config, ., ("tei-dimensions3"), .)
+                case element(edition) return
+                    if (ancestor::biblStruct) then
+                        (
+                            html:text($config, ., ("tei-edition1"), '. '),
+                            html:inline($config, ., ("tei-edition2"), .)
+                        )
 
-                        else
-                            html:inline($config, ., ("tei-dimensions8"), .)
+                    else
+                        $config?apply($config, ./node())
+                case element(forename) return
+                    if (child::choice and ancestor::biblStruct) then
+                        html:inline($config, ., ("tei-forename1"), if (descendant::reg[@type='simplified'] and descendant::reg[@type='popular']) then
+    (
+        if (choice/reg[@type='simplified']) then
+            html:inline($config, ., ("tei-forename2"), choice/reg[@type='simplified'])
+        else
+            (),
+        html:text($config, ., ("tei-forename3"), ' '),
+        if (choice/reg[@type='simplified']) then
+            html:inline($config, ., ("tei-forename4"), choice/reg[@type='popular'])
+        else
+            ()
+    )
+
+else
+    $config?apply($config, ./node()))
+                    else
+                        html:inline($config, ., ("tei-forename5"), .)
                 case element(height) return
                     if (parent::dimensions and @precision='unknown') then
                         html:omit($config, ., ("tei-height1"), .)
@@ -1315,16 +1382,13 @@ else
                         if (parent::dimensions and following-sibling::*) then
                             html:inline($config, ., ("tei-height2"), if (@extent) then concat('(',@extent,') ',.) else .)
                         else
-                            if (parent::dimensions and following-sibling::*) then
+                            if (parent::dimensions and not(following-sibling::*)) then
                                 html:inline($config, ., ("tei-height3"), if (@extent) then concat('(',@extent,') ',.) else .)
                             else
-                                if (parent::dimensions and not(following-sibling::*)) then
-                                    html:inline($config, ., ("tei-height4"), if (@extent) then concat('(',@extent,') ',.) else .)
+                                if (not(ancestor::layoutDesc or ancestor::supportDesc)) then
+                                    html:inline($config, ., ("tei-height4"), .)
                                 else
-                                    if (not(ancestor::layoutDesc or ancestor::supportDesc)) then
-                                        html:inline($config, ., ("tei-height5"), .)
-                                    else
-                                        $config?apply($config, ./node())
+                                    $config?apply($config, ./node())
                 case element(width) return
                     if (parent::dimensions and count(following-sibling::*) >= 1) then
                         html:inline($config, ., ("tei-width1"), if (@extent) then concat('(',@extent,') ',.) else .)
@@ -1361,115 +1425,34 @@ else
                 case element(handDesc) return
                     html:inline($config, ., ("tei-handDesc"), .)
                 case element(handNote) return
-                    html:inline($config, ., ("tei-handNote"), .)
+                    html:inline($config, ., ("tei-handNote"), let $finale := if (ends-with(normalize-space(.),'.')) then () else if (*[text()[normalize-space(.)]]) then '.* ' else () return (.,$finale))
                 case element(idno) return
-                    if (ancestor::biblStruct[@type='webpage'] and @type='url') then
-                        html:link($config, ., ("tei-idno1"), ., ())
+                    if ($parameters?header='short') then
+                        html:inline($config, ., ("tei-idno1"), .)
                     else
-                        if (ancestor::biblStruct and @type='url') then
-                            (
-                                html:text($config, ., ("tei-idno2"), '. URL: <'),
-                                html:link($config, ., ("tei-idno3"), ., ()),
-                                html:text($config, ., ("tei-idno4"), '>')
-                            )
-
+                        if (ancestor::publicationStmt) then
+                            html:inline($config, ., ("tei-idno2"), .)
                         else
-                            if ($parameters?header='short') then
-                                html:inline($config, ., ("tei-idno5"), .)
-                            else
-                                if (ancestor::publicationStmt) then
-                                    html:inline($config, ., ("tei-idno6"), .)
-                                else
-                                    html:inline($config, ., ("tei-idno7"), .)
+                            html:inline($config, ., ("tei-idno3"), .)
                 case element(imprint) return
-                    if (ancestor::biblStruct[@type='book' or @type='journal' or @type='manuscript' or @type='report' or @type='thesis']) then
+                    if (ancestor::biblStruct) then
                         (
-                            if (pubPlace) then
-                                html:inline($config, ., ("tei-imprint1"), pubPlace)
-                            else
-                                (),
-                            if (publisher) then
-                                html:inline($config, ., ("tei-imprint2"), publisher)
-                            else
-                                (),
-                            if (date and (pubPlace or publisher)) then
+                            html:inline($config, ., ("tei-imprint1"), pubPlace),
+                            html:inline($config, ., ("tei-imprint2"), publisher),
+                            if (following-sibling::date) then
                                 html:text($config, ., ("tei-imprint3"), ', ')
                             else
                                 (),
-                            if (date) then
-                                html:inline($config, ., ("tei-imprint4"), date)
+                            html:inline($config, ., ("tei-imprint4"), date),
+                            if (biblScope[@unit='page']) then
+                                html:text($config, ., ("tei-imprint5"), ': ')
                             else
                                 (),
-                            if (note) then
-                                html:inline($config, ., ("tei-imprint5"), note)
-                            else
-                                ()
+                            html:inline($config, ., ("tei-imprint6"), biblScope[@unit='page'])
                         )
 
                     else
-                        if (ancestor::biblStruct[@type='journalArticle']) then
-                            (
-                                if (biblScope[@unit='volume']) then
-                                    html:inline($config, ., ("tei-imprint6"), biblScope[@unit='volume'])
-                                else
-                                    (),
-                                if (following-sibling::*[1][@unit='issue']) then
-                                    html:text($config, ., ("tei-imprint7"), ', ')
-                                else
-                                    (),
-                                if (biblScope[@unit='issue']) then
-                                    html:inline($config, ., ("tei-imprint8"), biblScope[@unit='issue'])
-                                else
-                                    (),
-                                if (date) then
-                                    html:inline($config, ., ("tei-imprint9"), date)
-                                else
-                                    (),
-                                if (biblScope[@unit='page']) then
-                                    html:inline($config, ., ("tei-imprint10"), biblScope[@unit='page'])
-                                else
-                                    (),
-                                if (note) then
-                                    html:inline($config, ., ("tei-imprint11"), note)
-                                else
-                                    ()
-                            )
-
-                        else
-                            if (ancestor::biblStruct[@type='encyclopediaArticle'] or ancestor::biblStruct[@type='bookSection']) then
-                                (
-                                    if (biblScope[@unit='volume']) then
-                                        html:inline($config, ., ("tei-imprint12"), biblScope[@unit='volume'])
-                                    else
-                                        (),
-                                    if (pubPlace) then
-                                        html:inline($config, ., ("tei-imprint13"), pubPlace)
-                                    else
-                                        (),
-                                    if (publisher) then
-                                        html:inline($config, ., ("tei-imprint14"), publisher)
-                                    else
-                                        (),
-                                    if (date) then
-                                        html:text($config, ., ("tei-imprint15"), ', ')
-                                    else
-                                        (),
-                                    if (date) then
-                                        html:inline($config, ., ("tei-imprint16"), date)
-                                    else
-                                        (),
-                                    if (biblScope[@unit='page']) then
-                                        html:inline($config, ., ("tei-imprint17"), biblScope[@unit='page'])
-                                    else
-                                        (),
-                                    if (note) then
-                                        html:inline($config, ., ("tei-imprint18"), note)
-                                    else
-                                        ()
-                                )
-
-                            else
-                                $config?apply($config, ./node())
+                        $config?apply($config, ./node())
                 case element(layout) return
                     html:inline($config, ., ("tei-layout"), .)
                 (: There should be no dot before note if this element follows immediately after lem. This rule should be refined and limited to cases where lem had no source or rend. :)
@@ -1490,15 +1473,15 @@ else
                                 $config?apply($config, ./node())
                             else
                                 (),
-                            if (starts-with(@resp,'eiad-part:')) then
-                                html:inline($config, ., ("tei-lem5"), substring-after(@resp,'eiad-part:'))
+                            if (starts-with(@resp,concat($config:project-code,'-part:'))) then
+                                html:inline($config, ., ("tei-lem5"), substring-after(@resp,concat($config:project-code,'-part:')))
                             else
                                 (),
                             if (starts-with(@resp,'#')) then
-                                html:link($config, ., ("tei-lem6"), substring-after(@resp,'#'),  "?odd=" || request:get-parameter("odd", ()) || "&amp;view=" || request:get-parameter("view", ()) || "&amp;id=" || @resp )
+                                html:link($config, ., ("tei-lem6"), substring-after(@resp,'#'),  '?odd=' || request:get-parameter('odd', ()) || '&amp;view=' || request:get-parameter('view', ()) || '&amp;id='|| @resp)
                             else
                                 (),
-                            if (not(following-sibling::*[1][local-name()='rdg']) and (@source or @rend)) then
+                            if (not(following-sibling::*[1][local-name() = ('rdg', 'note')]) or (@source or @rend)) then
                                 html:inline($config, ., ("tei-lem7", "period"), '.')
                             else
                                 ()
@@ -1515,6 +1498,10 @@ else
                     else
                         (: More than one model without predicate found for ident listApp. Choosing first one. :)
                         (
+                            if (parent::div[@type='apparatus'] and @corresp) then
+                                html:inline($config, ., ("tei-listApp1", "textpart-label"), let $id := substring-after(@corresp,'#') return preceding::div[@type='edition']//div[@type='textpart'][@xml:id=$id]/@n)
+                            else
+                                (),
                             if (parent::div[@type='apparatus']) then
                                 (: No function found for behavior: list-app :)
                                 $config?apply($config, ./node())
@@ -1522,14 +1509,10 @@ else
                                 ()
                         )
 
-                case element(msDesc) return
-                    html:inline($config, ., ("tei-msDesc"), .)
                 case element(notesStmt) return
                     html:list($config, ., ("tei-notesStmt"), .)
                 case element(objectDesc) return
                     html:inline($config, ., ("tei-objectDesc"), .)
-                case element(orgName) return
-                    html:inline($config, ., ("tei-orgName"), .)
                 case element(persName) return
                     if (ancestor::div[@type]) then
                         (: No function found for behavior: link2 :)
@@ -1582,11 +1565,16 @@ else
                         html:inline($config, ., ("tei-respStmt2"), .)
                 case element(series) return
                     if (ancestor::biblStruct) then
-                        html:inline($config, ., ("tei-series1"), (
-    html:inline($config, ., ("tei-series2"), title[@level='s']),
-    html:inline($config, ., ("tei-series3"), biblScope)
-)
-)
+                        (
+                            html:inline($config, ., ("tei-series1"), title),
+                            if (biblScope) then
+                                html:text($config, ., ("tei-series2"), ', ')
+                            else
+                                (),
+                            html:inline($config, ., ("tei-series3"), biblScope),
+                            html:text($config, ., ("tei-series4"), ', ')
+                        )
+
                     else
                         $config?apply($config, ./node())
                 case element(space) return
@@ -1602,15 +1590,37 @@ else
                                 if (@type='binding-hole') then
                                     html:inline($config, ., ("tei-space4"), '◯')
                                 else
-                                    $config?apply($config, ./node())
+                                    if (@type='defect') then
+                                        html:inline($config, ., ("tei-space5"), '□')
+                                    else
+                                        $config?apply($config, ./node())
                 case element(supportDesc) return
                     html:inline($config, ., ("tei-supportDesc"), .)
+                case element(surname) return
+                    if (child::choice and ancestor::biblStruct) then
+                        html:inline($config, ., ("tei-surname1"), if (descendant::reg[@type='simplified'] and descendant::reg[@type='popular']) then
+    (
+        if (choice/reg[@type='simplified']) then
+            html:inline($config, ., ("tei-surname2"), choice/reg[@type='simplified'])
+        else
+            (),
+        html:text($config, ., ("tei-surname3"), ' '),
+        if (choice/reg[@type='simplified']) then
+            html:inline($config, ., ("tei-surname4"), choice/reg[@type='popular'])
+        else
+            ()
+    )
+
+else
+    $config?apply($config, ./node()))
+                    else
+                        html:inline($config, ., ("tei-surname5"), .)
                 case element(surrogates) return
                     epub:block($config, ., ("tei-surrogates"), .)
                 case element(surplus) return
                     html:inline($config, ., ("tei-surplus"), .)
                 case element(textLang) return
-                    html:inline($config, ., ("tei-textLang"), let $finale := if (ends-with(normalize-space(.),'.')) then () else '. ' return concat(normalize-space(.),$finale) )
+                    html:inline($config, ., ("tei-textLang"), let $finale := if (ends-with(normalize-space(.),'.')) then () else '. ' return concat(normalize-space(.),$finale))
                 case element(titleStmt) return
                     if ($parameters?header='short') then
                         (

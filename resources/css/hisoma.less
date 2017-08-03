@@ -1,0 +1,671 @@
+/********************* EM Styles for the Content ************************/
+/*                                                                     */
+/*                                                                    */
+/*********************************************************************/
+// Colors -----------------------    //
+
+@color-lem:                       #55b559;
+@color-lem-lighter:               #79c47c;
+@color-odd: #f5f5f5;
+@color-even: #fff;
+
+// Layout  -----------------------    //
+
+.navigation-top { margin-bottom: 2em; border: 0; }
+.navigation-top h5 {
+  text-align: center;
+  font-family: @font-serif;
+  font-size: 16px;
+  padding: 10px 10px 10px 0;
+}
+
+#searchPageForm input { width: 10vw; }
+#searchPageForm input::placeholder { font-size:small; }
+
+.static h4 { color: @color-primary-light; margin-top: 2em; font-weight: 900;}
+.static h4:first-child { margin-top: 0; }
+
+#banner h3 { margin-bottom: 1.5em;}
+#banner h4 { line-height: inherit; }
+
+#keywords { padding-top:2em; }
+
+#container-logos a, 
+#huma-num-logo a { text-decoration: none; }
+
+#container-logos a:hover { text-decoration: underline;}
+
+#metadata { font-family: @font-serif; font-weight: 300; }
+#metadata-panel { margin-top: 5em; }
+#metadata-panel ul { list-style: none; margin:0; padding:0; }
+#metadata-panel dt { font-family: @font-sans-serif-default; }
+#metadata-panel dd span {xborder:1px solid silver};
+
+#metadata-panel .panel-body { width:95%; }
+#metadata-panel h4 { font-size: @font-size-h4-inner-content; }
+#metadata-panel h4.panel-title { font-family: @font-sans-serif-default; }
+
+#content-container { font-family: @font-serif; }
+
+#content-inner .content > * > section { border-top:0; }
+#content-inner h4.panel-title { font-size: 1.15em; }
+h4.panel-title a {
+    font-weight:bold;
+    text-decoration:none;
+    color: @color-primary-light;
+    padding-left:5px;
+}
+section { padding-top:0; }
+section h3 { margin-top: 1.5em; padding-bottom:.75em; }
+section.edition .nav-tabs { font-family: @font-sans-serif-default; }
+section.edition { margin-top: 1.5em; }
+section.edition #Logical,
+section.apparatus { line-height: 1.85; }
+section.bibliography ul { padding-left:15px; }
+section.bibliography .material-icons { color : @color-primary-lightest; }
+
+
+li.listItemImage { padding-left:1em; text-indent:-1em; }
+// lists with material icons
+.bibliography-secondary li{
+    text-indent:-14px;
+    margin-left:24px;
+}
+.mouseover { color: @color-gray-light-dark; }
+
+// specific pages
+// Home ----------------------------              //
+
+#splash-image{ margin: 0 50px 20px 20px; }
+
+// logos from campa website
+
+
+#efeo-logo-small p {
+    text-align:center;
+    text-transform: uppercase;
+}
+
+#efeo-logo-small p a {
+    color: #7C2536;
+    font-family: Trajan, "Times New Roman", serif;
+    font-size:.85em;
+}
+
+#hisoma-logo-small p {
+    text-align:centre;
+    text-transform: uppercase;
+}
+
+#hisoma-logo-small p a {
+    color: #007AB9;
+    font-family: "Century Gothic", "Times New Roman", serif;
+    font-family: Trajan, "Times New Roman", serif;
+    font-size:.85em;
+}
+
+#efeo-logo-small img {
+    margin: 0 auto;
+    text-align: center;
+}
+
+#hisoma-logo-small img {
+    margin:0 auto;
+    margin-top:0;
+    margin-bottom:10px;
+    text-align: center;
+}
+.licence-CC-BY {
+    background-image: url(../images/CC-BY_80x15.png);
+    background-repeat: no-repeat;
+    width: @application-logo-width;
+    margin-left: 0 !important;
+}
+.licence-CC-BY span { display:none; }
+
+#huma-num-logo {
+    width: 80px;
+    margin-left: 0 !important;
+}
+
+// Bootstrap default settings reinitialization
+.list-inline { margin:0; }
+
+// from bootstrap 4
+.list-inline {
+    padding-left: 0;
+    list-style: none;
+    display: inline;
+}
+.list-inline > li {
+    display:inline !important;
+    margin:0; padding:0; // re-initialize bootstrap
+}
+.list-inline-item:not(:last-child) {
+    xmargin-right: 5px; // à vérifier
+}
+.list-inline-item {
+    display: inline;
+}
+.list-group { font-family: @font-sans-serif-default; margin-top:3em; }
+.list-group li { margin:0; padding:0; padding: 1em 0 !important; padding-left: 4em !important; }
+.list-group li .vedette { margin-left: -3.5em !important;}
+.list-group li:nth-child(odd){
+  background-color: @color-odd;
+}
+.list-group li:nth-child(even){
+  background-color: @color-even;
+}
+.badge,
+.label { background: rgba(121, 85, 72, 0.3) !important; }
+
+.badge,
+.label { background: rgba(121, 85, 72, 0.3) !important; }
+
+.tooltip.top .tooltip-inner,
+.tooltip.top .tooltip-arrow,
+.tooltip.right .tooltip-inner,
+.tooltip.right .tooltip-arrow,
+.tooltip.bottom .tooltip-inner,
+.tooltip.bottom .tooltip-arrow,
+.tooltip.left .tooltip-inner,
+.tooltip.left .tooltip-arrow {
+    background-color:@color-primary-light;
+}
+
+// master bibliography  -----------------------
+.master-bibliography.list-group li { padding-left:1em !important; padding-right:1em !important; }
+
+// Popover  -----------------------                //
+/*
+.popover { max-width: none !important; }
+.popover-content { padding-left:0; } //ajout #EM
+.popover ul { margin-left:13px; padding:9px; }
+.popover li { padding-bottom:4px; }
+.popover-content { margin-left: 0 !important; padding-left:0; } //ajout #EM
+
+.popover-app {
+  display: inline-block;
+  min-width: 10px;
+  margin: 0;
+  margin-left: -3px;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  background-color: #90caf9;
+  background-color: rgba(158, 158, 158, 0.1);
+  background-color: rgba(0, 188, 212, 0.1);
+  border-color: #90caf9;
+  border-color: rgba(158, 158, 158, 0.1);
+  border-color: rgba(0, 188, 212, 0.1);
+  border-radius: 10px;
+  text-transform: lowercase;
+  vertical-align: super;
+}
+.popover-app:not(.btn-raised):not(.btn-link):focus,
+.popover-app:not(.btn-raised):not(.btn-link):hover {
+  background-color: rgba(0, 188, 212, 0.3);
+}
+h3.popover-title {
+  font-size: 13px;
+}
+.popover-title {
+  background-color: inherit;
+  border-color: none;
+}
+.popover-title {
+  background: rgba(158, 158, 158, 0.7);
+}
+.popover .danger {
+    background-color: yellow;
+    color: #f44336;
+}
+.popover a {
+    color:inherit;
+}
+*/ 
+
+
+#metadata-panel .nav-tabs,
+section.edition .nav-tabs,
+section.apparatus .nav-tabs,
+section.translation .nav-tabs,
+section.apparatus .nav-tabs,
+section .commentary .nav-tabs,
+section .bibliography .nav-tabs {
+    background: transparent;
+    border-bottom: 1px solid @color-primary-lightest;
+}
+
+#metadata-panel .nav-tabs > li,
+section.edition .nav-tabs > li,
+section.apparatus .nav-tabs > li,
+section.translation .nav-tabs > li,
+section.apparatus .nav-tabs > li,
+section .commentary .nav-tabs > li,
+section .bibliography .nav-tabs > li {
+    float: left;
+    margin-bottom: 0;
+}
+
+#metadata-panel .nav > li, 
+section.edition .nav > li,
+section.apparatus .nav > li,
+section.translation .nav > li,
+section.apparatus .nav > li,
+section .commentary .nav > li,
+section .bibliography .nav > li {
+    position: relative;
+    display: block;
+}
+
+#metadata-panel .nav-tabs > li > a, section.edition .nav-tabs > li > a, section.apparatus .nav-tabs > li > a, section.translation .nav-tabs > li > a, section.apparatus .nav-tabs > li > a, section.commentary .nav-tabs > li > a, section.bibliography .nav-tabs > li > a,
+#metadata-panel .nav-tabs > li > a:focus, section.edition .nav-tabs > li > a:focus, section.apparatus .nav-tabs > li > a:focus, section.translation .nav-tabs > li > a:focus, section.apparatus .nav-tabs > li > a:focus, section.commentary .nav-tabs > li > a:focus, section.bibliography .nav-tabs > li > a:focus,
+#metadata-panel .nav-tabs > li > a:hover, section.edition .nav-tabs > li > a:hover, section.apparatus .nav-tabs > li > a:hover, section.translation .nav-tabs > li > a:hover, section.apparatus .nav-tabs > li > a:hover, section.commentary .nav-tabs > li > a:hover, section.bibliography .nav-tabs > li > a:hover {
+    background-color: transparent !important;
+    color: @color-primary-light !important;
+}
+
+
+#metadata-panel .nav-tabs > li.active > a, section.edition .nav-tabs > li.active > a, section.apparatus .nav-tabs > li.active > a, section.translation .nav-tabs > li.active > a, section.apparatus .nav-tabs > li.active > a, section.commentary .nav-tabs > li.active > a, section.bibliography .nav-tabs > li.active > a,
+#metadata-panel .nav-tabs > li.active > a:focus, section.edition .nav-tabs > li.active > a:focus, section.apparatus .nav-tabs > li.active > a:focus, section.translation .nav-tabs > li.active > a:focus, section.apparatus .nav-tabs > li.active > a:focus, section.commentary .nav-tabs > li.active > a:focus, section.bibliography .nav-tabs > li.active > a:focus,
+#metadata-panel .nav-tabs > li.active > a:hover, section.edition .nav-tabs > li.active > a:hover, section.apparatus .nav-tabs > li.active > a:hover, section.translation .nav-tabs > li.active > a:hover, section.apparatus .nav-tabs > li.active > a:hover, section.commentary .nav-tabs > li.active > a:hover, section.bibliography .nav-tabs > li.active > a:hover {
+    color: @color-primary-light !important;
+    cursor: default !important;
+    background-color: #fff !important;
+    border: 1px solid @color-primary-lightest !important;
+    border-radius: 4px 4px 0 0 !important;
+    border-bottom-color: transparent !important;
+}
+
+#metadata-panel .nav-tabs > li > a, section.edition .nav-tabs > li > a, section.apparatus .nav-tabs > li > a, section.translation .nav-tabs > li > a, section.apparatus .nav-tabs > li > a, section.commentary .nav-tabs > li > a, section.bibliography .nav-tabs > li > a {
+    margin-right: 2px;
+    line-height: 1.428571429;
+    border: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+}
+
+#metadata-panel .nav > li > a, section.edition .nav > li > a, section.apparatus .nav > li > a, section.translation .nav > li > a, section.apparatus .nav > li > a, section.commentary .nav > li > a, section.bibliography .nav > li > a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+}
+
+#metadata-panel .tab-content, section.edition .tab-content, section.apparatus .tab-content, section.translation .tab-content, section.apparatus .tab-content, section.commentary .tab-content, section.bibliography .tab-content {
+    margin-top: 1.5em;
+}
+
+#metadata-panel .panel, 
+section.edition .panel,
+section.apparatus .panel,
+section.translation .panel,
+section.apparatus .panel,
+section .commentary .panel,
+section .bibliography .panel {
+    border-radius: 0;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    margin-bottom: 20px;
+}
+
+#metadata-panel .panel hr, 
+section.edition .panel hr,
+section.apparatus .panel hr,
+section.translation .panel hr,
+section.apparatus .panel hr,
+section .commentary .panel hr,
+section .bibliography .panel hr {
+    padding: 0;
+    border: none;
+    border-top: medium dotted @color-primary-lightest;
+    text-align: center;
+    position:relative;
+    top:-.3em;
+}
+
+#metadata-panel .panel.panel-default > .panel-heading, 
+section.edition .panel.panel-default > .panel-heading,
+section.apparatus .panel.panel-default > .panel-heading,
+section.translation .panel.panel-default > .panel-heading,
+section.apparatus .panel.panel-default > .panel-heading,
+section .commentary .panel.panel-default > .panel-heading,
+section .bibliography .panel.panel-default > .panel-heading {
+    background-color: white;
+}
+
+
+#metadata-panel .panel.panel-default > .panel, 
+section.edition .panel.panel-default > .panel,
+section.apparatus .panel.panel-default > .panel,
+section.translation .panel.panel-default > .panel,
+section.apparatus .panel.panel-default > .panel,
+section .commentary .panel.panel-default > .panel,
+section .bibliography .panel.panel-default > .panel {
+    border-radius: 0;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+#metadata-panel .panel-heading, 
+section.edition .panel-heading,
+section.apparatus .panel-heading,
+section.translation .panel-heading,
+section.apparatus .panel-heading,
+section .commentary .panel-heading,
+section .bibliography .panel-heading {
+    padding: 0;
+    border: 0;
+}
+
+#metadata-panel .panel-body, 
+section.edition .panel-body,
+section.apparatus .panel-body,
+section.translation .panel-body,
+section.apparatus .panel-body,
+section .commentary .panel-body,
+section .bibliography .panel-body {
+    margin:0;
+    padding:0;
+}
+
+
+#Physical > div > br:first-child { display:none };  
+
+// Definition list (teiHeader metadata)  -----------------------    //
+// 2017-02-08                                                  //
+
+#metadata-panel .dl-horizontal dt {
+    white-space: normal !important;
+    overflow:visible !important;
+    margin-bottom: 5px !important;
+}
+
+#metadata-panel dd, 
+#metadata-panel dt {
+    padding-bottom: .35em;
+}
+
+
+// Material icons in lists  -----------------------                //
+// 2017-02-18                                                      //
+// from https://github.com/google/material-design-icons/issues/206 //
+
+.material-icons {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    margin-right: .1em;
+}
+
+
+// Image gallery ----------------------- //
+// 2017-02-18                           //
+// from http://bootsnipp.com/snippets/featured/carousel-with-gallery-thumbs //
+
+.hide-bullets {
+    list-style:none;
+    margin-left: -40px;
+    margin-top:20px;
+}
+
+.thumbnail {
+    padding: 0;
+}
+
+.carousel-inner>.item>img, .carousel-inner>.item>a>img {
+    width: 100%;
+}
+
+// Varia  ----------------------- //
+
+.no-bullet { list-style:none; }
+.roman { font-style:normal; }
+span.title,
+.italics { font-style: italic; }
+pre {
+  white-space: nowrap !important;
+}
+
+rdg { color:#e0f7fa !important;} /*cyan lighten-5*/
+rdg { color: @color-lem-lighter !important; } /* green */
+
+h3.popover-title i { color: @color-lem-lighter !important; }
+
+#Logical .popover-content ul,
+#Physical .popover-content ul { list-style-type:none; }
+
+#Logical .popover-content li,
+#Physical .popover-content li { list-style-type:inherit; }
+
+.edition br + span.lineNumber { margin-top: 1em; display:inline-block; }
+
+// Pour PYU/EIAD  ----------------------- //
+.loc { font-weight:bold; }
+
+.fw { 
+    position: absolute; 
+    color: @color-gray-light-dark;
+    right:100%;
+    width:12em;
+    font-size:small;
+    word-break:keep-all; //otherwhise to lines because of hyphens
+    white-space:pre;
+}
+.fw span:before { overflow:ellipsis; margin-left:1.1em; }
+
+.textpart-label { 
+    position: absolute; 
+    margin-left:-7em;
+    color: @color-gray-light-dark;
+}
+.textpart-label + div { 
+    margin-bottom:1.25em;
+}
+
+.lineNumber { font-weight: bold; }
+.verse-line {
+  margin-top: 0;
+}
+.stance-meter {
+  text-transform: capitalize;
+  position: relative;
+  margin-left: 5em;
+  font-style: italic;
+}
+.stance-number {
+  position: absolute;
+  margin-left: -6em;
+}
+.verse-number {
+  position: absolute;
+  margin-left: -2em;
+  display:none;
+}
+.stance-part {
+  margin-left: 5em;
+  margin-top: .75em;
+  margin-top:0;
+}
+.distich {
+    margin-top:0;
+}
+.stance-block {
+    display:block;
+    margin-left: 0;
+    margin-top: 1.25em;
+    margin-bottom: .75em;
+}
+.prose-block{
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.translation-ref { text-align: right; font-size: small; margin-top: 1em; margin-bottom: 1em; }
+
+.lineNumber { display:inline-block; }
+
+#Physical .lineNumber { margin-right:.2em; }
+#Physical .lineNumber.break-no { margin-right:.3em; } // combinasion of two classes: no space
+
+.break-no { display:inline-block; }
+
+
+// for commentary
+.commentary ul.list-inline {display:block;}
+.commentary .list-inline > li {
+    display:block !important;
+    padding-top:.5em;
+}
+
+
+//.textInline { margin-left:-.2em !important;padding-right:.2em; }
+
+.period { margin-left:-.2em; }
+
+.bibl-initials + .period,
+.bibl-initials:hover + .period { margin-left:-.25em; }
+
+.bibl-rend + .period { margin-left:0; }
+
+
+// the thumbnails-gallery
+
+#thumbnails-gallery {
+  width:250px;
+  max-width:250px;
+  height:auto;
+  margin:0;
+  padding:0;
+  text-align:center;
+}
+#thumbnails-gallery .thumbnails-banner {
+  background-color: #e8f5e9;
+}
+#thumbnails-gallery .profile-image {
+    padding-top:10px;
+}
+#thumbnails-gallery .profile-details h4{
+    margin-bottom:0;
+    font-weight:bold !important;
+}
+#thumbnails-gallery a:focus{
+  outline:none;
+}
+#thumbnails-gallery .nav-tabs {
+  border-bottom: none;
+  background-color:inherit;
+}
+#thumbnails-gallery .nav-tabs > li > a img {
+  width: 130px;
+  object-fit: cover;
+}
+#thumbnails-gallery .nav > li > a{
+  padding: 0 10px 10px;
+}
+#thumbnails-gallery h4 { font-size:.8em; }
+#thumbnails-gallery p { font-size:.8em; }
+
+
+// add modal from https://codepen.io/lynnwallenstein/pen/ihqlF
+
+#thumbnails-gallery .modal.modal-wide .modal-dialog {
+  width: 60%;
+}
+#thumbnails-gallery .modal-wide .modal-body {
+  overflow-y: auto;
+}
+#thumbnails-gallery .modal-body > img {
+  width:auto;
+  height:600px;
+  object-fit: cover;
+  margin:0 auto;
+}
+
+
+// pmf: section collapsible, from https://codepen.io/DawsonMediaD/pen/byDqv
+.panel-heading .accordion-toggle:after,
+.nav-tabs-wrapper .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: grey;         /* adjust as needed */
+    color: @color-primary-light;
+}
+.panel-heading .accordion-toggle.collapsed:after,
+.nav-tabs-wrapper .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+#myCarousel img {
+    xwidth:300px;
+    max-height:300px;
+    object-fit: cover;
+    background-size: cover;
+}
+#myCarousel .carousel-inner .item {
+    background-size: cover;
+}
+.carousel{
+    background: #2f4357;
+    xmargin-top: 20px;
+}
+.carousel .item{
+    min-height: 280px; /* Prevent carousel from being distorted if for some reason image doesn't load */
+}
+.carousel .item img{
+    margin: 0 auto; /* Align slide image horizontally center */
+}
+
+
+// test from  https://stackoverflow.com/questions/21868610/make-column-gallery-position-in-bootstrap
+/*<div class="row">
+    <div class="col-lg-3 fixed">
+        Fixed content
+    </div>
+    <div class="col-lg-9 scrollit">
+        Normal scrollable content
+    </div>
+ </div>*/
+
+
+.fixed {
+        position: fixed;
+        width: 25%;
+        width: 15%;
+        right:0;
+        bottom:14px;
+}
+.scrollit {
+        float: left;
+        width: 71%;
+        width: 85%;
+}
+
+// -----------------------------/
+// bibliography
+// -----------------------------/
+
+// alphabetic pager from https://codepen.io/Gruber/pen/bEXXWQ
+
+.container {
+  Margin-top:45vh;
+  display: flex;
+  justify-content: center;
+}
+
+
+// -----------------------------/
+// varia
+// -----------------------------/
+.popover, .tooltip-inner {
+  line-height: 2em;
+}

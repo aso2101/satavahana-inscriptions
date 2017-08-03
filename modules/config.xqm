@@ -340,3 +340,25 @@ declare function config:get-fonts-dir() as xs:string? {
             ()
 };
 
+
+(:  --------------------------------------------------- :)
+(:                 #EM additions                        :)
+(:  --------------------------------------------------- :)
+(:~
+ : folder for images cited in facsimile or illustrating inscriptions
+ :)
+declare variable $config:data-images-folder := "images/";
+declare variable $config:data-images-root := $config:data-root || '/' || $config:data-images-folder;
+(:~
+ : Project code used in filenames and in ODD (prefixes for links)
+ :)
+declare variable $config:project-code := "EIAD";
+(:~
+ : Project code used in filenames (to test for non tabs files ?)
+ :)
+declare variable $config:bibliography-masterfile := "EIAD_bibliography.xml";
+(:~
+ : Prefix for the bibliography references (in bibl/ptr/@target)
+ :)
+declare variable $config:bibliography-prefix := "eiad-bibl";
+declare variable $config:bibliography-prefix-separator := ":";

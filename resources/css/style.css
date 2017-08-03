@@ -97,6 +97,9 @@ h6,
   font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
   font-weight: 400 !important;
 }
+.san-Deva {
+    font-family:"Murty Sanskrit";
+}
 /********************* Button Styles *********************************/
 /* Default TEI Publisher theme                                       */
 /* Do not modify                                                     */

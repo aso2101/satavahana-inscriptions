@@ -23,5 +23,17 @@
                 -->
     <output mode="web" odd="sai-customizations">
         <module uri="http://www.hisoma.mom.fr/labs/epigraphy" prefix="ext-html" at="xmldb:exist:///db/apps/SAI/modules/ext-html.xql"/>
-    </output>  
+        <module uri="http://www.tei-c.org/tei-simple/config" prefix="config" at="xmldb:exist:///db/apps/tei-publisher/modules/config.xqm"/>
+        <module uri="http://sai.indology.info" prefix="sai-html" at="xmldb:exist:///db/apps/SAI/modules/sai-html.xql"/>
+    </output>
+    
+    <output mode="epub">
+        <module uri="http://www.tei-c.org/tei-simple/config" prefix="config" at="xmldb:exist:///db/apps/tei-publisher/modules/config.xqm"/>
+    </output>
+    <output mode="latex">
+        <module uri="http://www.tei-c.org/tei-simple/config" prefix="config" at="xmldb:exist:///db/apps/tei-publisher/modules/config.xqm"/>
+    </output>
+    <output mode="print">
+        <module uri="http://www.tei-c.org/tei-simple/config" prefix="config" at="xmldb:exist:///db/apps/tei-publisher/modules/config.xqm"/>
+    </output>    
 </modules>
