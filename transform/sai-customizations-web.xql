@@ -17,7 +17,7 @@ import module namespace css="http://www.tei-c.org/tei-simple/xquery/css";
 
 import module namespace html="http://www.tei-c.org/tei-simple/xquery/functions";
 
-import module namespace ext-html="http://www.hisoma.mom.fr/labs/epigraphy" at "xmldb:exist:///db/apps/SAI/modules/ext-html.xql";
+import module namespace ext-html="http://www.tei-c.org/tei-simple/xquery/ext-html" at "xmldb:exist:///db/apps/SAI/modules/ext-html.xql";
 
 import module namespace config="http://www.tei-c.org/tei-simple/config" at "xmldb:exist:///db/apps/tei-publisher/modules/config.xqm";
 
@@ -184,8 +184,7 @@ declare function model:apply($config as map(*), $input as node()*) {
                     html:cell($config, ., ("tei-cell"), ., ())
                 case element(choice) return
                     if (sic and corr) then
-                        (: No function found for behavior: tooltip :)
-                        $config?apply($config, ./node())
+                        ext-html:tooltip($config, ., ("tei-choice1"), corr[1], concat('Correction for <i>',sic[1],'</>'))
                     else
                         if (reg and not(orig)) then
                             html:inline($config, ., ("tei-choice2"), reg)
@@ -253,47 +252,28 @@ declare function model:apply($config as map(*), $input as node()*) {
 )
 )
                     else
-                        if (@type='textpart') then
-                            html:block($config, ., ("tei-div4", "textpart"), .)
+                        if (@type='bibliography' and listBibl//*[text()[normalize-space(.)]]) then
+                            ext-html:section-collapsible($config, ., ("tei-div4", "bibliography"), @type, 'Secondary bibliography', (), listBibl)
                         else
-                            if (@type='bibliography') then
+                            if (@type='translation' and *[text()[normalize-space(.)]]) then
                                 (
-                                    if (listBibl) then
-                                        html:heading($config, ., ("tei-div5"), 'Secondary bibliography', 3)
-                                    else
-                                        (),
-                                    ext-html:section($config, ., ("tei-div6", "bibliography-secondary"), (), listBibl)
+                                    ext-html:section-collapsible($config, ., ("tei-div5", "translation"), @type,  let $plural := if (count(ab) > 1) then 's' else () return concat(upper-case(substring(@type,1,1)),substring(@type,2),$plural) , 'process-tabs', .)
                                 )
 
                             else
-                                if (@type='translation' and *[text()[normalize-space(.)]]) then
-                                    (
-                                        html:heading($config, ., ("tei-div7"),  let $plural := if (count(ab) > 1) then 's' else () return concat(upper-case(substring(@type,1,1)),substring(@type,2),$plural) , 3),
-                                        ext-html:section($config, ., ("tei-div8", "translation"), (), .)
-                                    )
-
+                                if (@type='edition') then
+                                    ext-html:section-collapsible-with-tabs($config, ., ("tei-div6", "edition"), @type, 'Edition', 'Logical', .)
                                 else
-                                    if (@type='edition') then
-                                        ext-html:section($config, ., ("tei-div9", (@type)), (), if (div[@type='textpart']) then
-    html:block($config, ., ("tei-div10", (@type)), .)
-else
-    html:block($config, ., ("tei-div11", "diveditionnormal"), .))
+                                    if (@type='apparatus' and *//*[text()[normalize-space(.)]]) then
+                                        ext-html:section-collapsible($config, ., ("tei-div7", "apparatus"), @type, concat(upper-case(substring(@type,1,1)),substring(@type,2)), (), .)
                                     else
-                                        if (@type='apparatus') then
+                                        if (@type='commentary' and *//*[text()[normalize-space(.)]]) then
                                             (
-                                                ext-html:separator($config, ., ("tei-div12", ('apparatus-sep')), ''),
-                                                ext-html:section($config, ., ("tei-div13", (@type)), (), .)
+                                                ext-html:section-collapsible($config, ., ("tei-div8", "commentary"), @type, concat(upper-case(substring(@type,1,1)),substring(@type,2)), (), .)
                                             )
 
                                         else
-                                            if (@type='commentary' and not(p ='' or listApp/* ='')) then
-                                                (
-                                                    html:heading($config, ., ("tei-div14", (@type)), concat(upper-case(substring(@type,1,1)),substring(@type,2)), 3),
-                                                    ext-html:section($config, ., ("tei-div15", (@type)), (), .)
-                                                )
-
-                                            else
-                                                $config?apply($config, ./node())
+                                            $config?apply($config, ./node())
                 case element(docAuthor) return
                     html:inline($config, ., ("tei-docAuthor"), .)
                 case element(docDate) return
@@ -518,10 +498,10 @@ else
                                                 else
                                                     $config?apply($config, ./node())
                 case element(hi) return
-                    if (@rendition) then
-                        html:inline($config, ., css:get-rendition(., ("tei-hi1")), .)
+                    if (@type='italic') then
+                        html:inline($config, ., ("tei-hi1"), .)
                     else
-                        if (not(@rendition)) then
+                        if (@type='bold') then
                             html:inline($config, ., ("tei-hi2"), .)
                         else
                             $config?apply($config, ./node())
@@ -561,16 +541,16 @@ else
                 case element(lb) return
                     (: More than one model without predicate found for ident lb. Choosing first one. :)
                     if (ancestor::lg and $parameters?break='Physical') then
-                        ext-html:breakPyu($config, ., ("tei-lb1", (if (@break='no') then 'break-no' else ())), ., 'line', 'yes', if (@n) then @n else count(preceding-sibling::lb) + 1)
+                        ext-html:breakPyu($config, ., ("tei-lb1", (if (@break='no') then 'break-no' else ())), ., 'line', 'yes', if (@n) then @n else count(preceding-sibling::lb) + 1, if (@break='no') then 'yes' else 'no')
                     else
                         if ($parameters?break='Physical') then
-                            ext-html:breakPyu($config, ., ("tei-lb2", (if (@break='no') then 'break-no' else ())), ., 'line', 'yes', if (@n) then @n else count(preceding-sibling::lb) + 1)
+                            ext-html:breakPyu($config, ., ("tei-lb2", (if (@break='no') then 'break-no' else ())), ., 'line', 'yes', if (@n) then @n else count(preceding-sibling::lb) + 1, if (@break='no') then 'yes' else 'no')
                         else
                             if (ancestor::lg and $parameters?break='Logical') then
-                                ext-html:breakPyu($config, ., ("tei-lb3", (if (@break='no') then 'break-no' else ())), ., 'line', 'no', if (@n) then @n else count(preceding-sibling::lb) + 1)
+                                ext-html:breakPyu($config, ., ("tei-lb3", (if (@break='no') then 'break-no' else ())), ., 'line', 'no', if (@n) then @n else count(preceding-sibling::lb) + 1, if (@break='no') then 'yes' else 'no')
                             else
                                 if ($parameters?break='Logical') then
-                                    ext-html:breakPyu($config, ., ("tei-lb4", (if (@break='no') then 'break-no' else ())), ., 'line', 'no', if (@n) then @n else count(preceding-sibling::lb) + 1)
+                                    ext-html:breakPyu($config, ., ("tei-lb4", (if (@break='no') then 'break-no' else ())), ., 'line', 'no', if (@n) then @n else count(preceding-sibling::lb) + 1, if (@break='no') then 'yes' else 'no')
                                 else
                                     $config?apply($config, ./node())
                 case element(lg) return
@@ -968,16 +948,16 @@ else
                         (: More than one model without predicate found for ident fileDesc. Choosing first one. :)
                         ext-html:dl($config, ., ("tei-fileDesc3"), (
     (
-        html:heading($config, ., ("tei-fileDesc4"), 'Metadata ', 3),
-        ext-html:dt($config, ., ("tei-fileDesc5"), 'Support '),
-        ext-html:dd($config, ., ("tei-fileDesc6"), (
-    html:inline($config, ., ("tei-fileDesc7"), sourceDesc/msDesc/physDesc/objectDesc/supportDesc/support),
-    html:inline($config, ., ("tei-fileDesc8"), sourceDesc/msDesc/physDesc/decoDesc )
+        ext-html:dt($config, ., ("tei-fileDesc4"), 'Support '),
+        ext-html:dd($config, ., ("tei-fileDesc5"), (
+    html:inline($config, ., ("tei-fileDesc6"), sourceDesc/msDesc/physDesc/objectDesc/supportDesc/support),
+    html:inline($config, ., ("tei-fileDesc7"), sourceDesc/msDesc/physDesc/decoDesc)
 )
 ),
-        ext-html:dt($config, ., ("tei-fileDesc9"), 'Text '),
-        ext-html:dd($config, ., ("tei-fileDesc10"), (
-    html:inline($config, ., ("tei-fileDesc11"), sourceDesc/msDesc/msContents/msItem/textLang),
+        ext-html:dt($config, ., ("tei-fileDesc8"), 'Text '),
+        ext-html:dd($config, ., ("tei-fileDesc9"), (
+    html:inline($config, ., ("tei-fileDesc10"), sourceDesc/msDesc/msContents/msItem/textLang),
+    html:inline($config, ., ("tei-fileDesc11"), sourceDesc/msDesc/physDesc/objectDesc/layoutDesc/layout),
     html:inline($config, ., ("tei-fileDesc12"), sourceDesc/msDesc/physDesc/handDesc)
 )
 ),
@@ -989,57 +969,81 @@ else
             ext-html:dd($config, ., ("tei-fileDesc14"), sourceDesc/msDesc/history/origin/origDate)
         else
             (),
-        ext-html:dt($config, ., ("tei-fileDesc15"), 'Origin '),
-        ext-html:dd($config, ., ("tei-fileDesc16"), html:inline($config, ., ("tei-fileDesc17"), sourceDesc/msDesc/history/origin/origPlace)),
-        ext-html:dt($config, ., ("tei-fileDesc18"), 'Provenance'),
-        ext-html:dd($config, ., ("tei-fileDesc19"), sourceDesc/msDesc/history/provenance),
-        ext-html:dt($config, ., ("tei-fileDesc20"), 'Visual Documentation'),
-        ext-html:dd($config, ., ("tei-fileDesc21"), sourceDesc/msDesc/additional),
-        if (notesStmt/note[text()[normalize-space(.)]]) then
-            ext-html:dt($config, ., ("tei-fileDesc22"), 'Note ')
+        if (sourceDesc/msDesc/history/origin) then
+            ext-html:dt($config, ., ("tei-fileDesc15"), 'Origin ')
+        else
+            (),
+        if (sourceDesc/msDesc/history/origin) then
+            ext-html:dd($config, ., ("tei-fileDesc16"), sourceDesc/msDesc/history/origin/origPlace)
+        else
+            (),
+        if (sourceDesc/msDesc/history/provenance) then
+            ext-html:dt($config, ., ("tei-fileDesc17"), 'Provenance')
+        else
+            (),
+        if (sourceDesc/msDesc/history/provenance) then
+            ext-html:dd($config, ., ("tei-fileDesc18"), sourceDesc/msDesc/history/provenance)
+        else
+            (),
+        if (sourceDesc/msDesc/additional//*[text()[normalize-space(.)]]) then
+            ext-html:dt($config, ., ("tei-fileDesc19"), 'Visual Documentation')
+        else
+            (),
+        if (sourceDesc/msDesc/additional//*[text()[normalize-space(.)]]) then
+            ext-html:dd($config, ., ("tei-fileDesc20"), sourceDesc/msDesc/additional)
         else
             (),
         if (notesStmt/note[text()[normalize-space(.)]]) then
-            ext-html:dd($config, ., ("tei-fileDesc23"), notesStmt)
+            ext-html:dt($config, ., ("tei-fileDesc21"), 'Note ')
+        else
+            (),
+        if (notesStmt/note[text()[normalize-space(.)]]) then
+            ext-html:dd($config, ., ("tei-fileDesc22"), notesStmt)
+        else
+            (),
+        if (notesStmt/note[text()[normalize-space(.)]]) then
+            ext-html:dt($config, ., ("tei-fileDesc23"), 'Note ')
+        else
+            (),
+        if (notesStmt/note[text()[normalize-space(.)]]) then
+            ext-html:dd($config, ., ("tei-fileDesc24"), notesStmt)
         else
             (),
         if (titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']) then
-            ext-html:dt($config, ., ("tei-fileDesc24"), 'Editors ')
+            ext-html:dt($config, ., ("tei-fileDesc25"), 'Editors ')
         else
             (),
         if (titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']) then
             (: See elementSpec/@ident='editor' for details. :)
-            ext-html:dd($config, ., ("tei-fileDesc25"), if (titleStmt/editor[@role='general'] and titleStmt/editor[@role='contributor']) then
+            ext-html:dd($config, ., ("tei-fileDesc26"), if (titleStmt/editor[@role='general'] and titleStmt/editor[@role='contributor']) then
     (
-        html:inline($config, ., ("tei-fileDesc26"), titleStmt/editor[@role='general']),
-        html:inline($config, ., ("tei-fileDesc27", "textInline"), ', with contributions by '),
-        html:inline($config, ., ("tei-fileDesc28"), titleStmt/editor[@role='contributor']),
-        html:inline($config, ., ("tei-fileDesc29", "textInline"), '. ')
+        html:inline($config, ., ("tei-fileDesc27"), titleStmt/editor[@role='general']),
+        html:inline($config, ., ("tei-fileDesc28"), ' with contributions by '),
+        html:inline($config, ., ("tei-fileDesc29"), titleStmt/editor[@role='contributor'])
     )
 
 else
     if (titleStmt/editor[@role='general'] and not(titleStmt/editor[@role='contributor'])) then
         (
-            html:inline($config, ., ("tei-fileDesc30"), titleStmt/editor[@role='general']),
-            html:inline($config, ., ("tei-fileDesc31", "textInline"), '. ')
+            html:inline($config, ., ("tei-fileDesc30"), titleStmt/editor[@role='general'])
         )
 
     else
         if (titleStmt/editor[@role='contributor'] and not(titleStmt/editor[@role='general'])) then
             (
-                html:inline($config, ., ("tei-fileDesc32"), titleStmt/editor[@role='contributor'])
+                html:inline($config, ., ("tei-fileDesc31"), titleStmt/editor[@role='contributor'])
             )
 
         else
-            html:inline($config, ., ("tei-fileDesc33", "textInline"), '. '))
+            $config?apply($config, ./node()))
         else
             ()
     )
 ,
     if (../..//div[@type='bibliography']/p[text()[normalize-space(.)]]) then
         (
-            ext-html:dt($config, ., ("tei-fileDesc34"), 'Publication history'),
-            ext-html:dd($config, ., ("tei-fileDesc35"), ../..//div[@type='bibliography']/p)
+            ext-html:dt($config, ., ("tei-fileDesc32"), 'Publication history'),
+            ext-html:dd($config, ., ("tei-fileDesc33"), ../..//div[@type='bibliography']/p)
         )
 
     else
@@ -1199,7 +1203,8 @@ else
                     html:block($config, ., ("tei-biblStruct1"), (
     (
         html:inline($config, ., ("tei-biblStruct2"), if (.//title[@type='short']) then
-    ext-html:bibl-link($config, ., ("tei-biblStruct3"), .//title[@type='short'], @xml:id)
+    (: No function found for behavior: bibl-link :)
+    $config?apply($config, ./node())
 else
     (
         if (.//author/surname) then
@@ -1535,8 +1540,7 @@ else
                             else
                                 (),
                             if (@source) then
-                                (: No function found for behavior: bibl-initials-for-ref :)
-                                $config?apply($config, ./node())
+                                ext-html:bibl-initials-for-ref($config, ., ("tei-lem4", "bibl-initials"), @source, right)
                             else
                                 (),
                             if (starts-with(@resp,concat($config:project-code,'-part:'))) then
@@ -1597,11 +1601,10 @@ else
                         $config?apply($config, ./node())
                 case element(ptr) return
                     if (parent::bibl and @target) then
-                        ext-html:refbibl($config, ., ("tei-ptr1"), @target, @target)
+                        sai-html:make-bibl-link($config, ., ("tei-ptr1"), @target, .)
                     else
                         if (not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]) then
-                            (: No function found for behavior: resolve-pointer :)
-                            $config?apply($config, ./node())
+                            ext-html:resolve-pointer($config, ., ("tei-ptr2"), ., substring-after(@target,'#'))
                         else
                             if (not(text())) then
                                 sai-html:link($config, ., ("tei-ptr3"), @target, ())
@@ -1612,7 +1615,7 @@ else
                         (
                             html:inline($config, ., ("tei-rdg1"), .),
                             if (@source and ancestor::listApp) then
-                                ext-html:refbibl($config, ., ("tei-rdg2", "author-initials"), @source, .)
+                                ext-html:refbibl($config, ., ("tei-rdg2", "author-initials"), .)
                             else
                                 ()
                         )
@@ -1694,11 +1697,7 @@ else
                     if ($parameters?modal='true') then
                         sai-html:image-modals($config, ., ("tei-facsimile1"), graphic)
                     else
-                        (
-                            html:heading($config, ., ("tei-facsimile2"), 'Facsimiles ', 3),
-                            sai-html:images($config, ., ("tei-facsimile3"), graphic)
-                        )
-
+                        ext-html:section-collapsible($config, ., ("tei-facsimile2", "facsimile"), 'facsimile', 'Facsimiles', (), .)
                 case element(person) return
                     if (ancestor::listPerson) then
                         (

@@ -1,18 +1,18 @@
-@charset "UTF-8";
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400|Oswald');
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans|Noto+Serif|Open+Sans|Oswald:300|Roboto');
+@charset "UTF-8";
 /********************* Base Styles ***********************************/
 /* Default TEI Publisher theme                                       */
 /* Do not modify                                                     */
 /*********************************************************************/
 body {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
   font-size: 16px;
   background-color: #ffffff;
   color: #333333;
 }
 a {
-  color: #303F9F;
+  color: #303f9f;
 }
 a:hover,
 a:focus {
@@ -94,7 +94,7 @@ h6,
 .h5,
 .h6,
 .documents .header-short {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
   font-weight: 400 !important;
 }
 /********************* Button Styles *********************************/
@@ -177,7 +177,7 @@ h6,
   }
 }
 .btn {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
 }
 .btn .glyphicon-search {
   top: 3px;
@@ -247,7 +247,7 @@ header {
   margin-top: 12px;
 }
 .btn-group > div > ul > li > a {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif !important;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif !important;
 }
 .btn-group > div > ul > li > a:hover {
   color: #1b2257 !important;
@@ -283,7 +283,7 @@ header {
   margin-bottom: 0;
 }
 .documents h5 {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
   font-size: 14px;
 }
 .documents .toolbar {
@@ -334,11 +334,11 @@ header {
   font-family: Roboto, Helvetica, Arial, sans-serif !important;
 }
 mark {
-  background-color: #FFEB3B;
+  background-color: #ffeb3b;
 }
 .input-group-btn .btn:not(.btn-raised).btn-primary,
 .text-success {
-  color: #607D8B;
+  color: #607d8b;
 }
 .fileinput-button {
   color: #777777;
@@ -359,13 +359,13 @@ mark {
 .pagination > .active > span,
 .pagination > .active > span:hover,
 .pagination > .active > span:focus {
-  background-color: #607D8B;
-  border-color: #607D8B;
+  background-color: #607d8b;
+  border-color: #607d8b;
   color: #ffffff;
 }
 .pagination > li > a,
 .pagination > li > span {
-  color: #607D8B;
+  color: #607d8b;
 }
 .well {
   box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.12), 0 1px 6px 0 rgba(0, 0, 0, 0.12) !important;
@@ -401,7 +401,7 @@ mark {
   color: #ffffff;
 }
 .navbar .navbar-nav > li > a:hover {
-  background-color: #607D8B;
+  background-color: #607d8b;
 }
 .navbar-default {
   margin-bottom: 0;
@@ -412,7 +412,7 @@ mark {
   line-height: 30px !important;
 }
 .navbar-default .dropdown-menu li > a:hover {
-  background-color: #607D8B !important;
+  background-color: #607d8b !important;
   color: #ffffff !important;
 }
 .navbar-default .navbar-brand,
@@ -515,7 +515,7 @@ mark {
     position: fixed !important;
     left: 30px;
     top: 115px;
-    background-color: #607D8B !important;
+    background-color: #607d8b !important;
     color: #ffffff;
   }
 }
@@ -524,10 +524,10 @@ mark {
 /* Do not modify                                                     */
 /*********************************************************************/
 .panel.panel-primary > .panel-heading {
-  background-color: #C5CAE9;
+  background-color: #c5cae9;
 }
 .panel.panel-info > .panel-heading {
-  background-color: #607D8B;
+  background-color: #607d8b;
 }
 .panel.panel-default > .panel-heading {
   background-color: #d1dae0;
@@ -598,7 +598,7 @@ footer .poweredby img {
 .page-nav,
 .page-nav:link,
 .page-nav:active {
-  background-color: #607D8B !important;
+  background-color: #607d8b !important;
   position: fixed;
   z-index: 11;
   top: 52px;
@@ -767,7 +767,7 @@ body.tei-text {
 }
 #content-inner .alternate {
   cursor: pointer;
-  color: #7777FF;
+  color: #7777ff;
 }
 #content-inner .alternate .altcontent {
   display: none;
@@ -834,7 +834,7 @@ body.tei-text {
   font-size: small;
 }
 .static h4 {
-  color: #607D8B;
+  color: #607d8b;
   margin-top: 2em;
   font-weight: 900;
 }
@@ -870,10 +870,10 @@ body.tei-text {
   padding: 0;
 }
 #metadata-panel dt {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
 }
 #metadata-panel dd span {
-  xborder: 1px solid silver;
+  xborder: 1px solid #c0c0c0;
 }
 #metadata-panel .panel-body {
   width: 95%;
@@ -882,7 +882,7 @@ body.tei-text {
   font-size: 1.25em;
 }
 #metadata-panel h4.panel-title {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
 }
 #content-container {
   font-family: "Noto Serif", Georgia, "Times New Roman", serif;
@@ -896,7 +896,7 @@ body.tei-text {
 h4.panel-title a {
   font-weight: bold;
   text-decoration: none;
-  color: #607D8B;
+  color: #607d8b;
   padding-left: 5px;
 }
 section {
@@ -907,7 +907,7 @@ section h3 {
   padding-bottom: .75em;
 }
 section.edition .nav-tabs {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
 }
 section.edition {
   margin-top: 1.5em;
@@ -998,7 +998,7 @@ li.listItemImage {
   display: inline;
 }
 .list-group {
-  font-family: "Noto Sans", arial, Verdana, "Helvetica", sans-serif;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
   margin-top: 3em;
 }
 .list-group li {
@@ -1014,7 +1014,7 @@ li.listItemImage {
   background-color: #f5f5f5;
 }
 .list-group li:nth-child(even) {
-  background-color: #fff;
+  background-color: #ffffff;
 }
 .badge,
 .label {
@@ -1032,7 +1032,7 @@ li.listItemImage {
 .tooltip.bottom .tooltip-arrow,
 .tooltip.left .tooltip-inner,
 .tooltip.left .tooltip-arrow {
-  background-color: #607D8B;
+  background-color: #607d8b;
 }
 .master-bibliography.list-group li {
   padding-left: 1em !important;
@@ -1091,6 +1091,8 @@ h3.popover-title {
 }
 */
 #metadata-panel .nav-tabs,
+section.map .nav-tabs,
+section.facsimile .nav-tabs,
 section.edition .nav-tabs,
 section.apparatus .nav-tabs,
 section.translation .nav-tabs,
@@ -1101,6 +1103,8 @@ section .bibliography .nav-tabs {
   border-bottom: 1px solid #d1dae0;
 }
 #metadata-panel .nav-tabs > li,
+section.map .nav-tabs > li,
+section.facsimile .nav-tabs > li,
 section.edition .nav-tabs > li,
 section.apparatus .nav-tabs > li,
 section.translation .nav-tabs > li,
@@ -1111,6 +1115,8 @@ section .bibliography .nav-tabs > li {
   margin-bottom: 0;
 }
 #metadata-panel .nav > li,
+section.map .nav > li,
+section.facsimile .nav > li,
 section.edition .nav > li,
 section.apparatus .nav > li,
 section.translation .nav > li,
@@ -1121,12 +1127,14 @@ section .bibliography .nav > li {
   display: block;
 }
 #metadata-panel .nav-tabs > li > a,
+section.map .nav-tabs > li > a,
+section.facsimile .nav-tabs > li > a,
 section.edition .nav-tabs > li > a,
 section.apparatus .nav-tabs > li > a,
 section.translation .nav-tabs > li > a,
 section.apparatus .nav-tabs > li > a,
 section.commentary .nav-tabs > li > a,
-section.bibliography .nav-tabs > li > a,
+ection.bibliography .nav-tabs > li > a,
 #metadata-panel .nav-tabs > li > a:focus,
 section.edition .nav-tabs > li > a:focus,
 section.apparatus .nav-tabs > li > a:focus,
@@ -1142,9 +1150,11 @@ section.apparatus .nav-tabs > li > a:hover,
 section.commentary .nav-tabs > li > a:hover,
 section.bibliography .nav-tabs > li > a:hover {
   background-color: transparent !important;
-  color: #607D8B !important;
+  color: #607d8b !important;
 }
 #metadata-panel .nav-tabs > li.active > a,
+section.facsimile .nav-tabs > li.active > a,
+section.map .nav-tabs > li.active > a,
 section.edition .nav-tabs > li.active > a,
 section.apparatus .nav-tabs > li.active > a,
 section.translation .nav-tabs > li.active > a,
@@ -1152,6 +1162,8 @@ section.apparatus .nav-tabs > li.active > a,
 section.commentary .nav-tabs > li.active > a,
 section.bibliography .nav-tabs > li.active > a,
 #metadata-panel .nav-tabs > li.active > a:focus,
+section.map .nav-tabs > li.active > a:focus,
+section.facsimile .nav-tabs > li.active > a:focus,
 section.edition .nav-tabs > li.active > a:focus,
 section.apparatus .nav-tabs > li.active > a:focus,
 section.translation .nav-tabs > li.active > a:focus,
@@ -1159,13 +1171,15 @@ section.apparatus .nav-tabs > li.active > a:focus,
 section.commentary .nav-tabs > li.active > a:focus,
 section.bibliography .nav-tabs > li.active > a:focus,
 #metadata-panel .nav-tabs > li.active > a:hover,
+section.map .nav-tabs > li.active > a:hover,
+section.facsimile .nav-tabs > li.active > a:hover,
 section.edition .nav-tabs > li.active > a:hover,
 section.apparatus .nav-tabs > li.active > a:hover,
 section.translation .nav-tabs > li.active > a:hover,
 section.apparatus .nav-tabs > li.active > a:hover,
 section.commentary .nav-tabs > li.active > a:hover,
 section.bibliography .nav-tabs > li.active > a:hover {
-  color: #607D8B !important;
+  color: #607d8b !important;
   cursor: default !important;
   background-color: #fff !important;
   border: 1px solid #d1dae0 !important;
@@ -1173,6 +1187,8 @@ section.bibliography .nav-tabs > li.active > a:hover {
   border-bottom-color: transparent !important;
 }
 #metadata-panel .nav-tabs > li > a,
+section.map .nav-tabs > li > a,
+section.facsimile .nav-tabs > li > a,
 section.edition .nav-tabs > li > a,
 section.apparatus .nav-tabs > li > a,
 section.translation .nav-tabs > li > a,
@@ -1185,6 +1201,8 @@ section.bibliography .nav-tabs > li > a {
   border-radius: 4px 4px 0 0;
 }
 #metadata-panel .nav > li > a,
+section.map .nav > li > a,
+section.facsimile .nav > li > a,
 section.edition .nav > li > a,
 section.apparatus .nav > li > a,
 section.translation .nav > li > a,
@@ -1196,6 +1214,8 @@ section.bibliography .nav > li > a {
   padding: 10px 15px;
 }
 #metadata-panel .tab-content,
+section.map .tab-content,
+section.facsimile .tab-content,
 section.edition .tab-content,
 section.apparatus .tab-content,
 section.translation .tab-content,
@@ -1205,6 +1225,8 @@ section.bibliography .tab-content {
   margin-top: 1.5em;
 }
 #metadata-panel .panel,
+section.map .panel,
+section.facsimile .panel,
 section.edition .panel,
 section.apparatus .panel,
 section.translation .panel,
@@ -1218,6 +1240,8 @@ section .bibliography .panel {
   margin-bottom: 20px;
 }
 #metadata-panel .panel hr,
+section.map .panel hr,
+section.facsimile .panel hr,
 section.edition .panel hr,
 section.apparatus .panel hr,
 section.translation .panel hr,
@@ -1232,6 +1256,8 @@ section .bibliography .panel hr {
   top: -0.3em;
 }
 #metadata-panel .panel.panel-default > .panel-heading,
+section.map .panel.panel-default > .panel-heading,
+section.facsimile .panel.panel-default > .panel-heading,
 section.edition .panel.panel-default > .panel-heading,
 section.apparatus .panel.panel-default > .panel-heading,
 section.translation .panel.panel-default > .panel-heading,
@@ -1241,6 +1267,8 @@ section .bibliography .panel.panel-default > .panel-heading {
   background-color: white;
 }
 #metadata-panel .panel.panel-default > .panel,
+section.map .panel.panel-default > .panel,
+section.facsimile .panel.panel-default > .panel,
 section.edition .panel.panel-default > .panel,
 section.apparatus .panel.panel-default > .panel,
 section.translation .panel.panel-default > .panel,
@@ -1253,6 +1281,8 @@ section .bibliography .panel.panel-default > .panel {
   box-shadow: none;
 }
 #metadata-panel .panel-heading,
+section.map .panel-heading,
+section.facsimile .panel-heading,
 section.edition .panel-heading,
 section.apparatus .panel-heading,
 section.translation .panel-heading,
@@ -1263,6 +1293,8 @@ section .bibliography .panel-heading {
   border: 0;
 }
 #metadata-panel .panel-body,
+section.map .panel-body,
+section.facsimile .panel-body,
 section.edition .panel-body,
 section.apparatus .panel-body,
 section.translation .panel-body,
@@ -1498,7 +1530,7 @@ h3.popover-title i {
   /* adjust as needed */
   color: grey;
   /* adjust as needed */
-  color: #607D8B;
+  color: #607d8b;
 }
 .panel-heading .accordion-toggle.collapsed:after,
 .nav-tabs-wrapper .accordion-toggle.collapsed:after {

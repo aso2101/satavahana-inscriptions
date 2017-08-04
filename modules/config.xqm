@@ -360,5 +360,5 @@ declare variable $config:bibliography-masterfile := "EIAD_bibliography.xml";
 (:~
  : Prefix for the bibliography references (in bibl/ptr/@target)
  :)
-declare variable $config:bibliography-prefix := "eiad-bibl";
+declare variable $config:bibliography-prefix := "bibl";
 declare variable $config:bibliography-prefix-separator := ":";

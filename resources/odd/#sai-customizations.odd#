@@ -315,14 +315,111 @@
 					</modelSequence>
 					</model>
 				</elementSpec>
+    
+				<elementSpec mode="change" ident="div">
+					<attList>
+						<attDef ident="type" mode="replace" usage="req">
+							<valList type="closed">
+								<valItem ident="apparatus">
+									<desc>to contain apparatus criticus or textual notes</desc>
+								</valItem>
+								<valItem ident="bibliography">
+									<desc>to contain bibliographical information, previous publications, etc.</desc>
+								</valItem>
+								<valItem ident="commentary">
+									<desc>to contain all editorial commentary, historical/prosopographical discussion, etc.</desc>
+								</valItem>
+								<valItem ident="edition">
+									<desc>to contain the text of the edition itself; may include multiple text-parts</desc>
+								</valItem>
+								<valItem ident="textpart">
+									<desc>used to divide a div[type=edition] into multiple parts (fragments, columns, faces, etc.)</desc>
+								</valItem>
+								<valItem ident="translation">
+									<desc>to contain a translation of the text into one or more modern languages</desc>
+								</valItem>
+							</valList>
+						</attDef>
+					</attList>
+					<!-- texpart -->
+					<model predicate="@type='textpart'" behaviour="block" cssClass="texpart">
+						<modelSequence>
+							<model behaviour="block" cssClass="textpart-label">
+								<param name="content">concat(upper-case(substring(@n,1,1)),substring(@n,2))</param>
+							</model>
+							<model behaviour="block"/>
+						</modelSequence>
+					</model>
+					<model predicate="@type='textpart'" behaviour="block" cssClass="textpart"/>
+					<!-- bibliography -->
+					<modelSequence predicate="@type='bibliography'">
+						<model predicate="listBibl" behaviour="heading">
+							<param name="level">3</param>
+							<param name="content">'Secondary bibliography'</param>
+						</model>
+						<model behaviour="section" cssClass="bibliography-secondary">
+							<param name="content">listBibl</param>
+						</model>
+					</modelSequence>
+					<!-- translation -->
+					<modelSequence predicate="@type='translation' and *[text()[normalize-space(.)]]">
+						<model behaviour="heading">
+							<param name="level">3</param>
+							<param name="content"> let $plural := if (count(ab) &gt; 1) then 's' else () return concat(upper-case(substring(@type,1,1)),substring(@type,2),$plural) </param>
+						</model>
+						<model behaviour="section" cssClass="translation"/>
+					</modelSequence>
+					<!-- edition -->
+					<model predicate="@type='edition'" class="edition" behaviour="section">
+						<cssClass>@type</cssClass>
+						<outputRendition>padding: 1em 0; </outputRendition>
+						<model predicate="div[@type='textpart']" behaviour="block">
+							<cssClass>@type</cssClass>
+						</model>
+						<model behaviour="block" cssClass="diveditionnormal"/>
+					</model>
+					<!-- apparatus -->
+					<modelSequence predicate="@type='apparatus'">
+						<model behaviour="separator">
+							<param name="content" value="''"/>
+							<cssClass>'apparatus-sep'</cssClass>
+						</model>
+						<model behaviour="section">
+							<cssClass>@type</cssClass>
+							<outputRendition>padding: 1em 0; </outputRendition>
+						</model>
+					</modelSequence>
+					<!-- commentary -->
+					<modelSequence predicate="@type='commentary' and not(p ='' or listApp/* ='')">
+						<model behaviour="heading">
+							<param name="level">3</param>
+							<param name="content">concat(upper-case(substring(@type,1,1)),substring(@type,2))</param>
+							<cssClass>@type</cssClass>
+						</model>
+						<model behaviour="section">
+							<cssClass>@type</cssClass>
+							<outputRendition>padding: 1em 0; </outputRendition>
+						</model>
+					</modelSequence>
+				</elementSpec>
 
                 <elementSpec mode="change" ident="facsimile">
                     <model predicate="$parameters?modal='true'" behaviour="image-modals">
                     	<param name="images">graphic</param>
                     </model>
-					<model behaviour="section-collapsible" cssClass="facsimile">
-					    <param name="id">'facsimile'</param>
-					    <param name="button-title">'Facsimiles'</param>
+					<modelSequence>
+					    <model behaviour="heading">
+							<param name="level">3</param>
+							<param name="content">'Facsimiles '</param>
+						</model>
+						<model behaviour="images">
+							<param name="content">graphic</param>
+						</model>
+					</modelSequence>
+				</elementSpec>
+                <elementSpec mode="change" ident="graphic">
+					<model behaviour="graphic">
+						<param name="url">@url</param>
 					</model>
 				</elementSpec>
 				<elementSpec mode="change" ident="fileDesc">
@@ -334,71 +431,71 @@
 							<param name="content" value="titleStmt"/>
 						</model>
 					</modelSequence>
-    				<model behaviour="dl" output="web">
+					<model behaviour="dl" output="web">
 						<modelSequence>
 							<modelSequence>
+								<model behaviour="heading">
+									<param name="level">3</param>
+									<param name="content">'Metadata '</param>
+								</model>
 								<model behaviour="dt">
-									<param name="content" value="'Support '"/>
+									<param name="content">'Support '</param>
 								</model>
 								<model behaviour="dd">
 									<modelSequence>
 										<model behaviour="inline">
-											<param name="content" value="sourceDesc/msDesc/physDesc/objectDesc/supportDesc/support"/>
+											<param name="content">sourceDesc/msDesc/physDesc/objectDesc/supportDesc/support</param>
 											<outputRendition scope="after">content: ' ';</outputRendition>
 										</model>
 										<model behaviour="inline">
-											<param name="content" value="sourceDesc/msDesc/physDesc/decoDesc"/>
+											<param name="content">sourceDesc/msDesc/physDesc/decoDesc </param>
 										</model>
 									</modelSequence>
 								</model>
 								<model behaviour="dt">
-									<param name="content" value="'Text '"/>
+									<param name="content">'Text '</param>
 								</model>
 								<model behaviour="dd">
 									<modelSequence>
 										<model behaviour="inline">
-											<param name="content" value="sourceDesc/msDesc/msContents/msItem/textLang"/>
+											<param name="content">sourceDesc/msDesc/msContents/msItem/textLang</param>
 											<outputRendition scope="after">content: ' ';</outputRendition>
 										</model>
 										<model behaviour="inline">
-											<param name="content" value="sourceDesc/msDesc/physDesc/objectDesc/layoutDesc/layout"/>
-											<outputRendition scope="after">content: ' ';</outputRendition>
-										</model>
-										<model behaviour="inline">
-											<param name="content" value="sourceDesc/msDesc/physDesc/handDesc"/>
+											<param name="content">sourceDesc/msDesc/physDesc/handDesc</param>
 											<outputRendition scope="after">content: ' ';</outputRendition>
 										</model>
 									</modelSequence>
 								</model>
 								<model predicate="sourceDesc/msDesc/history/origin/origDate[text()[normalize-space(.)]]" behaviour="dt">
-									<param name="content" value="'Date '"/>
+									<param name="content">'Date '</param>
 								</model>
 								<model predicate="sourceDesc/msDesc/history/origin/origDate[text()[normalize-space(.)]]" behaviour="dd">
+									<!--<param name="content">let $finale := if (ends-with(normalize-space(sourceDesc/msDesc/history/origin/origDate),'.')) then () else '. ' return
+										concat(sourceDesc/msDesc/history/origin/origDate,$finale)</param>-->
 									<param name="content" value="sourceDesc/msDesc/history/origin/origDate"/>
 								</model>
-								<model predicate="sourceDesc/msDesc/history/origin" behaviour="dt">
+								<model behaviour="dt">
 									<param name="content">'Origin '</param>
 								</model>
-								<model predicate="sourceDesc/msDesc/history/origin" behaviour="dd">
-									<param name="content" value="sourceDesc/msDesc/history/origin/origPlace"/>
+								<model behaviour="dd">
+									<model behaviour="inline">
+										<param name="content" value="sourceDesc/msDesc/history/origin/origPlace"/>
+									<!-- <param name="content">let $finale := if (ends-with(sourceDesc/msDesc/history/origin/origPlace,'.')) then () else '. ' return
+										concat(sourceDesc/msDesc/history/origin/origPlace,$finale)</param> !-->
+									</model>
 								</model>
-								<model predicate="sourceDesc/msDesc/history/provenance" behaviour="dt">
-									<param name="content" value="'Provenance'"/>
+								<model behaviour="dt">
+									<param name="content">'Provenance'</param>
 								</model>
-								<model predicate="sourceDesc/msDesc/history/provenance" behaviour="dd">
-									<param name="content" value="sourceDesc/msDesc/history/provenance"/>
+								<model behaviour="dd">
+									<param name="content">sourceDesc/msDesc/history/provenance</param>
 								</model>
-								<model predicate="sourceDesc/msDesc/additional//*[text()[normalize-space(.)]]" behaviour="dt">
-									<param name="content" value="'Visual Documentation'"/>
+								<model behaviour="dt">
+									<param name="content">'Visual Documentation'</param>
 								</model>
-								<model predicate="sourceDesc/msDesc/additional//*[text()[normalize-space(.)]]" behaviour="dd">
-									<param name="content" value="sourceDesc/msDesc/additional"/>
-								</model>
-								<model predicate="notesStmt/note[text()[normalize-space(.)]]" behaviour="dt">
-									<param name="content" value="'Note '"/>
-								</model>
-								<model predicate="notesStmt/note[text()[normalize-space(.)]]" behaviour="dd">
-									<param name="content" value="notesStmt"/>
+								<model behaviour="dd">
+									<param name="content">sourceDesc/msDesc/additional</param>
 								</model>
 								<model predicate="notesStmt/note[text()[normalize-space(.)]]" behaviour="dt">
 									<param name="content">'Note '</param>
@@ -407,34 +504,43 @@
 									<param name="content">notesStmt</param>
 								</model>
 								<model predicate="titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']" behaviour="dt">
-									<param name="content" value="'Editors '"/>
+									<param name="content">'Editors '</param>
 								</model>
 								<model predicate="titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']" behaviour="dd">
 									<desc>See elementSpec/@ident='editor' for details.</desc>
 									<!-- both @role=general and @role=contributor -->
 									<modelSequence predicate="titleStmt/editor[@role='general'] and titleStmt/editor[@role='contributor']">
 										<model behaviour="inline">
-											<param name="content" value="titleStmt/editor[@role='general']"/>
+											<param name="content">titleStmt/editor[@role='general']</param>
+										</model>
+										<model behaviour="inline" cssClass="textInline">
+											<param name="content" value="', with contributions by '"/>
 										</model>
 										<model behaviour="inline">
-											<param name="content" value="' with contributions by '"/>
+											<param name="content">titleStmt/editor[@role='contributor']</param>
 										</model>
-										<model behaviour="inline">
-											<param name="content" value="titleStmt/editor[@role='contributor']"/>
+										<model behaviour="inline" cssClass="textInline">
+											<param name="content" value="'. '"/>
 										</model>
 									</modelSequence>
 									<!-- only @role=general -->
 									<modelSequence predicate="titleStmt/editor[@role='general'] and not(titleStmt/editor[@role='contributor'])">
 										<model behaviour="inline">
-											<param name="content" value="titleStmt/editor[@role='general']"/>
+											<param name="content">titleStmt/editor[@role='general']</param>
+										</model>
+										<model behaviour="inline" cssClass="textInline">
+											<param name="content" value="'. '"/>
 										</model>
 									</modelSequence>
 									<!-- only @role=contributor -->
 									<modelSequence predicate="titleStmt/editor[@role='contributor'] and not(titleStmt/editor[@role='general'])">
 										<model behaviour="inline">
-											<param name="content" value="titleStmt/editor[@role='contributor']"/>
+											<param name="content">titleStmt/editor[@role='contributor']</param>
 										</model>
 									</modelSequence>
+									<model behaviour="inline" cssClass="textInline">
+										<param name="content" value="'. '"/>
+									</model>
 								</model>
 							</modelSequence>
 							<modelSequence predicate="../..//div[@type='bibliography']/p[text()[normalize-space(.)]]">
@@ -450,22 +556,6 @@
 					</model>
 					<model behaviour="title">
 						<param name="content" value="titleStmt"/>
-					</model>
-				</elementSpec>
-				<!-- G !-->
-				<!-- GRAPHIC !-->
-                <elementSpec mode="change" ident="graphic">
-					<model behaviour="graphic">
-						<param name="url">@url</param>
-					</model>
-				</elementSpec>
-				<!-- H !-->
-				<elementSpec mode="change" ident="hi">
-					<model predicate="@type='italic'" behaviour="inline">
-						<outputRendition>font-style: italic;</outputRendition>
-					</model>
-					<model predicate="@type='bold'" behaviour="inline">
-						<outputRendition>font-weight: bold;</outputRendition>
 					</model>
 				</elementSpec>
 				<!-- PERSNAME !-->
@@ -580,18 +670,6 @@
 					</modelSequence>
 				</elementSpec>
 				<!-- PTR !-->
-				<elementSpec mode="change" ident="ptr">
-					<model predicate="parent::bibl and @target" behaviour="make-bibl-link">
-						<param name="target" value="@target"/>
-					</model>
-					<model predicate="not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]" behaviour="resolve-pointer">
-						<param name="target" value="substring-after(@target,'#')"/>
-					</model>
-					<model predicate="not(text())" behaviour="link">
-						<param name="content" value="@target"/>
-						<param name="uri" value="@target"/>
-					</model>
-				</elementSpec>
 
 				<!-- ==== title ==== -->
 				<elementSpec mode="change" ident="title">

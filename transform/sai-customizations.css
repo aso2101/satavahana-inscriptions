@@ -23,9 +23,6 @@
 .tei-corr2:after { content: ']'; }
 .tei-del:before { content:"{{"; }
 .tei-del:after { content:"}}"; }
-.tei-div9 { padding: 1em 0; }
-.tei-div13 { padding: 1em 0; }
-.tei-div15 { padding: 1em 0; }
 .tei-docTitle { font-size: larger; }
 .tei-email { font-family:monospace }
 .tei-figDesc:before { content: '[..'; }
@@ -52,7 +49,7 @@
 .tei-head5 { font-weight: bold; }
 .tei-head6 { margin-left:-2em; margin-bottom:2em; }
 .tei-hi1 { font-style: italic; }
-.tei-hi2 { font-style: italic; }
+.tei-hi2 { font-weight: bold; }
 .tei-lg8 { color:green; }
 .tei-lg11 { color:green; }
 .tei-listBibl2:before { content:"Photo(s) of estampage(s): " }
@@ -95,7 +92,8 @@
 .tei-supplied4:before { content:"("; }
 .tei-supplied4:after { content:")"; }
 .tei-table { font-size: smaller; background-color: #F0F0F0; }
-.tei-fileDesc7:after { content: ' '; }
+.tei-fileDesc6:after { content: ' '; }
+.tei-fileDesc10:after { content: ' '; }
 .tei-fileDesc11:after { content: ' '; }
 .tei-fileDesc12:after { content: ' '; }
 .tei-term { font-family:"Noto Serif", serif; background-color:#e0f7fa; }

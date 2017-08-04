@@ -922,21 +922,28 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
 :)
 declare function app:map($node as node(), $model as map(*)) { 
     if(not(empty(app:dynamic-map-data($node, $model)))) then 
-        <div class="map panel panel-default">
-           <div class="panel-heading">
-               <h3 class="panel-title">Map<a class="pull-right" data-toggle="collapse" data-target="#map-panel" href="#" title="show/hide map">&#160;</a></h3>
-           </div>
-           <div class="panel-collapse collapse in" id="map-panel">
-               <div id="map"/>
-               <script type="text/javascript">
-                   L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
-                   var geojson = {smap:create-data(app:dynamic-map-data($node,$model))};
-                   var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
-               </script>
-               <script type="text/javascript" src="resources/scripts/map.js"/>
-               <ul id="marker-list"/>
-           </div>
-       </div>
+        
+    <section class="map">
+        <div class="panel panel-default">             
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#collapse-map-panel">Map</a><hr/>
+                </h4>
+            </div>
+            <div id="collapse-map-panel" class="panel-collapse collapse in">
+                 <div class="panel-body">                    
+                    <div id="map"/>
+                    <script type="text/javascript">
+                        L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
+                        var geojson = {smap:create-data(app:dynamic-map-data($node,$model))};
+                        var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
+                    </script>
+                    <script type="text/javascript" src="resources/scripts/map.js"/>
+                    <ul id="marker-list"/>
+                </div>
+            </div>
+        </div>
+    </section>
     else ()
 };
 
@@ -1199,4 +1206,25 @@ function app:navigation-title($node as node(), $model as map(*)) {
     return 
         <h3 class="text-center">{ $main-title } {$teispan} { $idspan }</h3>
         
+};
+
+
+declare function app:metadata-custom($node as element(),$model as map(*)) {
+    <div id="metadata-panel">
+        <section>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a class="accordion-toggle" data-toggle="collapse" href="#collapse-metadata">Metadata</a>
+                        <hr/>
+                    </h4>
+                </div>
+                <div id="collapse-metadata" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        {app:display-node($node,$model,"descendant::tei:fileDesc")}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 };

@@ -7,7 +7,7 @@ declare namespace tei = "http://www.tei-c.org/ns/1.0";
 declare namespace config = "http://www.tei-c.org/tei-simple/config";
 declare namespace pages="http://www.tei-c.org/tei-simple/pages";
 declare namespace functx2 = "http://www.hisoma.mom.fr/labs/functx2";
-import module namespace pmf = "http://www.hisoma.mom.fr/labs/epigraphy" at "ext-html.xql";
+import module namespace pmf = "http://www.tei-c.org/tei-simple/xquery/ext-html" at "ext-html.xql";
 
 
 (: FUNCTIONS SPECIFIC TO THE SĀTAVĀHANA INSCRIPTIONS
@@ -69,9 +69,19 @@ declare function sai:link($config as map(*), $node as element(), $class as xs:st
             replace($target,'pl:',concat($config:app-nav-base,'/place/'))            
             else concat($config:app-nav-base,'/inscription/',$target)
     return 							
-        <a href="{$link}" class="{$class}">{pmf:apply-children($config, $node, $content)}</a>
+        <a href="{$link}" class="{$class}" >{pmf:apply-children($config, $node, $content)}</a>
 };
- 
+
+declare function sai:make-bibl-link($config as map(*), $node as element(), $class as xs:string+, $target as xs:string?, $content) {
+    let $id := substring-after($target,$config:bibliography-prefix-separator)
+	let $ref := collection($config:bibl-authority-dir)//tei:biblStruct[@xml:id=$id]		
+    let $title-short := $ref//tei:title[@type='short'][1]/text()    
+    let $title-long := $ref//tei:title[not(@type='short')][1]
+    let $link := concat(concat($config:app-nav-base,'/bibliography/'),$target)
+    return 
+		<a href="{$link}" title="{$title-long}" class="refbibl">{$title-short}</a>
+};
+
 declare function sai:name-orthography($config as map(*), $node as element(), $content) {
     let $attested := $node/tei:persName[not(@type)][1]
     let $key := concat('pers:',string($node/@xml:id))

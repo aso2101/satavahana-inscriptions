@@ -232,6 +232,8 @@ h3.popover-title {
 
 
 #metadata-panel .nav-tabs,
+section.map .nav-tabs,
+section.facsimile .nav-tabs,
 section.edition .nav-tabs,
 section.apparatus .nav-tabs,
 section.translation .nav-tabs,
@@ -243,6 +245,8 @@ section .bibliography .nav-tabs {
 }
 
 #metadata-panel .nav-tabs > li,
+section.map .nav-tabs > li,
+section.facsimile .nav-tabs > li,
 section.edition .nav-tabs > li,
 section.apparatus .nav-tabs > li,
 section.translation .nav-tabs > li,
@@ -254,6 +258,8 @@ section .bibliography .nav-tabs > li {
 }
 
 #metadata-panel .nav > li, 
+section.map .nav > li,
+section.facsimile .nav > li,
 section.edition .nav > li,
 section.apparatus .nav > li,
 section.translation .nav > li,
@@ -264,17 +270,51 @@ section .bibliography .nav > li {
     display: block;
 }
 
-#metadata-panel .nav-tabs > li > a, section.edition .nav-tabs > li > a, section.apparatus .nav-tabs > li > a, section.translation .nav-tabs > li > a, section.apparatus .nav-tabs > li > a, section.commentary .nav-tabs > li > a, section.bibliography .nav-tabs > li > a,
-#metadata-panel .nav-tabs > li > a:focus, section.edition .nav-tabs > li > a:focus, section.apparatus .nav-tabs > li > a:focus, section.translation .nav-tabs > li > a:focus, section.apparatus .nav-tabs > li > a:focus, section.commentary .nav-tabs > li > a:focus, section.bibliography .nav-tabs > li > a:focus,
+#metadata-panel .nav-tabs > li > a, 
+section.map .nav-tabs > li > a,
+section.facsimile .nav-tabs > li > a,
+section.edition .nav-tabs > li > a,
+section.apparatus .nav-tabs > li > a,
+section.translation .nav-tabs > li > a,
+section.apparatus .nav-tabs > li > a,
+section.commentary .nav-tabs > li > a, 
+ection.bibliography .nav-tabs > li > a,
+#metadata-panel .nav-tabs > li > a:focus,
+section.edition .nav-tabs > li > a:focus,
+section.apparatus .nav-tabs > li > a:focus, section.translation .nav-tabs > li > a:focus, section.apparatus .nav-tabs > li > a:focus, section.commentary .nav-tabs > li > a:focus, section.bibliography .nav-tabs > li > a:focus,
 #metadata-panel .nav-tabs > li > a:hover, section.edition .nav-tabs > li > a:hover, section.apparatus .nav-tabs > li > a:hover, section.translation .nav-tabs > li > a:hover, section.apparatus .nav-tabs > li > a:hover, section.commentary .nav-tabs > li > a:hover, section.bibliography .nav-tabs > li > a:hover {
     background-color: transparent !important;
     color: @color-primary-light !important;
 }
 
 
-#metadata-panel .nav-tabs > li.active > a, section.edition .nav-tabs > li.active > a, section.apparatus .nav-tabs > li.active > a, section.translation .nav-tabs > li.active > a, section.apparatus .nav-tabs > li.active > a, section.commentary .nav-tabs > li.active > a, section.bibliography .nav-tabs > li.active > a,
-#metadata-panel .nav-tabs > li.active > a:focus, section.edition .nav-tabs > li.active > a:focus, section.apparatus .nav-tabs > li.active > a:focus, section.translation .nav-tabs > li.active > a:focus, section.apparatus .nav-tabs > li.active > a:focus, section.commentary .nav-tabs > li.active > a:focus, section.bibliography .nav-tabs > li.active > a:focus,
-#metadata-panel .nav-tabs > li.active > a:hover, section.edition .nav-tabs > li.active > a:hover, section.apparatus .nav-tabs > li.active > a:hover, section.translation .nav-tabs > li.active > a:hover, section.apparatus .nav-tabs > li.active > a:hover, section.commentary .nav-tabs > li.active > a:hover, section.bibliography .nav-tabs > li.active > a:hover {
+#metadata-panel .nav-tabs > li.active > a,
+section.facsimile .nav-tabs > li.active > a,
+section.map .nav-tabs > li.active > a,
+section.edition .nav-tabs > li.active > a,
+section.apparatus .nav-tabs > li.active > a,
+section.translation .nav-tabs > li.active > a,
+section.apparatus .nav-tabs > li.active > a,
+section.commentary .nav-tabs > li.active > a,
+section.bibliography .nav-tabs > li.active > a,
+#metadata-panel .nav-tabs > li.active > a:focus,
+section.map .nav-tabs > li.active > a:focus,
+section.facsimile .nav-tabs > li.active > a:focus,
+section.edition .nav-tabs > li.active > a:focus, 
+section.apparatus .nav-tabs > li.active > a:focus,
+section.translation .nav-tabs > li.active > a:focus,
+section.apparatus .nav-tabs > li.active > a:focus,
+section.commentary .nav-tabs > li.active > a:focus,
+section.bibliography .nav-tabs > li.active > a:focus,
+#metadata-panel .nav-tabs > li.active > a:hover,
+section.map .nav-tabs > li.active > a:hover,
+section.facsimile .nav-tabs > li.active > a:hover,
+section.edition .nav-tabs > li.active > a:hover,
+section.apparatus .nav-tabs > li.active > a:hover,
+section.translation .nav-tabs > li.active > a:hover,
+section.apparatus .nav-tabs > li.active > a:hover,
+section.commentary .nav-tabs > li.active > a:hover,
+section.bibliography .nav-tabs > li.active > a:hover {
     color: @color-primary-light !important;
     cursor: default !important;
     background-color: #fff !important;
@@ -283,24 +323,50 @@ section .bibliography .nav > li {
     border-bottom-color: transparent !important;
 }
 
-#metadata-panel .nav-tabs > li > a, section.edition .nav-tabs > li > a, section.apparatus .nav-tabs > li > a, section.translation .nav-tabs > li > a, section.apparatus .nav-tabs > li > a, section.commentary .nav-tabs > li > a, section.bibliography .nav-tabs > li > a {
+#metadata-panel .nav-tabs > li > a,
+section.map .nav-tabs > li > a,
+section.facsimile .nav-tabs > li > a,
+section.edition .nav-tabs > li > a,
+section.apparatus .nav-tabs > li > a,
+section.translation .nav-tabs > li > a,
+section.apparatus .nav-tabs > li > a,
+section.commentary .nav-tabs > li > a,
+section.bibliography .nav-tabs > li > a {
     margin-right: 2px;
     line-height: 1.428571429;
     border: 1px solid transparent;
     border-radius: 4px 4px 0 0;
 }
 
-#metadata-panel .nav > li > a, section.edition .nav > li > a, section.apparatus .nav > li > a, section.translation .nav > li > a, section.apparatus .nav > li > a, section.commentary .nav > li > a, section.bibliography .nav > li > a {
+#metadata-panel .nav > li > a,
+section.map .nav > li > a,
+section.facsimile .nav > li > a,
+section.edition .nav > li > a,
+section.apparatus .nav > li > a,
+section.translation .nav > li > a,
+section.apparatus .nav > li > a,
+section.commentary .nav > li > a,
+section.bibliography .nav > li > a {
     position: relative;
     display: block;
     padding: 10px 15px;
 }
 
-#metadata-panel .tab-content, section.edition .tab-content, section.apparatus .tab-content, section.translation .tab-content, section.apparatus .tab-content, section.commentary .tab-content, section.bibliography .tab-content {
+#metadata-panel .tab-content,
+section.map .tab-content, 
+section.facsimile .tab-content, 
+section.edition .tab-content,
+section.apparatus .tab-content,
+section.translation .tab-content,
+section.apparatus .tab-content,
+section.commentary .tab-content,
+section.bibliography .tab-content {
     margin-top: 1.5em;
 }
 
 #metadata-panel .panel, 
+section.map .panel,
+section.facsimile .panel,
 section.edition .panel,
 section.apparatus .panel,
 section.translation .panel,
@@ -315,6 +381,8 @@ section .bibliography .panel {
 }
 
 #metadata-panel .panel hr, 
+section.map .panel hr,
+section.facsimile .panel hr,
 section.edition .panel hr,
 section.apparatus .panel hr,
 section.translation .panel hr,
@@ -330,6 +398,8 @@ section .bibliography .panel hr {
 }
 
 #metadata-panel .panel.panel-default > .panel-heading, 
+section.map .panel.panel-default > .panel-heading,
+section.facsimile .panel.panel-default > .panel-heading,
 section.edition .panel.panel-default > .panel-heading,
 section.apparatus .panel.panel-default > .panel-heading,
 section.translation .panel.panel-default > .panel-heading,
@@ -341,6 +411,8 @@ section .bibliography .panel.panel-default > .panel-heading {
 
 
 #metadata-panel .panel.panel-default > .panel, 
+section.map .panel.panel-default > .panel,
+section.facsimile .panel.panel-default > .panel,
 section.edition .panel.panel-default > .panel,
 section.apparatus .panel.panel-default > .panel,
 section.translation .panel.panel-default > .panel,
@@ -354,6 +426,8 @@ section .bibliography .panel.panel-default > .panel {
 }
 
 #metadata-panel .panel-heading, 
+section.map .panel-heading,
+section.facsimile .panel-heading,
 section.edition .panel-heading,
 section.apparatus .panel-heading,
 section.translation .panel-heading,
@@ -365,6 +439,8 @@ section .bibliography .panel-heading {
 }
 
 #metadata-panel .panel-body, 
+section.map .panel-body,
+section.facsimile .panel-body,
 section.edition .panel-body,
 section.apparatus .panel-body,
 section.translation .panel-body,
@@ -374,7 +450,6 @@ section .bibliography .panel-body {
     margin:0;
     padding:0;
 }
-
 
 #Physical > div > br:first-child { display:none };  
 

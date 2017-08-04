@@ -253,48 +253,33 @@ declare function model:apply($config as map(*), $input as node()*) {
 )
 )
                     else
-                        if (@type='textpart') then
-                            epub:block($config, ., ("tei-div4", "textpart"), .)
+                        if (@type='bibliography' and listBibl//*[text()[normalize-space(.)]]) then
+                            (: No function found for behavior: section-collapsible :)
+                            $config?apply($config, ./node())
                         else
-                            if (@type='bibliography') then
+                            if (@type='translation' and *[text()[normalize-space(.)]]) then
                                 (
-                                    if (listBibl) then
-                                        html:heading($config, ., ("tei-div5"), 'Secondary bibliography', 3)
-                                    else
-                                        (),
-                                    html:section($config, ., ("tei-div6", "bibliography-secondary"), listBibl)
+                                    (: No function found for behavior: section-collapsible :)
+                                    $config?apply($config, ./node())
                                 )
 
                             else
-                                if (@type='translation' and *[text()[normalize-space(.)]]) then
-                                    (
-                                        html:heading($config, ., ("tei-div7"),  let $plural := if (count(ab) > 1) then 's' else () return concat(upper-case(substring(@type,1,1)),substring(@type,2),$plural) , 3),
-                                        html:section($config, ., ("tei-div8", "translation"), .)
-                                    )
-
+                                if (@type='edition') then
+                                    (: No function found for behavior: section-collapsible-with-tabs :)
+                                    $config?apply($config, ./node())
                                 else
-                                    if (@type='edition') then
-                                        html:section($config, ., ("tei-div9", (@type)), if (div[@type='textpart']) then
-    epub:block($config, ., ("tei-div10", (@type)), .)
-else
-    epub:block($config, ., ("tei-div11", "diveditionnormal"), .))
+                                    if (@type='apparatus' and *//*[text()[normalize-space(.)]]) then
+                                        (: No function found for behavior: section-collapsible :)
+                                        $config?apply($config, ./node())
                                     else
-                                        if (@type='apparatus') then
+                                        if (@type='commentary' and *//*[text()[normalize-space(.)]]) then
                                             (
-                                                (: No function found for behavior: separator :)
-                                                $config?apply($config, ./node()),
-                                                html:section($config, ., ("tei-div13", (@type)), .)
+                                                (: No function found for behavior: section-collapsible :)
+                                                $config?apply($config, ./node())
                                             )
 
                                         else
-                                            if (@type='commentary' and not(p ='' or listApp/* ='')) then
-                                                (
-                                                    html:heading($config, ., ("tei-div14", (@type)), concat(upper-case(substring(@type,1,1)),substring(@type,2)), 3),
-                                                    html:section($config, ., ("tei-div15", (@type)), .)
-                                                )
-
-                                            else
-                                                $config?apply($config, ./node())
+                                            $config?apply($config, ./node())
                 case element(docAuthor) return
                     html:inline($config, ., ("tei-docAuthor"), .)
                 case element(docDate) return
@@ -519,10 +504,10 @@ else
                                                 else
                                                     $config?apply($config, ./node())
                 case element(hi) return
-                    if (@rendition) then
-                        html:inline($config, ., css:get-rendition(., ("tei-hi1")), .)
+                    if (@type='italic') then
+                        html:inline($config, ., ("tei-hi1"), .)
                     else
-                        if (not(@rendition)) then
+                        if (@type='bold') then
                             html:inline($config, ., ("tei-hi2"), .)
                         else
                             $config?apply($config, ./node())
@@ -1533,7 +1518,7 @@ else
                         $config?apply($config, ./node())
                 case element(ptr) return
                     if (parent::bibl and @target) then
-                        (: No function found for behavior: refbibl :)
+                        (: No function found for behavior: make-bibl-link :)
                         $config?apply($config, ./node())
                     else
                         if (not(parent::bibl) and not(text()) and @target[starts-with(.,'#')]) then
@@ -1633,12 +1618,8 @@ else
                         (: No function found for behavior: image-modals :)
                         $config?apply($config, ./node())
                     else
-                        (
-                            html:heading($config, ., ("tei-facsimile2"), 'Facsimiles ', 3),
-                            (: No function found for behavior: images :)
-                            $config?apply($config, ./node())
-                        )
-
+                        (: No function found for behavior: section-collapsible :)
+                        $config?apply($config, ./node())
                 case element(person) return
                     if (ancestor::listPerson) then
                         (
