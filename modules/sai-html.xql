@@ -77,7 +77,7 @@ declare function sai:make-bibl-link($config as map(*), $node as element(), $clas
 	let $ref := collection($config:bibl-authority-dir)//tei:biblStruct[@xml:id=$id]		
     let $title-short := $ref//tei:title[@type='short'][1]/text()    
     let $title-long := $ref//tei:title[not(@type='short')][1]
-    let $link := concat(concat($config:app-nav-base,'/bibliography/'),$target)
+    let $link := concat(concat($config:app-nav-base,'/bibliography/'),$id)
     return 
 		<a href="{$link}" title="{$title-long}" class="refbibl">{$title-short}</a>
 };
