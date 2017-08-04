@@ -487,7 +487,7 @@ else
                                                                                     else
                                                                                         $config?apply($config, ./node())
                 case element(graphic) return
-                    ext-html:graphic($config, ., ("tei-graphic"), @url)
+                    sai-html:graphic($config, ., ("tei-graphic"), @url)
                 case element(group) return
                     html:block($config, ., ("tei-group"), .)
                 case element(head) return
@@ -514,7 +514,7 @@ else
                                                 html:heading($config, ., ("tei-head7"), ., count(ancestor::div))
                                             else
                                                 if (parent::div and @n) then
-                                                    html:link($config, ., ("tei-head8"), ., @n)
+                                                    sai-html:link($config, ., ("tei-head8"), ., @n)
                                                 else
                                                     $config?apply($config, ./node())
                 case element(hi) return
@@ -708,14 +708,14 @@ else
                                                 html:text($config, ., ("tei-note6"), '. '),
                                                 html:inline($config, ., ("tei-note7"), .),
                                                 html:text($config, ., ("tei-note8"), ' '),
-                                                html:link($config, ., ("tei-note9"), 'See related item',  '?tabs=no&amp;odd=' || request:get-parameter('odd', ()) || '?' || ../relatedItem/ref/@target)
+                                                sai-html:link($config, ., ("tei-note9"), 'See related item',  '?tabs=no&amp;odd=' || request:get-parameter('odd', ()) || '?' || ../relatedItem/ref/@target)
                                             )
 
                                         else
                                             if (@type='url' and ancestor::biblStruct) then
                                                 (
                                                     html:text($config, ., ("tei-note10"), '. URL: <'),
-                                                    html:link($config, ., ("tei-note11"), ., ()),
+                                                    sai-html:link($config, ., ("tei-note11"), ., ()),
                                                     html:text($config, ., ("tei-note12"), '>')
                                                 )
 
@@ -838,12 +838,12 @@ else
                                 html:inline($config, ., ("tei-ref3"), bibl/ptr)
                             else
                                 if (starts-with(@target, concat('#', $config:project-code))) then
-                                    html:link($config, ., ("tei-ref4"), ., substring-after(@target,'#') || '.xml' || '?odd='|| request:get-parameter('odd', ()))
+                                    sai-html:link($config, ., ("tei-ref4"), ., substring-after(@target,'#') || '.xml' || '?odd='|| request:get-parameter('odd', ()))
                                 else
                                     if (not(@target)) then
                                         html:inline($config, ., ("tei-ref5"), .)
                                     else
-                                        html:link($config, ., ("tei-ref6"), @target, @target)
+                                        sai-html:link($config, ., ("tei-ref6"), @target, @target)
                 case element(reg) return
                     if (@type='popular') then
                         (
@@ -990,57 +990,56 @@ else
         else
             (),
         ext-html:dt($config, ., ("tei-fileDesc15"), 'Origin '),
-        ext-html:dd($config, ., ("tei-fileDesc16"), let $finale := if (ends-with(sourceDesc/msDesc/history/origin/origPlace,'.')) then () else '. ' return
-										concat(sourceDesc/msDesc/history/origin/origPlace,$finale)),
-        ext-html:dt($config, ., ("tei-fileDesc17"), 'Provenance'),
-        ext-html:dd($config, ., ("tei-fileDesc18"), sourceDesc/msDesc/history/provenance),
-        ext-html:dt($config, ., ("tei-fileDesc19"), 'Visual Documentation'),
-        ext-html:dd($config, ., ("tei-fileDesc20"), sourceDesc/msDesc/additional),
+        ext-html:dd($config, ., ("tei-fileDesc16"), html:inline($config, ., ("tei-fileDesc17"), sourceDesc/msDesc/history/origin/origPlace)),
+        ext-html:dt($config, ., ("tei-fileDesc18"), 'Provenance'),
+        ext-html:dd($config, ., ("tei-fileDesc19"), sourceDesc/msDesc/history/provenance),
+        ext-html:dt($config, ., ("tei-fileDesc20"), 'Visual Documentation'),
+        ext-html:dd($config, ., ("tei-fileDesc21"), sourceDesc/msDesc/additional),
         if (notesStmt/note[text()[normalize-space(.)]]) then
-            ext-html:dt($config, ., ("tei-fileDesc21"), 'Note ')
+            ext-html:dt($config, ., ("tei-fileDesc22"), 'Note ')
         else
             (),
         if (notesStmt/note[text()[normalize-space(.)]]) then
-            ext-html:dd($config, ., ("tei-fileDesc22"), notesStmt)
+            ext-html:dd($config, ., ("tei-fileDesc23"), notesStmt)
         else
             (),
         if (titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']) then
-            ext-html:dt($config, ., ("tei-fileDesc23"), 'Editors ')
+            ext-html:dt($config, ., ("tei-fileDesc24"), 'Editors ')
         else
             (),
         if (titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']) then
             (: See elementSpec/@ident='editor' for details. :)
-            ext-html:dd($config, ., ("tei-fileDesc24"), if (titleStmt/editor[@role='general'] and titleStmt/editor[@role='contributor']) then
+            ext-html:dd($config, ., ("tei-fileDesc25"), if (titleStmt/editor[@role='general'] and titleStmt/editor[@role='contributor']) then
     (
-        html:inline($config, ., ("tei-fileDesc25"), titleStmt/editor[@role='general']),
-        html:inline($config, ., ("tei-fileDesc26", "textInline"), ', with contributions by '),
-        html:inline($config, ., ("tei-fileDesc27"), titleStmt/editor[@role='contributor']),
-        html:inline($config, ., ("tei-fileDesc28", "textInline"), '. ')
+        html:inline($config, ., ("tei-fileDesc26"), titleStmt/editor[@role='general']),
+        html:inline($config, ., ("tei-fileDesc27", "textInline"), ', with contributions by '),
+        html:inline($config, ., ("tei-fileDesc28"), titleStmt/editor[@role='contributor']),
+        html:inline($config, ., ("tei-fileDesc29", "textInline"), '. ')
     )
 
 else
     if (titleStmt/editor[@role='general'] and not(titleStmt/editor[@role='contributor'])) then
         (
-            html:inline($config, ., ("tei-fileDesc29"), titleStmt/editor[@role='general']),
-            html:inline($config, ., ("tei-fileDesc30", "textInline"), '. ')
+            html:inline($config, ., ("tei-fileDesc30"), titleStmt/editor[@role='general']),
+            html:inline($config, ., ("tei-fileDesc31", "textInline"), '. ')
         )
 
     else
         if (titleStmt/editor[@role='contributor'] and not(titleStmt/editor[@role='general'])) then
             (
-                html:inline($config, ., ("tei-fileDesc31"), titleStmt/editor[@role='contributor'])
+                html:inline($config, ., ("tei-fileDesc32"), titleStmt/editor[@role='contributor'])
             )
 
         else
-            html:inline($config, ., ("tei-fileDesc32", "textInline"), '. '))
+            html:inline($config, ., ("tei-fileDesc33", "textInline"), '. '))
         else
             ()
     )
 ,
     if (../..//div[@type='bibliography']/p[text()[normalize-space(.)]]) then
         (
-            ext-html:dt($config, ., ("tei-fileDesc33"), 'Publication history'),
-            ext-html:dd($config, ., ("tei-fileDesc34"), ../..//div[@type='bibliography']/p)
+            ext-html:dt($config, ., ("tei-fileDesc34"), 'Publication history'),
+            ext-html:dd($config, ., ("tei-fileDesc35"), ../..//div[@type='bibliography']/p)
         )
 
     else
@@ -1230,7 +1229,7 @@ else
                     if (not(analytic/title[@level='a']) and relatedItem[@type='reviewOf']) then
                         (
                             (: When it is a review of another bibliographic entry: so there's is no analytic/title[@level='a']. :)
-                            html:link($config, ., ("tei-biblStruct11"), relatedItem/ref, ()),
+                            sai-html:link($config, ., ("tei-biblStruct11"), relatedItem/ref, ()),
                             html:text($config, ., ("tei-biblStruct12"), ', ')
                         )
 
@@ -1545,7 +1544,7 @@ else
                             else
                                 (),
                             if (starts-with(@resp,'#')) then
-                                html:link($config, ., ("tei-lem6"), substring-after(@resp,'#'),  '?odd=' || request:get-parameter('odd', ()) || '&amp;view=' || request:get-parameter('view', ()) || '&amp;id='|| @resp)
+                                sai-html:link($config, ., ("tei-lem6"), substring-after(@resp,'#'),  '?odd=' || request:get-parameter('odd', ()) || '&amp;view=' || request:get-parameter('view', ()) || '&amp;id='|| @resp)
                             else
                                 (),
                             if (not(following-sibling::*[1][local-name() = ('rdg', 'note')]) or (@source or @rend)) then
@@ -1580,7 +1579,7 @@ else
                     html:inline($config, ., ("tei-objectDesc"), .)
                 case element(persName) return
                     if (ancestor::div[@type]) then
-                        ext-html:link2($config, ., ("tei-persName1"), ., ())
+                        sai-html:link($config, ., ("tei-persName1"), ., ())
                     else
                         if (ancestor::person and @type) then
                             html:inline($config, ., ("tei-persName2"), .)
@@ -1605,7 +1604,7 @@ else
                             $config?apply($config, ./node())
                         else
                             if (not(text())) then
-                                html:link($config, ., ("tei-ptr3"), @target, ())
+                                sai-html:link($config, ., ("tei-ptr3"), @target, ())
                             else
                                 $config?apply($config, ./node())
                 case element(rdg) return
@@ -1686,18 +1685,18 @@ else
                 case element(titleStmt) return
                     if ($parameters?header='short') then
                         (
-                            html:link($config, ., ("tei-titleStmt3"), title[1], $parameters?doc)
+                            sai-html:link($config, ., ("tei-titleStmt3"), title[1], $parameters?doc)
                         )
 
                     else
                         html:block($config, ., ("tei-titleStmt4"), .)
                 case element(facsimile) return
                     if ($parameters?modal='true') then
-                        ext-html:image-modals($config, ., ("tei-facsimile1"), graphic)
+                        sai-html:image-modals($config, ., ("tei-facsimile1"), graphic)
                     else
                         (
                             html:heading($config, ., ("tei-facsimile2"), 'Facsimiles ', 3),
-                            ext-html:images($config, ., ("tei-facsimile3"), graphic)
+                            sai-html:images($config, ., ("tei-facsimile3"), graphic)
                         )
 
                 case element(person) return
@@ -1767,18 +1766,10 @@ else
 
     else
         (),
-    if (residence) then
-        (
-            ext-html:dt($config, ., ("tei-person19"), 'Residence: '),
-            sai-html:state-or-trait($config, ., ("tei-person20"), residence)
-        )
-
-    else
-        (),
     if (occupation) then
         (
-            ext-html:dt($config, ., ("tei-person21"), 'Occupation: '),
-            sai-html:state-or-trait($config, ., ("tei-person22"), occupation)
+            ext-html:dt($config, ., ("tei-person19"), 'Occupation: '),
+            sai-html:state-or-trait($config, ., ("tei-person20"), occupation)
         )
 
     else
@@ -1794,8 +1785,8 @@ else
                     else
                         $config?apply($config, ./node())
                 case element(placeName) return
-                    if (ancestor::div[@type]) then
-                        ext-html:link2($config, ., ("tei-placeName"), ., ())
+                    if (ancestor::div[@type] or ancestor::origPlace) then
+                        sai-html:link($config, ., ("tei-placeName"), ., ())
                     else
                         $config?apply($config, ./node())
                 case element(exist:match) return

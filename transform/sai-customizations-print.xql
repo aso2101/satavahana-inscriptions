@@ -954,7 +954,7 @@ else
                         )
 
                     else
-                        fo:title($config, ., ("tei-fileDesc35"), titleStmt)
+                        fo:title($config, ., ("tei-fileDesc36"), titleStmt)
                 case element(profileDesc) return
                     fo:omit($config, ., ("tei-profileDesc"), .)
                 case element(revisionDesc) return
@@ -1487,8 +1487,7 @@ else
                     fo:inline($config, ., ("tei-objectDesc"), .)
                 case element(persName) return
                     if (ancestor::div[@type]) then
-                        (: No function found for behavior: link2 :)
-                        $config?apply($config, ./node())
+                        fo:link($config, ., ("tei-persName1"), ., ())
                     else
                         if (ancestor::person and @type) then
                             fo:inline($config, ., ("tei-persName2"), .)
@@ -1625,9 +1624,8 @@ else
                     else
                         $config?apply($config, ./node())
                 case element(placeName) return
-                    if (ancestor::div[@type]) then
-                        (: No function found for behavior: link2 :)
-                        $config?apply($config, ./node())
+                    if (ancestor::div[@type] or ancestor::origPlace) then
+                        fo:link($config, ., ("tei-placeName"), ., ())
                     else
                         $config?apply($config, ./node())
                 case element() return

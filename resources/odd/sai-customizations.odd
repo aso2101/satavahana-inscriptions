@@ -479,8 +479,11 @@
 									<param name="content">'Origin '</param>
 								</model>
 								<model behaviour="dd">
-									<param name="content">let $finale := if (ends-with(sourceDesc/msDesc/history/origin/origPlace,'.')) then () else '. ' return
-										concat(sourceDesc/msDesc/history/origin/origPlace,$finale)</param>
+									<model behaviour="inline">
+										<param name="content" value="sourceDesc/msDesc/history/origin/origPlace"/>
+									<!-- <param name="content">let $finale := if (ends-with(sourceDesc/msDesc/history/origin/origPlace,'.')) then () else '. ' return
+										concat(sourceDesc/msDesc/history/origin/origPlace,$finale)</param> !-->
+									</model>
 								</model>
 								<model behaviour="dt">
 									<param name="content">'Provenance'</param>
@@ -557,7 +560,7 @@
 				</elementSpec>
 				<!-- PERSNAME !-->
                 <elementSpec mode="change" ident="persName">
-                    <model predicate="ancestor::div[@type]" behaviour="link2"/>
+                    <model predicate="ancestor::div[@type]" behaviour="link"/>
                     <model predicate="ancestor::person and @type" behaviour="inline">
                         <outputRendition>opacity:0.8;</outputRendition>
                     </model>
@@ -650,7 +653,7 @@
 				</elementSpec>
 				<!-- PLACENAME !-->
                 <elementSpec mode="change" ident="placeName">
-                    <model predicate="ancestor::div[@type]" behaviour="link2"/>
+                    <model predicate="ancestor::div[@type] or ancestor::origPlace" behaviour="link"/>
 				</elementSpec>
 				<elementSpec mode="change" ident="rdg">
 					<modelSequence predicate="ancestor::listApp">
@@ -666,7 +669,7 @@
 						</model>
 					</modelSequence>
 				</elementSpec>
-				
+				<!-- PTR !-->
 
 				<!-- ==== title ==== -->
 				<elementSpec mode="change" ident="title">
