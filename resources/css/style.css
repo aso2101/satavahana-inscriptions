@@ -1579,11 +1579,6 @@ h3.popover-title i {
   width: 71%;
   width: 85%;
 }
-.container {
-  Margin-top: 45vh;
-  display: flex;
-  justify-content: center;
-}
 .popover,
 .tooltip-inner {
   line-height: 2em;
