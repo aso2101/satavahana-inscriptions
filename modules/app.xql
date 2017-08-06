@@ -763,12 +763,12 @@ function app:browse-display-hits($node as node()*, $model as map(*), $start as x
  : @param $per-page default 10
 :)
 declare function app:browse-hits($node as node()*, $model as map(*)) {
-    for $key in distinct-values($model("hits")//descendant::tei:origPlace/tei:placeName/@key)
+    for $key in distinct-values($model("hits")//descendant::tei:origPlace/tei:placeName[1]/@key)
     let $name := 
         if (contains($key,'pl:')) then substring-after($key,'pl:')
         else $key
     let $id := xs:NCName($name)
-    let $inscriptions := $model("hits")[descendant::tei:placeName[@key = $key]]
+    let $inscriptions := $model("hits")[descendant::tei:origPlace/tei:placeName[1][@key = $key]]
     order by $name
     return 
      <div id="place-{$key}">
@@ -801,7 +801,7 @@ declare function app:view-hits($inscriptions, $placeId){
                 for $i in $inscriptions
                 let $id := string($i//@xml:id[1])
                 let $title := $i/descendant::tei:title[1]/text()
-                let $type := $i/descendant::tei:profileDesc/tei:textClass/tei:keywords/tei:term/text()
+                let $type := string-join($i/descendant::tei:profileDesc/tei:textClass/tei:keywords/tei:term,', ')
                 let $lang := app:translate-lang(string($i/descendant::tei:div[@type='edition'][1]/@xml:lang))
                 let $date-text := $i/descendant::tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/text()
                 (: Deal with dates for sorting... if notBefore... :)
