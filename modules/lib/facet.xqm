@@ -170,10 +170,17 @@ declare function facet:facet-filter($facet-definitions as node()*)  as item()*{
                              else $facet/descendant::facet:sub-path/text()
                 return 
                 if($facet-value != '') then 
+<<<<<<< HEAD
                     if($facet-name = 'Type') then
                         if($facet-value = 'iFound') then
                             '[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]'
                         else if($facet-value = 'iMentioned') then
+=======
+                    if($facet-name = 'Type') then 
+                        if($facet-value = 'iFound') then
+                            '[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]'
+                        else if($facet-value = 'iMentioned') then 
+>>>>>>> 1eee32285665ead9359f35d701251584f63dad71
                             '[descendant::tei:div[@type="edition"]/descendant::tei:placeName/@key]'
                         else ()
                     else if($facet/facet:range) then
@@ -236,7 +243,11 @@ declare function facet:lang-type($results as item()*, $facet-definitions as elem
 declare function facet:places-found($results as item()*, $facet-definitions as element(facet:facet-definition)?) as element(facet:key)*{
     let $found := $results[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]
     let $mentioned := $results[descendant::tei:div[@type='edition']/descendant::tei:placeName/@key]
+<<<<<<< HEAD
     return
+=======
+    return 
+>>>>>>> 1eee32285665ead9359f35d701251584f63dad71
         (<key xmlns="http://expath.org/ns/facet" count="{count($found)}" value="iFound" label="Places Where Inscriptions Are Found"/>,
         <key xmlns="http://expath.org/ns/facet" count="{count($mentioned)}" value="iMentioned" label="Places Mentioned in Inscriptions"/>)
 };
