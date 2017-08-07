@@ -1092,6 +1092,7 @@ h3.popover-title {
 */
 #metadata-panel .nav-tabs,
 section.map .nav-tabs,
+section.cust-collapse .nav-tabs,
 section.facsimile .nav-tabs,
 section.edition .nav-tabs,
 section.apparatus .nav-tabs,
@@ -1103,6 +1104,7 @@ section .bibliography .nav-tabs {
   border-bottom: 1px solid #d1dae0;
 }
 #metadata-panel .nav-tabs > li,
+section.cust-collapse .nav-tabs > li,
 section.map .nav-tabs > li,
 section.facsimile .nav-tabs > li,
 section.edition .nav-tabs > li,
@@ -1115,6 +1117,7 @@ section .bibliography .nav-tabs > li {
   margin-bottom: 0;
 }
 #metadata-panel .nav > li,
+section.cust-collapse .nav > li,
 section.map .nav > li,
 section.facsimile .nav > li,
 section.edition .nav > li,
@@ -1127,6 +1130,7 @@ section .bibliography .nav > li {
   display: block;
 }
 #metadata-panel .nav-tabs > li > a,
+section.cust-collapse > li > a,
 section.map .nav-tabs > li > a,
 section.facsimile .nav-tabs > li > a,
 section.edition .nav-tabs > li > a,
@@ -1153,6 +1157,7 @@ section.bibliography .nav-tabs > li > a:hover {
   color: #607d8b !important;
 }
 #metadata-panel .nav-tabs > li.active > a,
+section.cust-collapse > li.active > a,
 section.facsimile .nav-tabs > li.active > a,
 section.map .nav-tabs > li.active > a,
 section.edition .nav-tabs > li.active > a,
@@ -1162,6 +1167,7 @@ section.apparatus .nav-tabs > li.active > a,
 section.commentary .nav-tabs > li.active > a,
 section.bibliography .nav-tabs > li.active > a,
 #metadata-panel .nav-tabs > li.active > a:focus,
+section.cust-collapse > li.active > a:focus,
 section.map .nav-tabs > li.active > a:focus,
 section.facsimile .nav-tabs > li.active > a:focus,
 section.edition .nav-tabs > li.active > a:focus,
@@ -1171,6 +1177,7 @@ section.apparatus .nav-tabs > li.active > a:focus,
 section.commentary .nav-tabs > li.active > a:focus,
 section.bibliography .nav-tabs > li.active > a:focus,
 #metadata-panel .nav-tabs > li.active > a:hover,
+section.cust-collapse > li.active > a > hover,
 section.map .nav-tabs > li.active > a:hover,
 section.facsimile .nav-tabs > li.active > a:hover,
 section.edition .nav-tabs > li.active > a:hover,
@@ -1187,6 +1194,7 @@ section.bibliography .nav-tabs > li.active > a:hover {
   border-bottom-color: transparent !important;
 }
 #metadata-panel .nav-tabs > li > a,
+section.cust-collapse > li > a,
 section.map .nav-tabs > li > a,
 section.facsimile .nav-tabs > li > a,
 section.edition .nav-tabs > li > a,
@@ -1201,6 +1209,7 @@ section.bibliography .nav-tabs > li > a {
   border-radius: 4px 4px 0 0;
 }
 #metadata-panel .nav > li > a,
+section.cust-collapse .nav > li > a,
 section.map .nav > li > a,
 section.facsimile .nav > li > a,
 section.edition .nav > li > a,
@@ -1214,6 +1223,7 @@ section.bibliography .nav > li > a {
   padding: 10px 15px;
 }
 #metadata-panel .tab-content,
+section.cust-collapse .tab-content,
 section.map .tab-content,
 section.facsimile .tab-content,
 section.edition .tab-content,
@@ -1225,6 +1235,7 @@ section.bibliography .tab-content {
   margin-top: 1.5em;
 }
 #metadata-panel .panel,
+section.cust-collapse .panel,
 section.map .panel,
 section.facsimile .panel,
 section.edition .panel,
@@ -1240,6 +1251,7 @@ section .bibliography .panel {
   margin-bottom: 20px;
 }
 #metadata-panel .panel hr,
+section.cust-collapse .panel hr,
 section.map .panel hr,
 section.facsimile .panel hr,
 section.edition .panel hr,
@@ -1256,6 +1268,7 @@ section .bibliography .panel hr {
   top: -0.3em;
 }
 #metadata-panel .panel.panel-default > .panel-heading,
+section.cust-collapse .panel.panel-default > .panel-heading,
 section.map .panel.panel-default > .panel-heading,
 section.facsimile .panel.panel-default > .panel-heading,
 section.edition .panel.panel-default > .panel-heading,
@@ -1267,6 +1280,7 @@ section .bibliography .panel.panel-default > .panel-heading {
   background-color: white;
 }
 #metadata-panel .panel.panel-default > .panel,
+section.cust-collapse .panel.panel-default > .panel,
 section.map .panel.panel-default > .panel,
 section.facsimile .panel.panel-default > .panel,
 section.edition .panel.panel-default > .panel,
@@ -1281,6 +1295,7 @@ section .bibliography .panel.panel-default > .panel {
   box-shadow: none;
 }
 #metadata-panel .panel-heading,
+section.cust-collapse .panel-heading,
 section.map .panel-heading,
 section.facsimile .panel-heading,
 section.edition .panel-heading,
@@ -1293,6 +1308,7 @@ section .bibliography .panel-heading {
   border: 0;
 }
 #metadata-panel .panel-body,
+section.cust-collapse .panel-body,
 section.map .panel-body,
 section.facsimile .panel-body,
 section.edition .panel-body,

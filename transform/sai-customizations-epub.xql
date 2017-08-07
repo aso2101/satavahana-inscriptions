@@ -389,12 +389,12 @@ declare function model:apply($config as map(*), $input as node()*) {
                 case element(expan) return
                     html:inline($config, ., ("tei-expan"), .)
                 case element(figDesc) return
-                    html:inline($config, ., ("tei-figDesc"), .)
+                    epub:block($config, ., ("tei-figDesc", "text-center"), .)
                 case element(figure) return
-                    if (head or @rendition='simple:display') then
-                        epub:block($config, ., ("tei-figure1"), .)
+                    if (head) then
+                        html:figure($config, ., ("tei-figure1", "figure"), *[not(self::head)], head/node())
                     else
-                        html:inline($config, ., ("tei-figure2"), .)
+                        epub:block($config, ., ("tei-figure2", "figure", "text-center"), .)
                 case element(floatingText) return
                     epub:block($config, ., ("tei-floatingText"), .)
                 case element(foreign) return
@@ -473,7 +473,11 @@ declare function model:apply($config as map(*), $input as node()*) {
                                                                                     else
                                                                                         $config?apply($config, ./node())
                 case element(graphic) return
-                    html:graphic($config, ., ("tei-graphic"), ., @url, (), (), (), ())
+                    if (ancestor::listPlace) then
+                        html:graphic($config, ., ("tei-graphic1"), ., concat("/exist/apps/SAI-data/",@url), @width, @height, @scale, desc)
+                    else
+                        (: No function found for behavior: graphic-cust :)
+                        $config?apply($config, ./node())
                 case element(group) return
                     epub:block($config, ., ("tei-group"), .)
                 case element(head) return
@@ -758,13 +762,16 @@ else
                                             if (ancestor::div[@type='commentary']) then
                                                 html:paragraph($config, ., ("tei-p9"), .)
                                             else
-                                                if ($parameters?header='short') then
-                                                    html:omit($config, ., ("tei-p10"), .)
+                                                if (ancestor::desc) then
+                                                    html:paragraph($config, ., ("tei-p10"), .)
                                                 else
-                                                    if (parent::div[@type='bibliography']) then
+                                                    if ($parameters?header='short') then
                                                         html:omit($config, ., ("tei-p11"), .)
                                                     else
-                                                        epub:block($config, ., ("tei-p12"), .)
+                                                        if (parent::div[@type='bibliography']) then
+                                                            html:omit($config, ., ("tei-p12"), .)
+                                                        else
+                                                            epub:block($config, ., ("tei-p13"), .)
                 case element(pb) return
                     if (@type and $parameters?break='Physical') then
                         (: No function found for behavior: milestone :)
@@ -1620,6 +1627,14 @@ else
                     else
                         (: No function found for behavior: section-collapsible :)
                         $config?apply($config, ./node())
+                case element(geo) return
+                    epub:block($config, ., ("tei-geo"), .)
+                case element(listPlace) return
+                    if (@type='subsidiary') then
+                        (: No function found for behavior: section-collapsible :)
+                        $config?apply($config, ./node())
+                    else
+                        $config?apply($config, ./node())
                 case element(person) return
                     if (ancestor::listPerson) then
                         (
@@ -1637,11 +1652,43 @@ else
 
                     else
                         $config?apply($config, ./node())
+                case element(place) return
+                    if (ancestor::listPlace and not(ancestor::listPlace/ancestor::listPlace)) then
+                        (
+                            (: No function found for behavior: dl :)
+                            $config?apply($config, ./node())
+                        )
+
+                    else
+                        if (ancestor::listPlace) then
+                            (
+                                html:heading($config, ., ("tei-place8"), placeName, 4),
+                                epub:block($config, ., ("tei-place9"), desc)
+                            )
+
+                        else
+                            $config?apply($config, ./node())
                 case element(placeName) return
                     if (ancestor::div[@type] or ancestor::origPlace) then
-                        html:link($config, ., ("tei-placeName"), ., ())
+                        html:link($config, ., ("tei-placeName1"), ., ())
                     else
-                        $config?apply($config, ./node())
+                        if (@xml:lang and @type='modern' and following-sibling::*[1][local-name()='placeName'][@type='modern']) then
+                            (: No function found for behavior: name-with-language :)
+                            $config?apply($config, ./node())
+                        else
+                            if (@xml:lang and @type='modern') then
+                                (: No function found for behavior: name-with-language :)
+                                $config?apply($config, ./node())
+                            else
+                                if (@xml:lang and @type='ancient' and following-sibling::*[1][local-name()='placeName'][@type='ancient']) then
+                                    (: No function found for behavior: name-with-language :)
+                                    $config?apply($config, ./node())
+                                else
+                                    if (@xml:lang and @type='ancient') then
+                                        (: No function found for behavior: name-with-language :)
+                                        $config?apply($config, ./node())
+                                    else
+                                        $config?apply($config, ./node())
                 case element(exist:match) return
                     html:match($config, ., .)
                 case element() return

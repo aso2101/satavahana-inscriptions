@@ -529,7 +529,7 @@ declare function pmf:section($config as map(*), $node as element(), $class as xs
 declare function pmf:section-collapsible($config as map(*), $node as element(), $class as xs:string+, $id as xs:string, $button-title as xs:string?, $local-function as xs:string?, $content) {
     let $xml-edition := $node
     return
-    <section class="{$class}">
+    <section class="{$class} cust-collapse">
         <div class="panel panel-default">             
               { if ($button-title != '') then
               <div class="panel-heading">

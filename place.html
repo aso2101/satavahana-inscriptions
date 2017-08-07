@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <html data-template="pages:app-root">
     <head>
         <title data-template="config:app-title">App Title</title>
@@ -76,8 +77,9 @@
                                                 <!--#SAICustom - Include SAI maps -->
                                                 <!--<div data-template="pages:view" class="content"/>-->
                                                 <div class="content">
+                                                    <div data-template="app:section-custom" data-template-path="self::*" data-template-title="General information" class="content"/>
+                                                    <div data-template="app:display-node" data-template-path="descendant::tei:listPlace[@type='subsidiary']" class="content"/>
                                                     <div data-template="app:map"/>
-                                                    <div data-template="app:display-node" data-template-path="root()" class="content"/>
                                                     <div data-template="app:related-inscriptions"/>
                                                 </div>
                                             </div>

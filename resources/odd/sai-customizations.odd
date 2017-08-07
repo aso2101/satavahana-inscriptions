@@ -316,6 +316,7 @@
 					</model>
 				</elementSpec>
 
+                <!-- FACSIMILE !-->
                 <elementSpec mode="change" ident="facsimile">
                     <model predicate="$parameters?modal='true'" behaviour="image-modals">
                     	<param name="images">graphic</param>
@@ -325,6 +326,22 @@
 					    <param name="button-title">'Facsimiles'</param>
 					</model>
 				</elementSpec>
+			    <!-- FIGURE !-->
+                <elementSpec mode="change" ident="figure">
+                    <model predicate="head" behaviour="figure" cssClass="figure">
+                        <param name="title">head/node()</param>
+                        <param name="content">*[not(self::head)]</param>
+                    </model>
+                    <model behaviour="block" cssClass="figure text-center"/>
+                </elementSpec>
+                <elementSpec mode="change" ident="figDesc">
+                    <model behaviour="block" cssClass="text-center">
+                        <outputRendition scope="before">content: '[..';</outputRendition>
+                        <outputRendition scope="after">content: '..]';</outputRendition>
+                        <outputRendition>color: grey;font-style:italic;</outputRendition>
+                    </model>
+                </elementSpec>
+				<!-- FILEDESC !-->
 				<elementSpec mode="change" ident="fileDesc">
 					<modelSequence predicate="$parameters?header='short'">
 						<model behaviour="inline" cssClass="header-short">
@@ -453,9 +470,20 @@
 					</model>
 				</elementSpec>
 				<!-- G !-->
+				<!-- GEO !-->
+				<elementSpec mode="add" ident="geo">
+				    <model behaviour="block">app:map</model>
+				</elementSpec>
 				<!-- GRAPHIC !-->
                 <elementSpec mode="change" ident="graphic">
-					<model behaviour="graphic">
+                    <model predicate="ancestor::listPlace" behaviour="graphic">
+                        <param name="url">concat("/exist/apps/SAI-data/",@url)</param>
+                        <param name="width">@width</param>
+                        <param name="height">@height</param>
+                        <param name="scale">@scale</param>
+                        <param name="title">desc</param>
+                    </model>
+					<model behaviour="graphic-cust">
 						<param name="url">@url</param>
 					</model>
 				</elementSpec>
@@ -467,6 +495,40 @@
 					<model predicate="@type='bold'" behaviour="inline">
 						<outputRendition>font-weight: bold;</outputRendition>
 					</model>
+				</elementSpec>
+				<!-- L !-->
+				<elementSpec mode="change" ident="listPlace">
+				    <model predicate="@type='subsidiary'" behaviour="section-collapsible">
+						<param name="id" value="@type"/>
+						<param name="content" value="."/>
+						<param name="button-title" value="'Sites located here'"/>
+				    </model>
+				</elementSpec>
+				<!-- P !-->
+				<!-- ==== P ==== -->
+				<elementSpec mode="change" ident="p">
+					<!--<model predicate="@type='editions' or @type='studies'" behaviour="block"/>-->
+					<model predicate="@rend='stanza'" behaviour="block">
+						<modelSequence>
+							<model behaviour="inline" cssClass="stance-number">
+								<param name="content" value="concat(@n,'.')"/>
+							</model>
+							<model behaviour="paragraph">
+								<param name="content" value="."/>
+							</model>
+						</modelSequence>
+						<outputRendition> margin-left:2em; </outputRendition>
+					</model>
+					<model predicate="ancestor::div[@type='translation']" behaviour="block"/>
+					<model predicate="parent::surrogates" behaviour="paragraph"/>
+					<model predicate="$parameters?headerType='epidoc' and parent::div[@type='bibliography']" behaviour="inline"/>
+					<model predicate="parent::support" behaviour="inline"/>
+					<model predicate="parent::provenance" behaviour="inline"/>
+					<model predicate="ancestor::div[@type='commentary']" behaviour="paragraph"/>
+					<model predicate="ancestor::desc" behaviour="paragraph"/>
+					<model predicate="$parameters?header='short'" behaviour="omit"/>
+					<model predicate="parent::div[@type='bibliography']" behaviour="omit"/>
+					<model behaviour="block"/>
 				</elementSpec>
 				<!-- PERSNAME !-->
                 <elementSpec mode="change" ident="persName">
@@ -496,7 +558,7 @@
                                         <param name="content">'Normalized form: '</param>
                                     </model>
                                     <model behaviour="dd">
-                                        <param name="content">persName[@type='pra-reconstruction']</param>
+                                        <param name="content" value="persName[@type='pra-reconstruction']"/>
                                     </model>
                                 </modelSequence>
                                 <modelSequence predicate="persName[@type='san-reconstruction']">
@@ -504,7 +566,7 @@
                                         <param name="content">'Sanskrit equivalent: '</param>
                                     </model>
                                     <model behaviour="dd">
-                                        <param name="content">persName[@type='san-reconstruction']</param>
+                                        <param name="content" value="persName[@type='san-reconstruction']"/>
                                     </model>
                                 </modelSequence>
                             </modelSequence>
@@ -561,10 +623,61 @@
 			            </modelSequence>
 			        </modelSequence>
 				</elementSpec>
+				<!-- PLACE !-->
+				<elementSpec mode="add" ident="place">
+				    <modelSequence predicate="ancestor::listPlace and not(ancestor::listPlace/ancestor::listPlace)" behaviour="block">
+			            <model behaviour="dl">
+			                <modelSequence>
+                                <modelSequence predicate="placeName[@type='modern']">
+                                    <model behaviour="dt">
+                                        <param name="content">'Modern names '</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content" value="placeName[@type='modern']"/>
+                                    </model>
+                                </modelSequence>
+                                <modelSequence predicate="placeName[@type='ancient']">
+                                    <model behaviour="dt">
+                                        <param name="content">'Ancient names '</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content" value="placeName[@type='ancient']"/>
+                                    </model>
+                                </modelSequence>
+                                <modelSequence predicate="desc">
+                                    <model behaviour="dt">
+                                        <param name="content">'Description'</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content" value="desc"/>
+                                    </model>
+                                </modelSequence>
+                            </modelSequence>
+                        </model>
+			        </modelSequence>
+			        <modelSequence predicate="ancestor::listPlace" behaviour="block">
+			            <model behaviour="heading">
+        				    <param name="level">4</param>
+        					<param name="content" value="placeName"/>
+			            </model>
+			            <model behaviour="block">
+			                <param name="content" value="desc"/>
+			            </model>
+			        </modelSequence>
+				</elementSpec>
 				<!-- PLACENAME !-->
                 <elementSpec mode="change" ident="placeName">
                     <model predicate="ancestor::div[@type] or ancestor::origPlace" behaviour="link"/>
+                    <model predicate="@xml:lang and @type='modern' and following-sibling::*[1][local-name()='placeName'][@type='modern']" behaviour="name-with-language">
+                        <outputRendition scope="after">content:", ";</outputRendition>
+                    </model>
+                    <model predicate="@xml:lang and @type='modern'" behaviour="name-with-language"/>
+                    <model predicate="@xml:lang and @type='ancient' and following-sibling::*[1][local-name()='placeName'][@type='ancient']" behaviour="name-with-language">
+                        <outputRendition scope="after">content:", ";</outputRendition>
+                    </model>
+                    <model predicate="@xml:lang and @type='ancient'" behaviour="name-with-language"/>
 				</elementSpec>
+				<!-- RDG !-->
 				<elementSpec mode="change" ident="rdg">
 					<modelSequence predicate="ancestor::listApp">
 						<model behaviour="inline">

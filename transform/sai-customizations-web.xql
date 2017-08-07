@@ -383,12 +383,12 @@ declare function model:apply($config as map(*), $input as node()*) {
                 case element(expan) return
                     html:inline($config, ., ("tei-expan"), .)
                 case element(figDesc) return
-                    html:inline($config, ., ("tei-figDesc"), .)
+                    html:block($config, ., ("tei-figDesc", "text-center"), .)
                 case element(figure) return
-                    if (head or @rendition='simple:display') then
-                        html:block($config, ., ("tei-figure1"), .)
+                    if (head) then
+                        html:figure($config, ., ("tei-figure1", "figure"), *[not(self::head)], head/node())
                     else
-                        html:inline($config, ., ("tei-figure2"), .)
+                        html:block($config, ., ("tei-figure2", "figure", "text-center"), .)
                 case element(floatingText) return
                     html:block($config, ., ("tei-floatingText"), .)
                 case element(foreign) return
@@ -467,7 +467,10 @@ declare function model:apply($config as map(*), $input as node()*) {
                                                                                     else
                                                                                         $config?apply($config, ./node())
                 case element(graphic) return
-                    sai-html:graphic($config, ., ("tei-graphic"), @url)
+                    if (ancestor::listPlace) then
+                        html:graphic($config, ., ("tei-graphic1"), ., concat("/exist/apps/SAI-data/",@url), @width, @height, @scale, desc)
+                    else
+                        sai-html:graphic-cust($config, ., ("tei-graphic2"), @url)
                 case element(group) return
                     html:block($config, ., ("tei-group"), .)
                 case element(head) return
@@ -745,13 +748,16 @@ else
                                             if (ancestor::div[@type='commentary']) then
                                                 html:paragraph($config, ., ("tei-p9"), .)
                                             else
-                                                if ($parameters?header='short') then
-                                                    html:omit($config, ., ("tei-p10"), .)
+                                                if (ancestor::desc) then
+                                                    html:paragraph($config, ., ("tei-p10"), .)
                                                 else
-                                                    if (parent::div[@type='bibliography']) then
+                                                    if ($parameters?header='short') then
                                                         html:omit($config, ., ("tei-p11"), .)
                                                     else
-                                                        html:block($config, ., ("tei-p12"), .)
+                                                        if (parent::div[@type='bibliography']) then
+                                                            html:omit($config, ., ("tei-p12"), .)
+                                                        else
+                                                            html:block($config, ., ("tei-p13"), .)
                 case element(pb) return
                     if (@type and $parameters?break='Physical') then
                         ext-html:milestone($config, ., ("tei-pb1"), ., 'pb-phys', let $n := if (@n) then @n else (count(preceding-sibling::milestone[@unit='face']) + 1) return @type || ' ' || $n)
@@ -1698,6 +1704,13 @@ else
                         sai-html:image-modals($config, ., ("tei-facsimile1"), graphic)
                     else
                         ext-html:section-collapsible($config, ., ("tei-facsimile2", "facsimile"), 'facsimile', 'Facsimiles', (), .)
+                case element(geo) return
+                    html:block($config, ., ("tei-geo"), .)
+                case element(listPlace) return
+                    if (@type='subsidiary') then
+                        ext-html:section-collapsible($config, ., ("tei-listPlace"), @type, 'Sites located here', (), .)
+                    else
+                        $config?apply($config, ./node())
                 case element(person) return
                     if (ancestor::listPerson) then
                         (
@@ -1783,11 +1796,64 @@ else
 
                     else
                         $config?apply($config, ./node())
+                case element(place) return
+                    if (ancestor::listPlace and not(ancestor::listPlace/ancestor::listPlace)) then
+                        (
+                            ext-html:dl($config, ., ("tei-place1"), (
+    if (placeName[@type='modern']) then
+        (
+            ext-html:dt($config, ., ("tei-place2"), 'Modern names '),
+            ext-html:dd($config, ., ("tei-place3"), placeName[@type='modern'])
+        )
+
+    else
+        (),
+    if (placeName[@type='ancient']) then
+        (
+            ext-html:dt($config, ., ("tei-place4"), 'Ancient names '),
+            ext-html:dd($config, ., ("tei-place5"), placeName[@type='ancient'])
+        )
+
+    else
+        (),
+    if (desc) then
+        (
+            ext-html:dt($config, ., ("tei-place6"), 'Description'),
+            ext-html:dd($config, ., ("tei-place7"), desc)
+        )
+
+    else
+        ()
+)
+)
+                        )
+
+                    else
+                        if (ancestor::listPlace) then
+                            (
+                                html:heading($config, ., ("tei-place8"), placeName, 4),
+                                html:block($config, ., ("tei-place9"), desc)
+                            )
+
+                        else
+                            $config?apply($config, ./node())
                 case element(placeName) return
                     if (ancestor::div[@type] or ancestor::origPlace) then
-                        sai-html:link($config, ., ("tei-placeName"), ., ())
+                        sai-html:link($config, ., ("tei-placeName1"), ., ())
                     else
-                        $config?apply($config, ./node())
+                        if (@xml:lang and @type='modern' and following-sibling::*[1][local-name()='placeName'][@type='modern']) then
+                            sai-html:name-with-language($config, ., ("tei-placeName2"), .)
+                        else
+                            if (@xml:lang and @type='modern') then
+                                sai-html:name-with-language($config, ., ("tei-placeName3"), .)
+                            else
+                                if (@xml:lang and @type='ancient' and following-sibling::*[1][local-name()='placeName'][@type='ancient']) then
+                                    sai-html:name-with-language($config, ., ("tei-placeName4"), .)
+                                else
+                                    if (@xml:lang and @type='ancient') then
+                                        sai-html:name-with-language($config, ., ("tei-placeName5"), .)
+                                    else
+                                        $config?apply($config, ./node())
                 case element(exist:match) return
                     html:match($config, ., .)
                 case element() return

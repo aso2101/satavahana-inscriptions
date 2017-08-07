@@ -176,3 +176,9 @@ h4.slider {
 .facet .icon {
   margin-left: .25em;
 }
+.figure {
+  text-align: center;
+}
+.figure span {
+  display: block;
+}

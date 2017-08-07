@@ -14,7 +14,6 @@ import module namespace slider = "http://localhost/ns/slider" at "lib/date-slide
 import module namespace pages="http://www.tei-c.org/tei-simple/pages" at "lib/pages.xql";
 import module namespace pm-config="http://www.tei-c.org/tei-simple/pm-config" at "pm-config.xql";
 import module namespace tpu="http://www.tei-c.org/tei-publisher/util" at "lib/util.xql";
-import module namespace search="http://www.tei-c.org/tei-simple/search" at "search.xql";
 import module namespace odd="http://www.tei-c.org/tei-simple/odd2odd";
 import module namespace pmu="http://www.tei-c.org/tei-simple/xquery/util";
 import module namespace console="http://exist-db.org/xquery/console" at "java:org.exist.console.xquery.ConsoleModule";
@@ -281,11 +280,6 @@ declare function app:inscription-map($node as node(), $model as map(*)) {
             </section>   
         else ()
 };
-
-(:
-    Search functions
-    Right now these are more or less modelled on SARIT's search function.
-:)
 
 (:  Updated search functions. :)
 (:~
@@ -967,7 +961,6 @@ declare function app:translate-lang($lang-code as xs:string*){
     else if ($lang-code eq 'mar-Latn') then 'Marathi'
     else if ($lang-code eq 'kan-Latn') then 'Kannada'
     else if ($lang-code eq 'hin-Latn') then 'Hindi'
-    else if ($lang-code eq 'und') then 'Unknown'
     else ''
 };
 
@@ -1196,12 +1189,12 @@ function app:navigation-title($node as node(), $model as map(*)) {
     let $teispan := 
             <span class="small pull-right" style="margin:-.25em .5em;"><a href="{$teiLink}"><img src="{$config:app-nav-base}/resources/images/tei-25.png"/></a></span>    
     let $main-title := 
-        if($data//tei:title) then
-            $data//tei:title[1]/text()
-        else if(name($data) = 'person') then 
+        if (name($data) = 'person') then 
             $data//tei:persName[1]/text()
-        else if(name($data) = 'place') then 
+        else if (name($data) = 'place') then 
             $data//tei:placeName[1]/text()
+        else if ($data//tei:title) then
+            $data//tei:title[1]/text()
         else ()
     return 
         <h3 class="text-center">{ $main-title } {$teispan} { $idspan }</h3>
@@ -1209,19 +1202,19 @@ function app:navigation-title($node as node(), $model as map(*)) {
 };
 
 
-declare function app:metadata-custom($node as element(),$model as map(*)) {
+declare function app:section-custom($node as element(),$model as map(*),$path as xs:string?,$title as xs:string) {
     <div id="metadata-panel">
         <section>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a class="accordion-toggle" data-toggle="collapse" href="#collapse-metadata">Metadata</a>
+                        <a class="accordion-toggle" data-toggle="collapse" href="#collapse-metadata">{$title}</a>
                         <hr/>
                     </h4>
                 </div>
                 <div id="collapse-metadata" class="panel-collapse collapse in">
                     <div class="panel-body">
-                        {app:display-node($node,$model,"descendant::tei:fileDesc")}
+                        {app:display-node($node,$model,$path)}
                     </div>
                 </div>
             </div>

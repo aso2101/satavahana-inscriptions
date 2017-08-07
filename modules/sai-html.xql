@@ -8,6 +8,8 @@ declare namespace config = "http://www.tei-c.org/tei-simple/config";
 declare namespace pages="http://www.tei-c.org/tei-simple/pages";
 declare namespace functx2 = "http://www.hisoma.mom.fr/labs/functx2";
 import module namespace pmf = "http://www.tei-c.org/tei-simple/xquery/ext-html" at "ext-html.xql";
+import module namespace app = "teipublisher.com/app" at "app.xql";
+
 
 
 (: FUNCTIONS SPECIFIC TO THE SĀTAVĀHANA INSCRIPTIONS
@@ -17,7 +19,7 @@ declare function sai:images($config as map(*), $node as element(), $class as xs:
         <div class="col-md-4">{pmf:apply-children($config,$node,$content)}</div>
     </div>
 };
-declare function sai:graphic($config as map(*), $node as element(), $class as xs:string+,$url) {
+declare function sai:graphic-cust($config as map(*), $node as element(), $class as xs:string+,$url) {
     let $id := fn:substring-before(fn:tokenize($url,"/")[last()],".")
     return
         <div class="col-lg-3 col-md-4 col-xs-6 thumb">
@@ -104,6 +106,15 @@ declare function sai:name-orthography($config as map(*), $node as element(), $co
             else ()
     return 
         <dd>{$attested}{" "}({ $spellings })</dd>
+};
+declare function sai:name-with-language($config as map(*), $node as element(), $class as xs:string+, $content) {
+    let $lang := 
+        if ($node/@xml:lang) then
+            concat(concat(" (",app:translate-lang($node/@xml:lang)),")")
+        else ""
+    let $name := $node/text()
+    return
+        <span class="{$class}">{ $name }{ $lang }</span>
 };
 declare function sai:name-element-to-string($node as element()) {
     let $string := ""

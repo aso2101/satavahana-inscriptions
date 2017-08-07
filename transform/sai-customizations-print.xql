@@ -389,12 +389,12 @@ declare function model:apply($config as map(*), $input as node()*) {
                 case element(expan) return
                     fo:inline($config, ., ("tei-expan"), .)
                 case element(figDesc) return
-                    fo:inline($config, ., ("tei-figDesc"), .)
+                    fo:block($config, ., ("tei-figDesc", "text-center"), .)
                 case element(figure) return
-                    if (head or @rendition='simple:display') then
-                        fo:block($config, ., ("tei-figure1"), .)
+                    if (head) then
+                        fo:figure($config, ., ("tei-figure1", "figure"), *[not(self::head)], head/node())
                     else
-                        fo:inline($config, ., ("tei-figure2"), .)
+                        fo:block($config, ., ("tei-figure2", "figure", "text-center"), .)
                 case element(floatingText) return
                     fo:block($config, ., ("tei-floatingText"), .)
                 case element(foreign) return
@@ -473,7 +473,11 @@ declare function model:apply($config as map(*), $input as node()*) {
                                                                                     else
                                                                                         $config?apply($config, ./node())
                 case element(graphic) return
-                    fo:graphic($config, ., ("tei-graphic"), ., @url, (), (), (), ())
+                    if (ancestor::listPlace) then
+                        fo:graphic($config, ., ("tei-graphic1"), ., concat("/exist/apps/SAI-data/",@url), @width, @height, @scale, desc)
+                    else
+                        (: No function found for behavior: graphic-cust :)
+                        $config?apply($config, ./node())
                 case element(group) return
                     fo:block($config, ., ("tei-group"), .)
                 case element(head) return
@@ -746,13 +750,16 @@ else
                                             if (ancestor::div[@type='commentary']) then
                                                 fo:paragraph($config, ., ("tei-p9"), .)
                                             else
-                                                if ($parameters?header='short') then
-                                                    fo:omit($config, ., ("tei-p10"), .)
+                                                if (ancestor::desc) then
+                                                    fo:paragraph($config, ., ("tei-p10"), .)
                                                 else
-                                                    if (parent::div[@type='bibliography']) then
+                                                    if ($parameters?header='short') then
                                                         fo:omit($config, ., ("tei-p11"), .)
                                                     else
-                                                        fo:block($config, ., ("tei-p12"), .)
+                                                        if (parent::div[@type='bibliography']) then
+                                                            fo:omit($config, ., ("tei-p12"), .)
+                                                        else
+                                                            fo:block($config, ., ("tei-p13"), .)
                 case element(pb) return
                     if (@type and $parameters?break='Physical') then
                         (: No function found for behavior: milestone :)
@@ -1587,6 +1594,14 @@ else
                     else
                         (: No function found for behavior: section-collapsible :)
                         $config?apply($config, ./node())
+                case element(geo) return
+                    fo:block($config, ., ("tei-geo"), .)
+                case element(listPlace) return
+                    if (@type='subsidiary') then
+                        (: No function found for behavior: section-collapsible :)
+                        $config?apply($config, ./node())
+                    else
+                        $config?apply($config, ./node())
                 case element(person) return
                     if (ancestor::listPerson) then
                         (
@@ -1604,11 +1619,43 @@ else
 
                     else
                         $config?apply($config, ./node())
+                case element(place) return
+                    if (ancestor::listPlace and not(ancestor::listPlace/ancestor::listPlace)) then
+                        (
+                            (: No function found for behavior: dl :)
+                            $config?apply($config, ./node())
+                        )
+
+                    else
+                        if (ancestor::listPlace) then
+                            (
+                                fo:heading($config, ., ("tei-place8"), placeName),
+                                fo:block($config, ., ("tei-place9"), desc)
+                            )
+
+                        else
+                            $config?apply($config, ./node())
                 case element(placeName) return
                     if (ancestor::div[@type] or ancestor::origPlace) then
-                        fo:link($config, ., ("tei-placeName"), ., ())
+                        fo:link($config, ., ("tei-placeName1"), ., ())
                     else
-                        $config?apply($config, ./node())
+                        if (@xml:lang and @type='modern' and following-sibling::*[1][local-name()='placeName'][@type='modern']) then
+                            (: No function found for behavior: name-with-language :)
+                            $config?apply($config, ./node())
+                        else
+                            if (@xml:lang and @type='modern') then
+                                (: No function found for behavior: name-with-language :)
+                                $config?apply($config, ./node())
+                            else
+                                if (@xml:lang and @type='ancient' and following-sibling::*[1][local-name()='placeName'][@type='ancient']) then
+                                    (: No function found for behavior: name-with-language :)
+                                    $config?apply($config, ./node())
+                                else
+                                    if (@xml:lang and @type='ancient') then
+                                        (: No function found for behavior: name-with-language :)
+                                        $config?apply($config, ./node())
+                                    else
+                                        $config?apply($config, ./node())
                 case element() return
                     if (namespace-uri(.) = 'http://www.tei-c.org/ns/1.0') then
                         $config?apply($config, ./node())
