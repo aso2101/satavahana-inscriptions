@@ -170,12 +170,16 @@ declare function facet:facet-filter($facet-definitions as node()*)  as item()*{
                              else $facet/descendant::facet:sub-path/text()
                 return 
                 if($facet-value != '') then 
-                    if($facet/facet:range) then
+                    if($facet-name = 'Type') then 
+                        if($facet-value = 'iFound') then
+                            '[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]'
+                        else if($facet-value = 'iMentioned') then 
+                            '[descendant::tei:div[@type="edition"]/descendant::tei:placeName/@key]'
+                        else concat('[',$path,'[normalize-space(.) = "',replace($facet-value,'"','""'),'"]',']')
+                    else if($facet/facet:range) then
                         concat('[',$path,'[string(.) gt "', facet:type($facet/facet:range/facet:bucket[@name = $facet-value]/@gt, $facet/facet:range/facet:bucket[@name = $facet-value]/@type),'" and string(.) lt "',facet:type($facet/facet:range/facet:bucket[@name = $facet-value]/@lt, $facet/facet:range/facet:bucket[@name = $facet-value]/@type),'"]]')
                     else if($facet/facet:group-by[@function="facet:group-by-array"]) then 
-                        concat('[',$path,'[matches(., "',$facet-value,'(\W|$)")]',']')
-                    else if($facet/facet:group-by[@function="facet:spear-type"]) then 
-                        concat('[',substring-before($path,'/name(.)'),'[name(.) = "',$facet-value,'"]',']')                    
+                        concat('[',$path,'[matches(., "',$facet-value,'(\W|$)")]',']')                    
                     else concat('[',$path,'[normalize-space(.) = "',replace($facet-value,'"','""'),'"]',']')
                 else(),'')
     else () 
@@ -222,6 +226,18 @@ declare function facet:lang-type($results as item()*, $facet-definitions as elem
         else count($f)
         descending
     return <key xmlns="http://expath.org/ns/facet" count="{count($f)}" value="{$facet-grp}" label="{$label}"/>
+};
+
+(:~
+ : SAI where inscriptions are found, used by places, psudo facet
+:)
+declare function facet:places-found($results as item()*, $facet-definitions as element(facet:facet-definition)?) as element(facet:key)*{
+    let $found := $results[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]
+    let $mentioned := $results[descendant::tei:div[@type='edition']/descendant::tei:placeName/@key]
+    let $places-in-places := $results/descendant::tei:place
+    return 
+        (<key xmlns="http://expath.org/ns/facet" count="{count($found)}" value="iFound" label="Places Where Inscriptions Are Found"/>,
+        <key xmlns="http://expath.org/ns/facet" count="{count($mentioned)}" value="iMentioned" label="Places Mentioned in Inscriptions"/>)
 };
 
 (:~ 
