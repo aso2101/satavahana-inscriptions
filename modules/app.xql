@@ -600,7 +600,7 @@ declare function app:hit-count($node as node()*, $model as map(*)) {
 (:~
  : Extensible generic browse function. 
  : Used by Browse Inscriptions, Browse Persons, Browse Places and Browse Bibliography and Browse HTML pages
- : @param $path path to data relative to $config:remote-root, use if to browse data not in $config:remote-data-root, or browse a subset of $config:remote-data-root
+ : @param $path path to data relative to $config:remote-root, use if to browse data not in $config:remote-data-root, or to browse a subset of $config:remote-data-root
  : @param $type data type accepted values, defaults to Inscription 'Bibliography|Person|Place|Inscription'
  : @param $facets path to facet-definition file relative to $config:app-root
  : @param $date-slider include date slider, date type to use 'bibl|inscriptions'
@@ -619,7 +619,7 @@ declare function app:browse($node as node()*, $model as map(*),
                     let $abc-filter := 
                             if($type = ('Place','Places')) then 
                                app:abc-filter('descendant::tei:placeName[1]/text()')
-                            else if($type = ('Person','Persons')) then
+                            else if($type = ('Person','Persons','People')) then
                                 app:abc-filter('descendant::tei:persName[1]/text()')
                             else app:abc-filter('descendant::tei:titleStmt/tei:title[1]/text()')
                     let $facet-filter :=  
@@ -632,36 +632,38 @@ declare function app:browse($node as node()*, $model as map(*),
                         if($date-slider != '') then
                             slider:date-filter($date-slider)
                         else ()
-                   let $filter-ids :=  
-                        if($type = 'Places') then 
-                            distinct-values(collection($config:remote-data-root)//tei:placeName/@key)
-                        else if($type = 'Persons') then
-                            distinct-values(collection($config:remote-data-root)//tei:persName/@key)
+                    let $filter-ids :=  
+                        if($type = ('Place','Places')) then
+                            if(request:get-parameter('places-in-places', '') = ('true','show')) then 
+                                collection($config:remote-context-root || '/Places')//tei:place[1] | collection($config:remote-context-root || '/Places')//tei:place[1]/descendant::tei:place
+                            else collection($config:remote-context-root || '/Places')//tei:place[1] 
+                        else if($type = ('Person','Persons','People')) then
+                            collection($config:remote-context-root || '/Persons')//tei:person[1]
                         else if($type = 'Bibliography') then
-                            distinct-values(collection($config:remote-data-root)//tei:bibl/tei:ptr/@target)
-                        else ()
+                            collection($config:remote-context-root || '/Bibliography')//tei:biblStruct[1]
+                        else ()  
                    let $hits := 
                         if($filter-ids != '') then
                             for $h in $filter-ids
+                            let $id := $h//@xml:id[1]
                             return 
-                                <hit id="{$h}">
+                                <hit id="{$id}">
                                     {
-                                        let $r := collection($config:remote-context-root)//*[@xml:id = substring-after($h,':')]
                                         let $i :=                                                     
                                            if($type = 'Bibliography') then 
-                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target = $h]]
+                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:bibl/tei:ptr[@target = concat('bibl:',$id)]]
                                                 return 
                                                     <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI>
                                            else if($type = 'Persons') then  
-                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key = $h]]
+                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:persName[@key = concat('pers:',$id)]]
                                                 return 
                                                     <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI>
                                            else if($type = 'Places') then
-                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:placeName[@key = $h]]
+                                                for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:placeName[@key = concat('pl:',$id)]]
                                                 return 
                                                     <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI>                                                    
                                            else ()                                                     
-                                        return ($r,$i)
+                                        return ($h,$i)
                                     }
                                 </hit> 
                         else
@@ -699,7 +701,7 @@ declare
     %templates:default("per-page", 10)
 function app:browse-display-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer, $type as xs:string?) {
     for $p in subsequence($model("hits"), $start, $per-page)
-    let $docNode := $p/child::*[1]
+    let $docNode := $p
     (:let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) },$model?config?odd):)
     let $title := 
         if($type='Places') then
@@ -889,6 +891,19 @@ declare function app:display-facets($node as node(), $model as map(*), $facets a
         if($facet-def) then 
             facet:html-list-facets-as-buttons(facet:count($hits, $facet-def/descendant::facet:facet-definition))
         else 'No matching facet definition file.'
+};
+
+(:~
+ : Simple toggle button to show places within places
+:)
+declare function app:places-within-places($node as node(), $model as map(*)){
+    (<h4>Places Within Places</h4>,
+     <form action="places.html">
+        <div class="btn-group btn-toggle places-in-places"> 
+            <button class="{if(request:get-parameter('places-in-places', '') = 'show') then 'btn btn-info active' else 'btn btn-default'}" value="show" name="places-in-places">Show</button>
+            <button class="{if(request:get-parameter('places-in-places', '') = 'hide') then 'btn btn-info active' else 'btn btn-default'}" value="hide" name="places-in-places">Hide</button>
+        </div>                                
+    </form>)
 };
 
 declare function app:dynamic-map-data($node as node(), $model as map(*)){
