@@ -661,7 +661,7 @@ declare function app:browse($node as node()*, $model as map(*),
                                            else if($type = 'Places') then
                                                 for $inscription in collection($config:remote-data-root)//tei:TEI[.//tei:placeName[@key = concat('pl:',$id)]]
                                                 return 
-                                                    <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI>                                                    
+                                                    <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="{string($inscription/@xml:id)}" place-type="{if($inscription[.//tei:placeName[@key = concat('pl:',$id)]/ancestor::tei:origPlace]) then 'found' else 'mentioned'}">{($inscription/tei:teiHeader, $inscription//tei:div[@type='edition'][@xml:lang])}</TEI>                                                    
                                            else ()                                                     
                                         return ($h,$i)
                                     }
@@ -901,7 +901,7 @@ declare function app:places-within-places($node as node(), $model as map(*)){
      <form action="places.html">
         <div class="btn-group btn-toggle places-in-places"> 
             <button class="{if(request:get-parameter('places-in-places', '') = 'show') then 'btn btn-info active' else 'btn btn-default'}" value="show" name="places-in-places">Show</button>
-            <button class="{if(request:get-parameter('places-in-places', '') = 'hide') then 'btn btn-info active' else 'btn btn-default'}" value="hide" name="places-in-places">Hide</button>
+            <button class="{if(request:get-parameter('places-in-places', '') = 'hide') then 'btn btn-info active' else if(request:get-parameter('places-in-places', '') = 'show') then 'btn btn-default' else 'btn btn-info active'}" value="hide" name="places-in-places">Hide</button>
         </div>                                
     </form>)
 };
