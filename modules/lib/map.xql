@@ -27,6 +27,14 @@ let $data :=
                 else $place/tei:placeName[1]/text()
             let $lat := substring-before($place//tei:geo,' ')
             let $long := substring-after($place//tei:geo,' ')
+            let $attested := 
+                if($place/descendant::attested) then 
+                    <attested>{$place/descendant::attested}</attested>
+                else ()
+            let $mention := 
+                if($place/descendant::mentioned) then 
+                    <mentioned>{$place/descendant::mentioned}</mentioned>
+                else ()            
             return
                 <json:value>
                     <type>Feature</type>
@@ -40,6 +48,7 @@ let $data :=
                         <description>{ $name }</description>
                         <marker-size>large</marker-size>
                         <marker-color>#A80000</marker-color>
+                        {$attested,$mention}
                     </properties>
                 </json:value>
         }        
@@ -63,41 +72,46 @@ let $data :=
             <type>FeatureCollection</type>
             <features>
             {
-                for $place in $data//tei:place
+                for $place in $data/descendant-or-self::*:map-point
                 where $place//tei:geo
                 let $name := 
-                    if ($place/tei:placeName[@type='ancient']) then 
-                        $place/tei:placeName[@type='ancient'][1]/text()
-                    else $place/tei:placeName[1]/text()
+                    if ($place//tei:place/tei:placeName[@type='ancient']) then 
+                        $place//tei:place/tei:placeName[@type='ancient'][1]/text()
+                    else $place//tei:place/tei:placeName[1]/text()
                 let $lat := substring-before($place//tei:geo,' ')
                 let $long := substring-after($place//tei:geo,' ')
+                let $id := $place/@id
+                let $relation := $place//tei:relation
                 return
-                    <json:value>
-                        <type>Feature</type>
-                        <geometry>
-                            <place>{$name}</place>
-                            <type>Point</type>
-                            <coordinates json:literal="true">[{$lat},{$long}]</coordinates>
-                        </geometry>
-                        <properties>
-                            <name>{ $name }</name>
-                            <description>{ $name }</description>
-                            <marker-size>large</marker-size>
-                            <marker-color>#A80000</marker-color>
-                        </properties>
-                    </json:value>
+                <json:value>
+                    <type>Feature</type>
+                    <geometry>
+                        <place>{$name}</place>
+                        <type>Point</type>
+                        <coordinates json:literal="true">[{$lat},{$long}]</coordinates>
+                    </geometry>
+                    <properties>
+                        <name>{ $name }</name>
+                        <description>{ $name }</description>
+                        {for $r in $relation return <relation json:array="true">{$r/@*}</relation>}
+                        <marker-size>large</marker-size>
+                        <marker-color>#A80000</marker-color>
+                    </properties>
+                </json:value>
             }        
           </features>
         </root>   
     else if(count($data//tei:geo) = 1) then
-        for $place in $data//tei:place
+        for $place in $data/descendant-or-self::*:map-point
         where $place//tei:geo
         let $name := 
-                if ($place/tei:placeName[@type='ancient']) then 
-                    $place/tei:placeName[@type='ancient'][1]/text()
-                else $place/tei:placeName[1]/text()
+                    if ($place//tei:place/tei:placeName[@type='ancient']) then 
+                        $place//tei:place/tei:placeName[@type='ancient'][1]/text()
+                    else $place//tei:place/tei:placeName[1]/text()
         let $lat := substring-before($place//tei:geo,' ')
         let $long := substring-after($place//tei:geo,' ')
+        let $id := $place/@id
+        let $relation := $place//tei:relation
         return
              <json:value>
                     <type>Feature</type>
@@ -109,6 +123,7 @@ let $data :=
                     <properties>
                         <name>{ $name }</name>
                         <description>{ $name }</description>
+                        {for $r in $relation return <relation json:array="true">{$r/@*}</relation>}
                         <marker-size>large</marker-size>
                         <marker-color>#A80000</marker-color>
                     </properties>

@@ -31,9 +31,18 @@ $(document).ready(function() {
         var feature = marker.feature;
         var name = feature.properties.name
         // Create custom popup content
-        var popupContent =  '<a href="#' + name + '">' + name + '</a>';  
+        var popupContent =  '<a href="#' + name + '"><strong>' + name + '</strong></a>';
+        var relationContent = '';
+        if(feature.properties.relation && feature.properties.relation.length) {
+            var relation = feature.properties.relation
+            $.each(relation, function(key, item) {
+               relationContent += '<br/><a href="' + item.id + '">' + item.name + ' [' + item.type + '] </a>';
+               console.log( item.name )
+            });
+        }
         // http://leafletjs.com/reference.html#popup
-        marker.bindPopup(popupContent);
+        marker.bindPopup(popupContent + relationContent);
+        //Add links to matching names on HTML page
         $('#' + name).each(function(){
             $(this).append(' <a href="' + $(this).html() + '" class="small panto">(show on map)</a> ');
         });
