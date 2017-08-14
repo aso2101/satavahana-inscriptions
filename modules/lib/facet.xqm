@@ -172,9 +172,11 @@ declare function facet:facet-filter($facet-definitions as node()*)  as item()*{
                 if($facet-value != '') then 
                     if($facet-name = 'Type') then 
                         if($facet-value = 'iFound') then
-                            '[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]'
+                           (: '[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]':)
+                            '[descendant-or-self::*[@place-type="found"]]'
                         else if($facet-value = 'iMentioned') then 
-                            '[descendant::tei:div[@type="edition"]/descendant::tei:placeName/@key]'
+                            (:'[descendant::tei:div[@type="edition"]/descendant::tei:placeName/@key]':)
+                            '[descendant-or-self::*[@place-type="mentioned"]]'
                         else concat('[',$path,'[normalize-space(.) = "',replace($facet-value,'"','""'),'"]',']')
                     else if($facet/facet:range) then
                         concat('[',$path,'[string(.) gt "', facet:type($facet/facet:range/facet:bucket[@name = $facet-value]/@gt, $facet/facet:range/facet:bucket[@name = $facet-value]/@type),'" and string(.) lt "',facet:type($facet/facet:range/facet:bucket[@name = $facet-value]/@lt, $facet/facet:range/facet:bucket[@name = $facet-value]/@type),'"]]')
@@ -232,8 +234,10 @@ declare function facet:lang-type($results as item()*, $facet-definitions as elem
  : SAI where inscriptions are found, used by places, psudo facet
 :)
 declare function facet:places-found($results as item()*, $facet-definitions as element(facet:facet-definition)?) as element(facet:key)*{
-    let $found := $results[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]
-    let $mentioned := $results[descendant::tei:div[@type='edition']/descendant::tei:placeName/@key]
+    let $found := $results[descendant-or-self::*[@place-type="found"]] 
+    (:$results[descendant::tei:msDesc/descendant::tei:origPlace/tei:placeName/@key]:)
+    let $mentioned := $results[descendant-or-self::*[@place-type="mentioned"]]
+    (:$results[descendant::tei:div[@type='edition']/descendant::tei:placeName/@key]:)
     let $places-in-places := $results/descendant::tei:place
     return 
         (<key xmlns="http://expath.org/ns/facet" count="{count($found)}" value="iFound" label="Places Where Inscriptions Are Found"/>,
