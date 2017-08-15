@@ -933,10 +933,10 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
 declare function app:dynamic-map-data($node as node(), $model as map(*), $type as xs:string?){
     if($model("hits")//tei:geo) then 
         for $p in $model("hits")//tei:geo
-        return root($p)
+        return <map-point xmlns="http://www.tei-c.org/ns/1.0">{root($p)}</map-point>
     else if($model("places")//tei:geo) then
        for $p in $model("places")//tei:geo
-       return root($p) 
+       return <map-point xmlns="http://www.tei-c.org/ns/1.0">{root($p)}</map-point> 
     else 
         let $data := if($model("places")) then $model("places") else if($model("persons")) then $model("persons") else if($model("data")) then $model("data") else $model("hits") 
         let $places := if($model("places") | $model("persons")) then distinct-values($data//tei:placeName/@key | $data/@xml:id) else distinct-values($data//tei:origPlace/tei:placeName/@key | $data/@xml:id) 
@@ -949,10 +949,10 @@ declare function app:dynamic-map-data($node as node(), $model as map(*), $type a
                 (
                 let $attested := distinct-values($model("hits")//tei:TEI[descendant::tei:origPlace/descendant-or-self::tei:placeName[@key = concat('pl:',$id)]]/descendant::tei:persName/@key)
                 for $attested-name in $attested
-                let $name := collection($config:remote-root || '/contextual/Persons')//*[@xml:id = replace($attested-name,'pers:','')]/descendant-or-self::tei:person/tei:persName[1]
+                let $name := collection($config:remote-root || '/contextual/Persons')//*[@xml:id = replace($attested-name,'pers:','')]/descendant-or-self::tei:person[1]/tei:persName[1]
                 return 
                     <relation xmlns="http://www.tei-c.org/ns/1.0" type="attested" id="{concat($config:app-nav-base,'/person/',replace($attested-name,'pers:',''))}" name="{string-join($name/descendant-or-self::text(),' ')}"></relation>,
-                for $reside in $model("hits")//descendant::tei:person[descendant::tei:residence/tei:placeName[@key = concat('pl:',$id)]]/tei:persName[1]
+                for $reside in $model("hits")//descendant::tei:person[1][descendant::tei:residence/tei:placeName[@key = concat('pl:',$id)]]/tei:persName[1]
                 return 
                     <relation xmlns="http://www.tei-c.org/ns/1.0" type="reside" id="{concat($config:app-nav-base,'/person/',$reside/parent::*/@xml:id)}" name="{string-join($reside/descendant-or-self::text(),' ')}"></relation>                    
                     )
