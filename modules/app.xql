@@ -300,7 +300,7 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
     else 
         let $facet-def := doc($config:app-root || '/search-facet-def.xml')/child::*
         let $inscriptions := concat("collection($config:remote-data-root)/tei:TEI[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
-        let $iText := concat("collection($config:remote-data-root)//tei:div[@type='apparatus'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
+        let $iText := concat("collection($config:remote-data-root)//tei:div[@type = ('apparatus','edition')][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
         let $iTranslation := concat("collection($config:remote-data-root)//tei:div[@type='translation'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))        
         let $iCommentary := concat("collection($config:remote-data-root)//tei:div[@type='commentary'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
         let $iMetadata := concat("collection($config:remote-data-root)/tei:TEI[descendant::tei:teiHeader[ft:query(.,'", $query,"', app:search-options())] or //tei:biblStruct[ft:query(.,'", $query,"', app:search-options())]]",facet:facet-filter($facet-def))        
