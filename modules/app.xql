@@ -908,6 +908,7 @@ declare function app:places-within-places($node as node(), $model as map(*)){
     </form>)
 };
 
+(: @depreciated. use app:dynamic-map-data($node as node(), $model as map(*), $type as xs:string?) :)
 declare function app:dynamic-map-data($node as node(), $model as map(*)){
     if($model("hits")//tei:geo) then 
         for $p in $model("hits")//tei:geo
@@ -928,12 +929,46 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
 };
 
 (:~ 
+ : Builds dynamic map data based on page hits
+ : Data is passed mapbox functions  
+:)
+declare function app:dynamic-map-data($node as node(), $model as map(*), $type as xs:string?){
+    if($model("hits")//tei:geo) then 
+        for $p in $model("hits")//tei:geo
+        return root($p)
+    else if($model("places")//tei:geo) then
+       for $p in $model("places")//tei:geo
+       return root($p) 
+    else 
+        let $data := if($model("places")) then $model("places") else if($model("persons")) then $model("persons") else if($model("data")) then $model("data") else $model("hits") 
+        let $places := if($model("places") | $model("persons")) then distinct-values($data//tei:placeName/@key | $data/@xml:id) else distinct-values($data//tei:origPlace/tei:placeName/@key | $data/@xml:id) 
+        for $p in $places
+        let $id := replace($p,'pl:','')
+        let $place := collection($config:remote-root || '/contextual/Places')//@xml:id[. = $id]
+        let $p := root($place)
+        let $related := 
+            if($type = ('Persons','People')) then
+                (
+                let $attested := distinct-values($model("hits")//tei:TEI[descendant::tei:origPlace/descendant-or-self::tei:placeName[@key = concat('pl:',$id)]]/descendant::tei:persName/@key)
+                for $attested-name in $attested
+                let $name := collection($config:remote-root || '/contextual/Persons')//*[@xml:id = replace($attested-name,'pers:','')]/descendant-or-self::tei:person/tei:persName[1]
+                return 
+                    <relation xmlns="http://www.tei-c.org/ns/1.0" type="attested" id="{concat($config:app-nav-base,'/person/',replace($attested-name,'pers:',''))}" name="{string-join($name/descendant-or-self::text(),' ')}"></relation>,
+                for $reside in $model("hits")//descendant::tei:person[descendant::tei:residence/tei:placeName[@key = concat('pl:',$id)]]/tei:persName[1]
+                return 
+                    <relation xmlns="http://www.tei-c.org/ns/1.0" type="reside" id="{concat($config:app-nav-base,'/person/',$reside/parent::*/@xml:id)}" name="{string-join($reside/descendant-or-self::text(),' ')}"></relation>                    
+                    )
+            else ()
+        return 
+            <map-point xmlns="http://www.tei-c.org/ns/1.0" id="{$id}">{$p, $related}</map-point>
+};
+
+(:~ 
  : Builds map HTML and javascript elements 
  : Uses dynamic data based on page data 
 :)
-declare function app:map($node as node(), $model as map(*)) { 
-    if(not(empty(app:dynamic-map-data($node, $model)))) then 
-        
+declare function app:map($node as node(), $model as map(*),$type as xs:string?) { 
+    if(not(empty(app:dynamic-map-data($node,$model, $type)))) then 
     <section class="map">
         <div class="panel panel-default">             
             <div class="panel-heading">
@@ -946,7 +981,7 @@ declare function app:map($node as node(), $model as map(*)) {
                     <div id="map"/>
                     <script type="text/javascript">
                         L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
-                        var geojson = {smap:create-data(app:dynamic-map-data($node,$model))};
+                        var geojson = {smap:create-data(app:dynamic-map-data($node,$model, $type))};
                         var map = L.mapbox.map('map', 'aso2101.kbbp2nnh')
                     </script>
                     <script type="text/javascript" src="resources/scripts/map.js"/>
@@ -1217,7 +1252,6 @@ function app:navigation-title($node as node(), $model as map(*)) {
         <h3 class="text-center">{ $main-title } {$teispan} { $idspan }</h3>
         
 };
-
 
 declare function app:section-custom($node as element(),$model as map(*),$path as xs:string?,$title as xs:string) {
     <div id="metadata-panel">
