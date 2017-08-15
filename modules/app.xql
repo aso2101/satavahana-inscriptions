@@ -1184,24 +1184,24 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
 declare function app:related-inscriptions($node as node(), $model as map(*)) {
     let $doc := $model?data
     let $type := 
-        if(name($doc) = 'person') then 
+        if(name($doc) = 'person' or $doc/descendant::tei:body/tei:listPlace) then 
             'person'
-        else if(name($doc) = 'place') then 
+        else if(name($doc) = 'place' or $doc/descendant::tei:body/tei:listPerson or $doc/descendant::tei:body/tei:person) then 
             'place'   
         else if($doc/descendant::tei:body/tei:text/tei:biblStruct or name($doc) = 'biblStruct') then 
             'bibl'               
         else 'inscription'
     let $key := 
         if($type='person') then 
-            concat('pers:',string($doc/@xml:id))
+            concat('pers:',string($doc//@xml:id[1]))
         else if($type='place') then 
-            concat('place:',string($doc/@xml:id))   
+            concat('pl:',string($doc//@xml:id[1]))   
         else if($type='bibl') then 
-            concat('bibl:',string($doc/@xml:id))               
-        else $doc/@xml:id
+            concat('bibl:',string($doc//@xml:id[1]))               
+        else $doc//@xml:id[1]
     let $inscriptions := if($type='bibl') then 
                             collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='bibliography']//@target=$key]
-                         else collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//@key=$key]
+                         else collection($config:remote-data-root)//tei:TEI[.//@key=$key]
     let $places := 
         for $placekey in distinct-values($inscriptions//tei:origPlace/tei:placeName[1]/@key)
         let $name := 
@@ -1211,17 +1211,17 @@ declare function app:related-inscriptions($node as node(), $model as map(*)) {
         order by $name
         return 
             <div>
-                <h4>{ $name }</h4>
-                {
-                    app:view-hits($inscriptions-by-place, $placekey)
-                }
+                {(
+                    if($type = 'place') then () else <h4>{ $name }</h4>,
+                    app:view-hits($inscriptions-by-place, $placekey,'')
+                )}
             </div>
     return 
         if($places) then 
             <div>
                 <h4>Mentioned in these inscriptions:</h4>
                 { $places }
-            </div>
+            </div>            
         else ()
 };
 
