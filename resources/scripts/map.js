@@ -8,8 +8,8 @@ myLayer.on('mouseover', function(e) {
 
 function panto(e) {
     myLayer.eachLayer(function(layer) {
-        var name = layer.feature.properties.name;
-        if (e == name) {
+        var id = layer.feature.properties.id;
+        if (e == id) {
             try {
                 map.setView(layer.getLatLng());
                 layer.openPopup();
@@ -31,7 +31,7 @@ $(document).ready(function() {
         var feature = marker.feature;
         var name = feature.properties.name
         // Create custom popup content
-        var popupContent =  '<a href="#' + name + '"><strong>' + name + '</strong></a>';
+        var popupContent =  '<a href="#' + feature.properties.id + '"><strong>' + name + '</strong></a>';
         var relationContent = '';
         if(feature.properties.relation && feature.properties.relation.length) {
             var relation = feature.properties.relation
@@ -43,7 +43,7 @@ $(document).ready(function() {
         // http://leafletjs.com/reference.html#popup
         marker.bindPopup(popupContent + relationContent);
         //Add links to matching names on HTML page
-        $('#' + name).each(function(){
+        $('#' + feature.properties.id).each(function(){
             $(this).append(' <a href="' + $(this).html() + '" class="small panto">(show on map)</a> ');
         });
     });
