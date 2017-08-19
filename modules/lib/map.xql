@@ -74,13 +74,13 @@ let $data :=
             {
                 for $place in $data/descendant-or-self::*:map-point
                 where $place//tei:geo
-                let $name := 
-                    if ($place//tei:place/tei:placeName[@type='ancient']) then 
-                        $place//tei:place/tei:placeName[@type='ancient'][1]/text()
-                    else $place//tei:place/tei:placeName[1]/text()
+                let $name :=
+                    if ($place//tei:titleStmt/tei:title) then
+                        $place//tei:titleStmt/tei:title[1]/text()
+                    else $place//tei:placeName[1]/text()
                 let $lat := substring-before($place//tei:geo,' ')
                 let $long := substring-after($place//tei:geo,' ')
-                let $id := $place/@id
+                let $id := string($place//@xml:id[1])
                 let $relation := $place//tei:relation
                 return
                 <json:value>
@@ -91,6 +91,7 @@ let $data :=
                         <coordinates json:literal="true">[{$lat},{$long}]</coordinates>
                     </geometry>
                     <properties>
+                        <id>{ $id }</id>
                         <name>{ $name }</name>
                         <description>{ $name }</description>
                         {for $r in $relation return <relation json:array="true">{$r/@*}</relation>}
