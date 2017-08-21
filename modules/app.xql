@@ -802,7 +802,8 @@ declare function app:view-hits($inscriptions, $placeId){
                 let $date-text := $i/descendant::tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/text()
                 (: Deal with dates for sorting... if notBefore... :)
                 let $date := $i/descendant::tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:history/tei:origin/tei:origDate/@notBefore-custom
-                order by $title
+                let $sortOrder := replace($id,'[^\d]', '')
+                order by if(xs:integer($sortOrder)) then xs:integer($sortOrder) else $title
                 return 
                     <tr>
                         <td data-sort="{$id}">{$id}</td>
