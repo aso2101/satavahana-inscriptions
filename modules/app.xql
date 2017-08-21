@@ -223,67 +223,9 @@ declare function app:flatten-app($node as node()*) {
                 </section>
         else ()
 }; :)
-
-declare function app:inscription-map($node as node(), $model as map(*)) {
-    let $inscription := $model("data")
-    let $placename := substring-after($inscription//tei:origPlace/tei:placeName[1]/@key,"pl:")
-    let $place := 
-        if ($config:place-authority//tei:place[@xml:id = $placename]) 
-            then $config:place-authority//tei:place[@xml:id = $placename]
-        else collection($config:place-authority-dir)//tei:place[@xml:id = $placename]
-    return
-        if ($place/tei:geo)
-        then 
-            let $lat := substring-before($place/tei:geo,' ')
-            let $long := substring-after($place/tei:geo,' ')
-            let $latlong := concat($long,", ",$lat)
-            let $feature := 
-                <json:value>
-                    <type>Feature</type>
-                    <geometry>
-                        <place>{$place}</place>
-                        <type>Point</type>
-                        <coordinates json:literal="true">[{$lat},{$long}]</coordinates>
-                    </geometry>
-                    <properties>
-                        <name>{ $place }</name>
-                        <description>{ $place }</description>
-                        <marker-size>large</marker-size>
-                        <marker-color>#A80000</marker-color>
-                    </properties>
-                </json:value> 
-            let $json := 
-                fn:serialize($feature,
-                <output:serialization-parameters>
-                    <output:method value="json"/>
-                    <output:indent value="yes"/>
-                    <output:media-type value="application/json"/>
-                </output:serialization-parameters>)
-            return
-            <section class="accordion map-panel">
-                <div class="map-container">
-                    <input id="ac-1" name="accordion-1" type="checkbox"/>
-                    <label for="ac-1">Map of inscription location ({$placename})</label>
-                    <article>
-                        <div id="map">
-                        <script type="text/javascript">
-                        L.mapbox.accessToken = 'pk.eyJ1IjoiYXNvMjEwMSIsImEiOiJwRGcyeGJBIn0.jbSN_ypYYjlAZJgd4HqDGQ';
-                        var geojson = {$json};
-                        var bounds = L.latLngBounds(geojson);
-                        var map = L.mapbox.map('map', 'aso2101.kbbp2nnh').setView([{$latlong}],8);
-                        </script>
-                        <script type="text/javascript" src="resources/scripts/map.js"/>
-                        <ul id="marker-list"/>
-                        </div>
-                    </article>
-               </div>
-            </section>   
-        else ()
-};
-
-(:  Updated search functions. :)
+(:  Custom SAI search functions. :)
 (:~
- : Builds query.
+ : Builds search query.
  : @param $query from input field
  : @param $filter select search type
 :)
@@ -301,6 +243,7 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
         let $facet-def := doc($config:app-root || '/search-facet-def.xml')/child::*
         let $inscriptions := concat("collection($config:remote-data-root)/tei:TEI[ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
         let $iText := concat("collection($config:remote-data-root)//tei:div[@type = ('apparatus','edition')][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
+        let $iApparatus := concat("collection($config:remote-data-root)//tei:div[@type = 'apparatus'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
         let $iTranslation := concat("collection($config:remote-data-root)//tei:div[@type='translation'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))        
         let $iCommentary := concat("collection($config:remote-data-root)//tei:div[@type='commentary'][ft:query(.,'", $query,"', app:search-options())]",facet:facet-filter($facet-def))
         let $iMetadata := concat("collection($config:remote-data-root)/tei:TEI[descendant::tei:teiHeader[ft:query(.,'", $query,"', app:search-options())] or //tei:biblStruct[ft:query(.,'", $query,"', app:search-options())]]",facet:facet-filter($facet-def))        
@@ -316,6 +259,10 @@ declare function app:query($node as node()*, $model as map(*), $query as xs:stri
                 for $hit in util:eval($iText)
                 order by ft:score($hit) descending
                 return $hit
+            else if(request:get-parameter('filter', '') = 'iApparatus') then
+                for $hit in util:eval($iApparatus)
+                order by ft:score($hit) descending
+                return $hit                
             else if(request:get-parameter('filter', '') = 'iTranslation') then
                 for $hit in util:eval($iTranslation)
                 order by ft:score($hit) descending
