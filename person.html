@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <html data-template="pages:app-root">
     <head>
         <title data-template="config:app-title">App Title</title>
@@ -12,6 +11,7 @@
         <link rel="stylesheet" type="text/css" href="resources/css/vendor/ripples.min.css"/>
         <link rel="stylesheet" type="text/css" href="resources/fonts/font.css"/>
         <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
+        <link rel="stylesheet" type="text/css" href="resources/css/sai.css"/>
         <link rel="stylesheet" type="text/css" href="resources/css/vendor/animate.min.css"/>
         <link rel="stylesheet" type="text/css" href="resources/css/vendor/jasny-bootstrap.min.css"/>
         <link rel="stylesheet" type="text/css" data-template="pages:styles"/>
@@ -25,14 +25,35 @@
         <script type="text/javascript" src="resources/scripts/jquery.fs.macaroon.min.js"/>
         <script type="text/javascript" src="resources/scripts/jasny-bootstrap.min.js"/>
         <script type="text/javascript" src="resources/scripts/app.js"/>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
+        <script src="https://cdn.rawgit.com/ErikGartner/dTree/master/dist/dTree.min.js"></script>
         <script>
         $( document ).ready(function() {
-            $('.modal').detach().appendTo("body")
-        };
+            $('.modal').detach().appendTo("body");
+        });
         </script>
         <!--#SAICustom - Include SAI maps -->
         <script src="https://api.mapbox.com/mapbox.js/v3.1.0/mapbox.js"/>
         <link href="https://api.mapbox.com/mapbox.js/v3.1.0/mapbox.css" rel="stylesheet"/>
+        <style>
+            .linage {
+                fill: none;
+                stroke: black;
+            }
+            .marriage {
+                fill: none;
+                stroke: black;
+            }
+            .node {
+                background-color: lightblue;
+                border-style: solid;
+                border-width: 1px;
+            }
+            .nodeText{
+                font: 10px sans-serif;
+            }
+        </style>
     </head>
     <body xmlns:i18n="http://exist-db.org/xquery/i18n">
         <div data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content" data-template-using="body">

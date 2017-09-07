@@ -185,6 +185,7 @@ declare function app:person-relations($node as node(), $model as map(*)) {
             <div>
                 <h4>Relations with other persons:</h4>
                 <ul>{ $list }</ul>
+                {d3xquery:build-familyTree-html($id)}
             </div>
 };
 
