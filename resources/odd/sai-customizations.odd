@@ -256,6 +256,47 @@
                         <outputRendition>color: grey;font-style:italic;</outputRendition>
                     </model>
                 </elementSpec>
+                <!-- ==== E ==== !-->
+                <!-- EDITOR !-->
+                <elementSpec mode="change" ident="editor">
+					<!-- ***biblio*** editor -->
+					<modelSequence predicate="ancestor::biblStruct">
+						<modelGrp>
+							<model predicate="name" behaviour="inline">
+								<param name="content" value="."/>
+							</model>
+							<modelSequence predicate="descendant-or-self::surname">
+								<model behaviour="inline">
+									<param name="content" value="descendant-or-self::forename"/>
+								</model>
+								<model behaviour="text">
+									<param name="content" value="' '"/>
+								</model>
+								<model behaviour="inline">
+									<param name="content" value="descendant-or-self::surname"/>
+								</model>
+							</modelSequence>
+						</modelGrp>
+						<modelGrp>
+							<model predicate="following-sibling::editor and (count(following-sibling::editor) = 1)" behaviour="text">  <param name="content" value="' &amp;#x26; '"/>  </model>  <model predicate="following-sibling::editor and (count(following-sibling::editor) &gt; 1)" behaviour="text">  <param name="content" value="', '"/>  </model>  <model predicate="not(following-sibling::editor)" behaviour="text">  <param name="content" value="', '"/>  </model>
+						</modelGrp>
+					</modelSequence>
+					<!-- **titleSmt** editor !-->
+					<!-- I have changed this to allow for <name> rather than <persName> as a child of editor !-->
+					<!-- also, editor[@role='contributor'] is not used in this project; respStmt is used instead. !-->
+					<!-- if there is only one editor in the titleStmt !-->
+					<modelSequence predicate="ancestor::titleStmt">
+					    <modelSequence predicate="@role='general'" behaviour="inline">
+					        <model behaviour="inline" cssClass="text-muted">
+					            <param name="content">'[General editor: '</param>
+					        </model>
+					        <model behaviour="inline" cssClass="text-muted">
+					            <param name="content" value="concat(normalize-space(.),'.]')"/>
+					        </model>
+						</modelSequence>
+					</modelSequence>
+				</elementSpec>
+                <!-- ==== F ==== !-->
 				<!-- FILEDESC !-->
 				<elementSpec mode="change" ident="fileDesc">
 					<modelSequence predicate="$parameters?header='short'">
@@ -338,34 +379,20 @@
 								<model predicate="notesStmt/note[text()[normalize-space(.)]]" behaviour="dd">
 									<param name="content">notesStmt</param>
 								</model>
-								<model predicate="titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']" behaviour="dt">
-									<param name="content" value="'Editors '"/>
+								<!-- AO: I have changed the "Editors" section to the more general "Credits." !-->
+								<!-- I have also gotten rid of editor[@role='contributor'] in favor of respStmt. !-->
+								<model predicate="titleStmt/editor or titleStmt/respStmt" behaviour="dt">
+									<param name="content" value="'Credits '"/>
 								</model>
-								<model predicate="titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']" behaviour="dd">
+								<model predicate="titleStmt/editor or titleStmt/respStmt" behaviour="dd">
 									<desc>See elementSpec/@ident='editor' for details.</desc>
-									<!-- both @role=general and @role=contributor -->
-									<modelSequence predicate="titleStmt/editor[@role='general'] and titleStmt/editor[@role='contributor']">
-										<model behaviour="inline">
-											<param name="content" value="titleStmt/editor[@role='general']"/>
-										</model>
-										<model behaviour="inline">
-											<param name="content" value="' with contributions by '"/>
-										</model>
-										<model behaviour="inline">
-											<param name="content" value="titleStmt/editor[@role='contributor']"/>
-										</model>
-									</modelSequence>
-									<!-- only @role=general -->
-									<modelSequence predicate="titleStmt/editor[@role='general'] and not(titleStmt/editor[@role='contributor'])">
-										<model behaviour="inline">
-											<param name="content" value="titleStmt/editor[@role='general']"/>
-										</model>
-									</modelSequence>
-									<!-- only @role=contributor -->
-									<modelSequence predicate="titleStmt/editor[@role='contributor'] and not(titleStmt/editor[@role='general'])">
-										<model behaviour="inline">
-											<param name="content" value="titleStmt/editor[@role='contributor']"/>
-										</model>
+									<modelSequence predicate="titleStmt/editor or titleStmt/editor">
+									    <model behaviour="inline">
+									        <param name="content" value="titleStmt/respStmt"/>
+									    </model>
+									    <model behaviour="inline">
+									        <param name="content" value="titleStmt/editor"/>
+									    </model>
 									</modelSequence>
 								</model>
 							</modelSequence>
@@ -621,6 +648,17 @@
 						<param name="uri" value="@target"/>
 					</model>
 				</elementSpec>
+				
+				<!-- ==== R ==== !-->
+				<!-- respStmt !-->
+				<!-- respStmt should be output more or less as-is, with a period following. !-->
+				<elementSpec mode="change" ident="respStmt">
+				    <model behaviour="inline">
+    				    <param name="content" value="concat(normalize-space(.),'. ')"/>
+    				</model>
+				</elementSpec>
+				
+				<!-- ==== T ==== !-->
 
 				<!-- ==== title ==== -->
 				<elementSpec mode="change" ident="title">

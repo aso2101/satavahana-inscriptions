@@ -312,68 +312,20 @@ declare function model:apply($config as map(*), $input as node()*) {
                         )
 
                     else
-                        if (ancestor::titleStmt and not(following-sibling::editor)) then
+                        if (ancestor::titleStmt) then
                             (
-                                html:inline($config, ., ("tei-editor8"), persName),
-                                html:text($config, ., ("tei-editor9"), '. ')
-                            )
-
-                        else
-                            if (ancestor::titleStmt and @role='general' and (count(following-sibling::editor[@role='general']) = 1)) then
-                                (
-                                    html:inline($config, ., ("tei-editor10"), persName),
-                                    html:text($config, ., ("tei-editor11"), ' and ')
-                                )
-
-                            else
-                                if (ancestor::titleStmt and @role='contributor' and (count(following-sibling::editor[@role='contributor']) = 1)) then
+                                if (@role='general') then
                                     (
-                                        html:inline($config, ., ("tei-editor12"), persName),
-                                        html:text($config, ., ("tei-editor13"), ' and ')
+                                        html:inline($config, ., ("tei-editor8", "text-muted"), '[General editor: '),
+                                        html:inline($config, ., ("tei-editor9", "text-muted"), concat(normalize-space(.),'.]'))
                                     )
 
                                 else
-                                    if (ancestor::titleStmt and @role='general' and following-sibling::editor[@role='general']) then
-                                        (
-                                            html:inline($config, ., ("tei-editor14"), persName),
-                                            html:text($config, ., ("tei-editor15"), ', ')
-                                        )
+                                    ()
+                            )
 
-                                    else
-                                        if (ancestor::titleStmt and @role='general' and following-sibling::editor[@role='contributor']) then
-                                            (
-                                                html:inline($config, ., ("tei-editor16"), persName),
-                                                html:text($config, ., ("tei-editor17"), ', ')
-                                            )
-
-                                        else
-                                            if (ancestor::titleStmt and @role='contributor' and following-sibling::editor[@role='contributor']) then
-                                                (
-                                                    html:inline($config, ., ("tei-editor18"), persName),
-                                                    html:text($config, ., ("tei-editor19"), ', ')
-                                                )
-
-                                            else
-                                                if (surname or forename) then
-                                                    (
-                                                        html:inline($config, ., ("tei-editor20"), surname),
-                                                        if (surname and forename) then
-                                                            html:text($config, ., ("tei-editor21"), ', ')
-                                                        else
-                                                            (),
-                                                        html:inline($config, ., ("tei-editor22"), forename),
-                                                        if (count(parent::*/editor) = 1) then
-                                                            html:text($config, ., ("tei-editor23"), ', ed. ')
-                                                        else
-                                                            (),
-                                                        if (count(parent::*/editor) > 1) then
-                                                            html:text($config, ., ("tei-editor24"), ', and ')
-                                                        else
-                                                            ()
-                                                    )
-
-                                                else
-                                                    $config?apply($config, ./node())
+                        else
+                            $config?apply($config, ./node())
                 case element(email) return
                     html:inline($config, ., ("tei-email"), .)
                 case element(epigraph) return
@@ -1015,41 +967,28 @@ else
             ext-html:dd($config, ., ("tei-fileDesc24"), notesStmt)
         else
             (),
-        if (titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']) then
-            ext-html:dt($config, ., ("tei-fileDesc25"), 'Editors ')
+        if (titleStmt/editor or titleStmt/respStmt) then
+            ext-html:dt($config, ., ("tei-fileDesc25"), 'Credits ')
         else
             (),
-        if (titleStmt/editor[@role='general'] or titleStmt/editor[@role='contributor']) then
+        if (titleStmt/editor or titleStmt/respStmt) then
             (: See elementSpec/@ident='editor' for details. :)
-            ext-html:dd($config, ., ("tei-fileDesc26"), if (titleStmt/editor[@role='general'] and titleStmt/editor[@role='contributor']) then
+            ext-html:dd($config, ., ("tei-fileDesc26"), if (titleStmt/editor or titleStmt/editor) then
     (
-        html:inline($config, ., ("tei-fileDesc27"), titleStmt/editor[@role='general']),
-        html:inline($config, ., ("tei-fileDesc28"), ' with contributions by '),
-        html:inline($config, ., ("tei-fileDesc29"), titleStmt/editor[@role='contributor'])
+        html:inline($config, ., ("tei-fileDesc27"), titleStmt/respStmt),
+        html:inline($config, ., ("tei-fileDesc28"), titleStmt/editor)
     )
 
 else
-    if (titleStmt/editor[@role='general'] and not(titleStmt/editor[@role='contributor'])) then
-        (
-            html:inline($config, ., ("tei-fileDesc30"), titleStmt/editor[@role='general'])
-        )
-
-    else
-        if (titleStmt/editor[@role='contributor'] and not(titleStmt/editor[@role='general'])) then
-            (
-                html:inline($config, ., ("tei-fileDesc31"), titleStmt/editor[@role='contributor'])
-            )
-
-        else
-            $config?apply($config, ./node()))
+    $config?apply($config, ./node()))
         else
             ()
     )
 ,
     if (../..//div[@type='bibliography']/p[text()[normalize-space(.)]]) then
         (
-            ext-html:dt($config, ., ("tei-fileDesc32"), 'Publication history'),
-            ext-html:dd($config, ., ("tei-fileDesc33"), ../..//div[@type='bibliography']/p)
+            ext-html:dt($config, ., ("tei-fileDesc29"), 'Publication history'),
+            ext-html:dd($config, ., ("tei-fileDesc30"), ../..//div[@type='bibliography']/p)
         )
 
     else
@@ -1504,10 +1443,7 @@ else
                     else
                         $config?apply($config, ./node())
                 case element(respStmt) return
-                    if (ancestor::titleStmt and count(child::resp[@type='editor'] >= 1)) then
-                        html:inline($config, ., ("tei-respStmt1"), persName)
-                    else
-                        html:inline($config, ., ("tei-respStmt2"), .)
+                    html:inline($config, ., ("tei-respStmt"), concat(normalize-space(.),'. '))
                 case element(series) return
                     if (ancestor::biblStruct) then
                         (
