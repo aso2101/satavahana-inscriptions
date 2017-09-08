@@ -94,16 +94,16 @@ declare function model:apply($config as map(*), $input as node()*) {
                 case element(author) return
                     if (ancestor::biblStruct) then
                         (
-                            if (name) then
-                                fo:inline($config, ., ("tei-author1"), name)
-                            else
-                                if (descendant-or-self::surname) then
-                                    (
-                                        fo:inline($config, ., ("tei-author2"), descendant-or-self::surname),
-                                        fo:text($config, ., ("tei-author3"), ', '),
-                                        fo:inline($config, ., ("tei-author4"), descendant-or-self::forename)
-                                    )
+                            if (descendant-or-self::surname) then
+                                (
+                                    fo:inline($config, ., ("tei-author1"), descendant-or-self::surname),
+                                    fo:text($config, ., ("tei-author2"), ', '),
+                                    fo:inline($config, ., ("tei-author3"), descendant-or-self::forename)
+                                )
 
+                            else
+                                if (name) then
+                                    fo:inline($config, ., ("tei-author4"), name)
                                 else
                                     $config?apply($config, ./node()),
                             if (child::* and following-sibling::author and (count(following-sibling::author) = 1)) then
@@ -113,7 +113,7 @@ declare function model:apply($config as map(*), $input as node()*) {
                                     fo:text($config, ., ("tei-author6"), ', ')
                                 else
                                     if (child::* and not(following-sibling::author)) then
-                                        fo:text($config, ., ("tei-author7"), ', ')
+                                        fo:text($config, ., ("tei-author7"), '. ')
                                     else
                                         $config?apply($config, ./node())
                         )
@@ -1093,208 +1093,83 @@ else
                 case element(authority) return
                     fo:omit($config, ., ("tei-authority"), .)
                 case element(biblStruct) return
-                    fo:block($config, ., ("tei-biblStruct1"), (
-    (
-        fo:inline($config, ., ("tei-biblStruct2"), if (.//title[@type='short']) then
-    (: No function found for behavior: bibl-link :)
-    $config?apply($config, ./node())
-else
-    (
-        if (.//author/surname) then
-            fo:inline($config, ., ("tei-biblStruct4"), .//author/surname)
-        else
-            if (.//author/name) then
-                fo:inline($config, ., ("tei-biblStruct5"), .//author/name)
-            else
-                $config?apply($config, ./node()),
-        fo:text($config, ., ("tei-biblStruct6"), ' '),
-        fo:inline($config, ., ("tei-biblStruct7"), monogr/imprint/date)
-    )
-)
-    )
-,
-    (
-        if (@type='journalArticle' or @type='bookSection' or @type='encyclopediaArticle') then
-            (
-                fo:inline($config, ., ("tei-biblStruct8"), analytic/author),
-                if (analytic/title[@level='a']) then
-                    (
-                        fo:inline($config, ., ("tei-biblStruct9"), analytic/title[@level='a']),
-                        fo:text($config, ., ("tei-biblStruct10"), ', ')
-                    )
-
-                else
-                    if (not(analytic/title[@level='a']) and relatedItem[@type='reviewOf']) then
-                        (
-                            (: When it is a review of another bibliographic entry: so there's is no analytic/title[@level='a']. :)
-                            fo:link($config, ., ("tei-biblStruct11"), relatedItem/ref, ()),
-                            fo:text($config, ., ("tei-biblStruct12"), ', ')
-                        )
-
-                    else
-                        $config?apply($config, ./node()),
-                if (@type='bookSection' or @type='encyclopediaArticle') then
-                    (
-                        if (@type='bookSection' or @type='encyclopediaArticle') then
-                            fo:text($config, ., ("tei-biblStruct13"), 'in ')
-                        else
-                            (),
-                        fo:inline($config, ., ("tei-biblStruct14"), monogr/title[@level='m']),
-                        fo:text($config, ., ("tei-biblStruct15"), ', '),
-                        if (monogr/author) then
-                            fo:text($config, ., ("tei-biblStruct16"), 'by ')
-                        else
-                            (),
-                        fo:inline($config, ., ("tei-biblStruct17"), monogr/author),
-                        if (monogr/editor) then
-                            fo:inline($config, ., ("tei-biblStruct18"), monogr/editor)
-                        else
-                            ()
-                    )
-
-                else
-                    (),
-                if (@type='journalArticle') then
-                    (
-                        fo:inline($config, ., ("tei-biblStruct19"), monogr/title[@level='j']),
-                        fo:text($config, ., ("tei-biblStruct20"), ', ')
-                    )
-
-                else
-                    (),
-                if (.//series) then
-                    fo:inline($config, ., ("tei-biblStruct21"), series)
-                else
-                    (),
-                if (.//monogr/imprint) then
-                    fo:inline($config, ., ("tei-biblStruct22"), monogr/imprint)
-                else
-                    ()
-            )
-
-        else
-            if (@type='book' or @type='manuscript' or @type='thesis' or @type='report') then
+                    fo:block($config, ., ("tei-biblStruct1", "bibl-citation"), (
+    if (@type='journalArticle' or @type='bookSection' or @type='encyclopediaArticle' or @type='newspaperArticle') then
+        (
+            fo:inline($config, ., ("tei-biblStruct2"), ./analytic/author),
+            if (relatedItem[@type='reviewOf']) then
                 (
-                    fo:inline($config, ., ("tei-biblStruct23"), monogr/author),
-                    fo:inline($config, ., ("tei-biblStruct24"), monogr/editor),
-                    fo:inline($config, ., ("tei-biblStruct25"), monogr/respStmt),
-                    if (@type='book' or @type='thesis' or @type='report') then
-                        fo:inline($config, ., ("tei-biblStruct26"), monogr/title[@level='m'])
-                    else
-                        (),
-                    if (@type='manuscript') then
-                        fo:inline($config, ., ("tei-biblStruct27"), monogr/title[@level='u'])
-                    else
-                        (),
-                    fo:text($config, ., ("tei-biblStruct28"), ', '),
-                    if (.//series) then
-                        fo:inline($config, ., ("tei-biblStruct29"), series)
-                    else
-                        (),
-                    if (.//series/biblScope[@unit='volume']) then
-                        fo:inline($config, ., ("tei-biblStruct30"), biblScope[@unit='volume'])
-                    else
-                        (),
-                    if (monogr/imprint) then
-                        (
-                            if (@type='manuscript') then
-                                fo:text($config, ., ("tei-biblStruct31"), ' manuscript ')
-                            else
-                                (),
-                            if (@type='thesis') then
-                                fo:text($config, ., ("tei-biblStruct32"), ' unpublished Ph.D., ')
-                            else
-                                (),
-                            fo:inline($config, ., ("tei-biblStruct33"), monogr/imprint)
-                        )
-
-                    else
-                        (),
-                    if (note) then
-                        (
-                            fo:inline($config, ., ("tei-biblStruct34"), note)
-                        )
-
+                    fo:text($config, ., ("tei-biblStruct3"), ' review of '),
+                    fo:link($config, ., ("tei-biblStruct4"), let $ref := substring-after(./relatedItem/ref/@target,'#') return ancestor::listBibl/biblStruct[@xml:id=$ref]/*/title[@type='short']/text(),  '?tabs=no&amp;odd=' || request:get-parameter('odd', ()) || '?' || ./relatedItem/ref/@target),
+                    if (following-sibling::*) then
+                        fo:text($config, ., ("tei-biblStruct5"), ', ')
                     else
                         ()
                 )
 
             else
-                if (@type='journal') then
-                    (
-                        fo:inline($config, ., ("tei-biblStruct35"), monogr/title[@level='j']),
-                        fo:text($config, ., ("tei-biblStruct36"), ', '),
-                        if (monogr/imprint) then
-                            (
-                                fo:inline($config, ., ("tei-biblStruct37"), monogr/imprint)
-                            )
+                (),
+            if (./analytic/title[not(@type='short')]) then
+                (
+                    fo:text($config, ., ("tei-biblStruct6"), '“'),
+                    fo:inline($config, ., ("tei-biblStruct7"), ./analytic/title),
+                    fo:text($config, ., ("tei-biblStruct8"), '”, ')
+                )
 
-                        else
-                            (),
-                        if (note) then
-                            (
-                                fo:inline($config, ., ("tei-biblStruct38"), note)
-                            )
+            else
+                (),
+            if (@type='bookSection' or @type='encyclopediaArticle') then
+                fo:text($config, ., ("tei-biblStruct9"), 'in ')
+            else
+                (),
+            fo:inline($config, ., ("tei-biblStruct10"), ./monogr/title),
+            if (following-sibling::*) then
+                fo:text($config, ., ("tei-biblStruct11"), ', ')
+            else
+                (),
+            if (./monogr/author and (@type='bookSection' or @type='encyclopediaArticle')) then
+                (
+                    fo:text($config, ., ("tei-biblStruct12"), 'by '),
+                    fo:inline($config, ., ("tei-biblStruct13"), ./monogr/author)
+                )
 
-                        else
-                            ()
-                    )
-
-                else
-                    if (@type='webpage') then
-                        (
-                            fo:inline($config, ., ("tei-biblStruct39"), monogr/author),
-                            fo:inline($config, ., ("tei-biblStruct40"), monogr/title[not(@type='short')]),
-                            fo:text($config, ., ("tei-biblStruct41"), ', '),
-                            if (monogr/idno[@type='url'] or note[@type='url']) then
-                                (
-                                    fo:text($config, ., ("tei-biblStruct42"), 'retrieved on '),
-                                    fo:inline($config, ., ("tei-biblStruct43"), monogr/note[@type='accessed']/date),
-                                    fo:text($config, ., ("tei-biblStruct44"), ' from <'),
-                                    if (monogr/idno[@type='url']) then
-                                        fo:inline($config, ., ("tei-biblStruct45"), */idno)
-                                    else
-                                        if (note[@type='url']) then
-                                            fo:inline($config, ., ("tei-biblStruct46"), note[@type='url'])
-                                        else
-                                            $config?apply($config, ./node()),
-                                    fo:text($config, ., ("tei-biblStruct47"), '>')
-                                )
-
-                            else
-                                (),
-                            if (note) then
-                                (
-                                    if (note) then
-                                        fo:inline($config, ., ("tei-biblStruct48"), note)
-                                    else
-                                        ()
-                                )
-
-                            else
-                                ()
-                        )
-
-                    else
-                        $config?apply($config, ./node())
-    )
-,
-    if (not(@type='webpage')) then
-        (
-            if (*/idno[@type='url']) then
-                fo:inline($config, ., ("tei-biblStruct49"), */idno[@type='url'])
             else
                 ()
         )
 
     else
         (),
-    if (.//*[position()=last()][not(local-name()='note')][not(ends-with(normalize-space(text()),'.'))]) then
-        fo:text($config, ., ("tei-biblStruct50"), '.')
+    if (@type='book' or @type='thesis' or @type='manuscript') then
+        (
+            fo:inline($config, ., ("tei-biblStruct14"), ./monogr/author),
+            fo:inline($config, ., ("tei-biblStruct15", "monogr-title"), ./monogr/title[not(@type='short')]),
+            fo:text($config, ., ("tei-biblStruct16"), '. ')
+        )
+
     else
         (),
-    if (.//note[position()=last()][@type='thesisType' or @type='url' or @type='tags']) then
-        fo:text($config, ., ("tei-biblStruct51"), '.')
+    if (./monogr/editor) then
+        (
+            fo:text($config, ., ("tei-biblStruct17"), 'edited by '),
+            fo:inline($config, ., ("tei-biblStruct18"), ./monogr/editor)
+        )
+
+    else
+        (),
+    fo:inline($config, ., ("tei-biblStruct19"), ./series),
+    fo:inline($config, ., ("tei-biblStruct20"), ./monogr/imprint),
+    if (monogr/biblScope) then
+        (
+            fo:text($config, ., ("tei-biblStruct21"), ': '),
+            fo:inline($config, ., ("tei-biblStruct22"), monogr/biblScope[@unit='page'])
+        )
+
+    else
+        (),
+    fo:inline($config, ., ("tei-biblStruct23"), ./monogr/edition),
+    fo:inline($config, ., ("tei-biblStruct24"), .//note),
+    if (not(./relatedItem/note)) then
+        fo:text($config, ., ("tei-biblStruct25"), '.')
     else
         ()
 )

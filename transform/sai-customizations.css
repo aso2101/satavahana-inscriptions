@@ -114,14 +114,7 @@
 .tei-addName:before { content:'('; }
 .tei-addName:after { content:')'; }
 .tei-app2:after { content: ' '; }
-.tei-biblStruct2 { font-weight:bold; }
-.tei-biblStruct3 { font-weight:bold; font-style:normal; color: #f6a623; }
-.tei-biblStruct3:after { content:"\a"; white-space:pre; }
-.tei-biblStruct9:before { content:'“'; }
-.tei-biblStruct9:after { content:'”'; }
-.tei-biblStruct18:before { content:'ed. by ' }
-.tei-biblStruct27:before { content:'“'; }
-.tei-biblStruct27:after { content:'”'; }
+.tei-biblStruct15 { font-style: italic; }
 .tei-height2:before { content:"h. "; }
 .tei-height2:after { content:" × "; }
 .tei-height3:before { content:"h. "; }

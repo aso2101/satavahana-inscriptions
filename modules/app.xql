@@ -915,7 +915,7 @@ declare function app:dynamic-map-data($node as node(), $model as map(*), $type a
 :)
 declare function app:map($node as node(), $model as map(*),$type as xs:string?) { 
     if(not(empty(app:dynamic-map-data($node,$model, $type)))) then 
-    <section class="map">
+    <section class="map cust-collapse">
         <div class="panel panel-default">             
             <div class="panel-heading">
                 <h4 class="panel-title">
@@ -1210,7 +1210,7 @@ function app:navigation-title($node as node(), $model as map(*)) {
 
 declare function app:section-custom($node as element(),$model as map(*),$path as xs:string?,$title as xs:string) {
     <div id="metadata-panel">
-        <section>
+        <section class="cust-collapse">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">

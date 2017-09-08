@@ -159,7 +159,78 @@
 		    			</modelSequence>
 		    		</model>
 		    	</elementSpec>
-
+		    	<!-- ===== D ===== !-->
+		    	<!-- DIV !-->
+		    	<elementSpec mode="change" ident="div">
+		    	    <!-- I have changed EM's elementSpec to add the cust-collapse class to 
+		    	         all of the sections which should be "collapsible". 
+		    	         This makes the CSS much simpler... !-->
+					<attList>
+						<attDef ident="type" mode="replace" usage="req">
+							<valList type="closed">
+								<valItem ident="apparatus">
+									<desc>to contain apparatus criticus or textual notes</desc>
+								</valItem>
+								<valItem ident="bibliography">
+									<desc>to contain bibliographical information, previous publications, etc.</desc>
+								</valItem>
+								<valItem ident="commentary">
+									<desc>to contain all editorial commentary, historical/prosopographical discussion, etc.</desc>
+								</valItem>
+								<valItem ident="edition">
+									<desc>to contain the text of the edition itself; may include multiple text-parts</desc>
+								</valItem>
+								<valItem ident="textpart">
+									<desc>used to divide a div[type=edition] into multiple parts (fragments, columns, faces, etc.)</desc>
+								</valItem>
+								<valItem ident="translation">
+									<desc>to contain a translation of the text into one or more modern languages</desc>
+								</valItem>
+							</valList>
+						</attDef>
+					</attList>
+					<!-- texpart -->
+					<model predicate="@type='textpart'" behaviour="block" cssClass="texpart">
+						<modelSequence>
+							<model behaviour="block" cssClass="textpart-label">
+								<param name="content" value="concat(upper-case(substring(@n,1,1)),substring(@n,2))"/>
+							</model>
+							<model behaviour="block"/>
+						</modelSequence>
+					</model>
+					<!-- bibliography -->
+					<model predicate="@type='bibliography' and listBibl//*[text()[normalize-space(.)]]" behaviour="section-collapsible" cssClass="bibliography">
+						<param name="id" value="@type"/>
+						<param name="content" value="listBibl"/>
+						<param name="button-title" value="'Secondary bibliography'"/>
+					</model>
+					<!-- translation -->
+					<modelSequence predicate="@type='translation' and *[text()[normalize-space(.)]]">
+						<model behaviour="section-collapsible" cssClass="translation">
+							<param name="id" value="@type"/>
+							<param name="button-title" value=" let $plural := if (count(ab) &gt; 1) then 's' else () return concat(upper-case(substring(@type,1,1)),substring(@type,2),$plural) "/>
+							<param name="local-function" value="'process-tabs'"/>
+						</model>
+					</modelSequence>
+					<!-- edition -->
+					<model predicate="@type='edition'" behaviour="section-collapsible-with-tabs" cssClass="edition">
+						<param name="id" value="@type"/>
+						<param name="button-title" value="'Edition'"/>
+						<param name="break" value="'Logical'"/>
+					</model>
+					<!-- apparatus -->
+					<model predicate="@type='apparatus' and *//*[text()[normalize-space(.)]]" behaviour="section-collapsible" cssClass="apparatus">
+						<param name="id" value="@type"/>
+						<param name="button-title" value="concat(upper-case(substring(@type,1,1)),substring(@type,2))"/>
+					</model>
+					<!-- commentary -->
+					<modelSequence predicate="@type='commentary' and *//*[text()[normalize-space(.)]]">
+						<model behaviour="section-collapsible" cssClass="commentary cust-collapse">
+							<param name="id" value="@type"/>
+							<param name="button-title" value="concat(upper-case(substring(@type,1,1)),substring(@type,2))"/>
+						</model>
+					</modelSequence>
+				</elementSpec>
                 <!-- FACSIMILE !-->
                 <elementSpec mode="change" ident="facsimile">
                     <model predicate="$parameters?modal='true'" behaviour="image-modals">
