@@ -46,7 +46,42 @@
 		    			</modelGrp>
 		    		</modelSequence>
 		    	</elementSpec>
-    	
+		    	<!-- bibl !-->
+		    	<elementSpec mode="change" ident="bibl">
+					<constraintSpec mode="add" ident="noEmptyBibl" scheme="isoschematron">
+						<constraint>
+							<assert xmlns="http://purl.oclc.org/dsdl/schematron" test="child::* or child::text()[normalize-space()]" role="ERROR"> Element "<name/>" may not be empty. </assert>
+						</constraint>
+					</constraintSpec>
+					<!-- ana = #photo -->
+					<model predicate="parent::listBibl[@ana='#photo'] and following-sibling::bibl" behaviour="listItem" cssClass="list-inline-item">
+						<!--<outputRendition scope="after">content:'; ';</outputRendition>-->
+					</model>
+					<model predicate="(parent::listBibl[@ana='#photo'] and not(following-sibling::bibl))" behaviour="listItem" cssClass="list-inline-item"/>
+					<!-- ana = #photo-estampage -->
+					<model predicate="parent::listBibl[@ana='#photo-estampage'] and following-sibling::bibl" behaviour="listItem" cssClass="list-inline-item">
+						<!--<outputRendition scope="after">content:"; ";</outputRendition>-->
+					</model>
+					<model predicate="parent::listBibl[@ana='#photo-estampage'] and not(following-sibling::bibl)" behaviour="listItem" cssClass="list-inline-item"/>
+					<!-- ana = #rti -->
+					<model predicate="parent::listBibl[@ana='#rti'] and following-sibling::bibl" behaviour="listItem" cssClass="list-inline-item">
+						<!--<outputRendition scope="after">content:"; ";</outputRendition>-->
+					</model>
+					<model predicate="parent::listBibl[@ana='#photo'] and not(following-sibling::bibl)" behaviour="listItem" cssClass="list-inline-item"/>
+					<!-- other -->
+					<model predicate="parent::listBibl and ancestor::div[@type='bibliography']" behaviour="listItemImage">
+						<param name="material-icons" value="'bookmark'"/>
+						<outputRendition>list-style:none; vertical-align:middle; </outputRendition>
+					</model>
+					<model predicate="@rend='parens'" behaviour="inline" cssClass="bibl">
+						<outputRendition> display:inline-block; </outputRendition>
+						<outputRendition scope="before">content: '(';</outputRendition>
+						<outputRendition scope="after">content: ')';</outputRendition>
+					</model>
+					<model behaviour="inline" cssClass="bibl">
+						<outputRendition> display:inline-block; </outputRendition>
+					</model>
+				</elementSpec>
 				<!-- ==== biblStruct ==== -->
 		    	<elementSpec mode="change" ident="biblStruct">
 		    		<model behaviour="block" cssClass="bibl-citation">
@@ -648,7 +683,28 @@
 						<param name="uri" value="@target"/>
 					</model>
 				</elementSpec>
-				
+				<!-- ==== Q ==== -->
+				<!-- QUOTE !-->
+				<elementSpec ident="quote" mode="change">
+					<model predicate="ancestor::teiHeader and parent::cit" behaviour="inline">
+						<desc>If it is inside a cit then it is inline.</desc>
+						<outputRendition scope="before">content: '“';</outputRendition>
+						<outputRendition scope="after">content: '”';</outputRendition>
+					</model>
+				    <model predicate="@rend='double'" behaviour="inline">
+				        <desc>@rend='double' is rendered as double quotes.</desc>
+						<outputRendition scope="before">content: '“';</outputRendition>
+						<outputRendition scope="after">content: '”';</outputRendition>
+					</model>
+					<model predicate="ancestor::p or ancestor::note or ancestor::desc" behaviour="inline">
+						<outputRendition scope="before">content: '‘';</outputRendition>
+        				<outputRendition scope="after">content: '’';</outputRendition>
+        			</model>
+					<model behaviour="block" useSourceRendition="true">
+						<desc>If it is inside a paragraph then it is inline, otherwise it is block level</desc>
+						<outputRendition>margin-left: 10px; margin-right: 10px; </outputRendition>
+					</model>
+				</elementSpec>
 				<!-- ==== R ==== !-->
 				<!-- respStmt !-->
 				<!-- respStmt should be output more or less as-is, with a period following. !-->

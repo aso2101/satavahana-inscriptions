@@ -145,7 +145,10 @@ declare function model:apply($config as map(*), $input as node()*) {
                                                 (: No function found for behavior: listItemImage :)
                                                 $config?apply($config, ./node())
                                             else
-                                                fo:inline($config, ., ("tei-bibl8", "bibl"), .)
+                                                if (@rend='parens') then
+                                                    fo:inline($config, ., ("tei-bibl8", "bibl"), .)
+                                                else
+                                                    fo:inline($config, ., ("tei-bibl9", "bibl"), .)
                 case element(biblScope) return
                     if (ancestor::biblStruct) then
                         fo:inline($config, ., ("tei-biblScope"), .)
@@ -763,12 +766,15 @@ else
                         (: If it is inside a cit then it is inline. :)
                         fo:inline($config, ., ("tei-quote1"), .)
                     else
-                        if (ancestor::p or ancestor::note) then
-                            (: If it is inside a paragraph or a note then it is inline, otherwise it is block level :)
-                            fo:inline($config, ., css:get-rendition(., ("tei-quote2")), .)
+                        if (@rend='double') then
+                            (: @rend='double' is rendered as double quotes. :)
+                            fo:inline($config, ., ("tei-quote2"), .)
                         else
-                            (: If it is inside a paragraph then it is inline, otherwise it is block level :)
-                            fo:block($config, ., css:get-rendition(., ("tei-quote3")), .)
+                            if (ancestor::p or ancestor::note or ancestor::desc) then
+                                fo:inline($config, ., ("tei-quote3"), .)
+                            else
+                                (: If it is inside a paragraph then it is inline, otherwise it is block level :)
+                                fo:block($config, ., css:get-rendition(., ("tei-quote4")), .)
                 case element(ref) return
                     if (@rend='no-link') then
                         fo:inline($config, ., ("tei-ref1"), .)

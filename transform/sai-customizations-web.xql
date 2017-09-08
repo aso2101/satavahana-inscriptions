@@ -147,7 +147,10 @@ declare function model:apply($config as map(*), $input as node()*) {
                                             if (parent::listBibl and ancestor::div[@type='bibliography']) then
                                                 ext-html:listItemImage($config, ., ("tei-bibl7"), ., (), 'bookmark')
                                             else
-                                                html:inline($config, ., ("tei-bibl8", "bibl"), .)
+                                                if (@rend='parens') then
+                                                    html:inline($config, ., ("tei-bibl8", "bibl"), .)
+                                                else
+                                                    html:inline($config, ., ("tei-bibl9", "bibl"), .)
                 case element(biblScope) return
                     if (ancestor::biblStruct) then
                         html:inline($config, ., ("tei-biblScope"), .)
@@ -759,12 +762,15 @@ else
                         (: If it is inside a cit then it is inline. :)
                         html:inline($config, ., ("tei-quote1"), .)
                     else
-                        if (ancestor::p or ancestor::note) then
-                            (: If it is inside a paragraph or a note then it is inline, otherwise it is block level :)
-                            html:inline($config, ., css:get-rendition(., ("tei-quote2")), .)
+                        if (@rend='double') then
+                            (: @rend='double' is rendered as double quotes. :)
+                            html:inline($config, ., ("tei-quote2"), .)
                         else
-                            (: If it is inside a paragraph then it is inline, otherwise it is block level :)
-                            html:block($config, ., css:get-rendition(., ("tei-quote3")), .)
+                            if (ancestor::p or ancestor::note or ancestor::desc) then
+                                html:inline($config, ., ("tei-quote3"), .)
+                            else
+                                (: If it is inside a paragraph then it is inline, otherwise it is block level :)
+                                html:block($config, ., css:get-rendition(., ("tei-quote4")), .)
                 case element(ref) return
                     if (@rend='no-link') then
                         html:inline($config, ., ("tei-ref1"), .)
