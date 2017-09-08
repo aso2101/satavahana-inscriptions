@@ -906,8 +906,7 @@ section h3 {
   margin-top: 1.5em;
   padding-bottom: .75em;
 }
-section.edition .nav-tabs,
-.cust-collapse .nav-tabs {
+section.cust-collapse .nav-tabs {
   font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
 }
 section.edition {
@@ -1103,7 +1102,7 @@ section.cust-collapse .nav > li {
   position: relative;
   display: block;
 }
-section.cust-collapse > li > a,
+section.cust-collapse .nav-tabs > li > a,
 section.cust-collapse .nav-tabs > li > a:focus,
 section.cust-collapse .nav-tabs > li > a:hover {
   background-color: transparent !important;

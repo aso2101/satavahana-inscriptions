@@ -562,7 +562,7 @@ declare function pmf:section-collapsible-with-tabs($config as map(*), $node as e
     let $work := $node/ancestor-or-self::tei:TEI
     let $relPath := app:get-identifier2($work)
     return
-    <section class="{$class}">
+    <section class="{$class} cust-collapse">
         <div class="panel panel-default">             
               { if ($button-title != '') then
               <div class="panel-heading">
