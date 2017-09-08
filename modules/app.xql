@@ -500,9 +500,9 @@ return
  : @param $rec record node
  :)
 declare function app:rec-type($rec as node()*){
-    if($rec/descendant::tei:text/tei:body/tei:biblStruct) then 'Bibliography'
-    else if($rec/descendant-or-self::tei:text/tei:body/tei:listPerson or (local-name($rec/child::*[1]) = 'person')) then 'Person'
-    else if($rec/descendant-or-self::tei:text/tei:body/tei:listPlace or (local-name($rec/child::*[1]) = 'place')) then 'Place'
+    if($rec/descendant::tei:text/tei:body/tei:biblStruct or (local-name($rec/self::*) = 'biblStruct')) then 'Bibliography'
+    else if($rec/descendant-or-self::tei:text/tei:body/tei:listPerson or (local-name($rec/child::*[1]) = 'person') or (local-name($rec/self::*) = 'person')) then 'Person'
+    else if($rec/descendant-or-self::tei:text/tei:body/tei:listPlace or (local-name($rec/child::*[1]) = 'place') or (local-name($rec/self::*) = 'place')) then 'Place'
     else 'Inscription'
 };
 
@@ -1131,25 +1131,18 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
 :)
 declare function app:related-inscriptions($node as node(), $model as map(*)) {
     let $doc := $model?data
-    let $type := 
-        if(name($doc) = 'person') then 
-            'person'
-        else if(name($doc) = 'place') then 
-            'place'   
-        else if($doc/descendant::tei:body/tei:text/tei:biblStruct or name($doc) = 'biblStruct') then 
-            'bibl'               
-        else 'inscription'
+    let $type := app:rec-type($doc)
     let $key := 
-        if($type='person') then 
+        if($type='Person') then 
             concat('pers:',string($doc/@xml:id))
-        else if($type='place') then 
-            concat('place:',string($doc/@xml:id))   
-        else if($type='bibl') then 
+        else if($type='Place') then 
+            concat('pl:',string($doc/@xml:id))   
+        else if($type='Bibliography') then 
             concat('bibl:',string($doc/@xml:id))               
         else $doc/@xml:id
-    let $inscriptions := if($type='bibl') then 
+    let $inscriptions := if($type='Bibliography') then 
                             collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='bibliography']//@target=$key]
-                         else collection($config:remote-data-root)//tei:TEI[descendant::tei:div[@type='edition']//@key=$key]
+                         else collection($config:remote-data-root)//tei:TEI[descendant::*//@key=$key]
     let $places := 
         for $placekey in distinct-values($inscriptions//tei:origPlace/tei:placeName[1]/@key)
         let $name := 
@@ -1157,20 +1150,34 @@ declare function app:related-inscriptions($node as node(), $model as map(*)) {
             else $placekey
         let $inscriptions-by-place := $inscriptions[descendant::tei:placeName[@key=$placekey]]
         order by $name
-        return 
-            <div>
-                <h4>{ $name }</h4>
-                {
-                    app:view-hits($inscriptions-by-place, $placekey)
-                }
-            </div>
+        return (if($name != string($doc/@xml:id)) then <h4>{ $name }</h4> else (),app:view-hits($inscriptions-by-place, $placekey))
     return 
         if($places) then 
-            <div>
-                <h4>Mentioned in these inscriptions:</h4>
-                { $places }
-            </div>
-        else ()
+                <section class="related-inscriptions cust-collapse">
+                    <div class="panel panel-default">             
+                          <div class="panel-heading">
+                             <h4 class="panel-title">
+                                <a class="accordion-toggle" data-toggle="collapse" href="#collapse-inscriptions">
+                                    Mentioned in these inscriptions
+                                </a>
+                                <hr/>
+                             </h4>
+                            </div>
+                         <div id="collapse-inscriptions" class="panel-collapse collapse in">
+                             <div class="panel-body">                    
+                               { $places }
+                             </div>
+                         </div>
+                    </div>
+                </section>
+        else 
+        <div><br/>
+            You messed up, here is a hint: {$type}<br/>
+            Name: {name($doc)}<br/>
+            Key: {$key} <br/>
+            Inscriptions: {count($inscriptions)}
+            
+       </div>
 };
 
 (: SAI version of page title, handles titles for persons/places/bibliography items and inscriptions :)
@@ -1191,6 +1198,8 @@ function app:navigation-title($node as node(), $model as map(*)) {
             $data//tei:persName[1]/text()
         else if (name($data) = 'place') then 
             $data//tei:placeName[1]/text()
+        else if ($data//tei:title[@type='short']) then
+            $data//tei:title[@type='short']/text()
         else if ($data//tei:title) then
             $data//tei:title[1]/text()
         else ()
