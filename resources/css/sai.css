@@ -6,6 +6,9 @@
 a:hover {
   text-decoration: none;
 }
+.id-info {
+  margin-top: 2.26em!important;
+}
 #main-container {
   max-width: 1200px;
   margin-top: 53px;

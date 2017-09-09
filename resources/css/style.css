@@ -1108,9 +1108,9 @@ section.cust-collapse .nav-tabs > li > a:hover {
   background-color: transparent !important;
   color: #607d8b !important;
 }
-section.cust-collapse > li.active > a,
-section.cust-collapse > li.active > a:focus,
-section.cust-collapse > li.active > a > hover {
+section.cust-collapse .nav-tabs > li.active > a,
+section.cust-collapse .nav-tabs > li.active > a:focus,
+section.cust-collapse .nav-tabs > li.active > a:hover {
   color: #607d8b !important;
   cursor: default !important;
   background-color: #fff !important;
@@ -1453,6 +1453,10 @@ h3.popover-title i {
 /* general */
 a:hover {
   text-decoration: none;
+}
+.id-info {
+  margin-top: 2.26em!important;
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
 }
 #main-container {
   max-width: 1200px;

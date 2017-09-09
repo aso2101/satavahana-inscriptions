@@ -119,7 +119,11 @@
 .tei-addName:before { content:'('; }
 .tei-addName:after { content:')'; }
 .tei-app2:after { content: ' '; }
-.tei-biblStruct15 { font-style: italic; }
+.tei-biblStruct11:after { content:' '; }
+.tei-biblStruct16 { font-style: italic; }
+.tei-biblStruct21:after { content:' '; }
+.tei-biblStruct22:before { content:'('; }
+.tei-biblStruct22:after { content:')'; }
 .tei-height2:before { content:"h. "; }
 .tei-height2:after { content:" × "; }
 .tei-height3:before { content:"h. "; }

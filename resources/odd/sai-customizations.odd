@@ -19,7 +19,9 @@
 <text>
   <body>
     <schemaSpec start="TEI teiCorpus" source="hisoma-epigraphy.odd" ident="sai-customizations">
+		    	<!-- ==== A ==== !-->
     			<!-- ***biblio*** author  Changed modelSequence from hisoma-epigraphy.odd  to process if surname first-->
+    			<!-- also: only add period at the end if the forename does not end in a period. !-->
 		    	<elementSpec ident="author" mode="change">
 		    		<modelSequence predicate="ancestor::biblStruct">
 		    			<modelGrp>
@@ -42,10 +44,11 @@
 		    				<!-- to change because of choice/reg in names, forenames, surnames -->
 		    				<model predicate="child::* and following-sibling::author and (count(following-sibling::author) = 1)" behaviour="text">  <param name="content" value="' &amp;#x26; '"/> 
 		    				</model>  <model predicate="child::* and following-sibling::author and (count(following-sibling::author) &gt; 1)" behaviour="text">  <param name="content" value="', '"/> 
-		    				</model>  <model predicate="child::* and not(following-sibling::author)" behaviour="text">  <param name="content" value="'. '"/>  </model>
+		    				</model>  <model predicate="child::* and not(following-sibling::author)" behaviour="text">  <param name="content" value="if (ends-with(name/forename,'.')) then '' else '. '"/>  </model>
 		    			</modelGrp>
 		    		</modelSequence>
 		    	</elementSpec>
+		    	<!-- ==== B ==== !-->
 		    	<!-- bibl !-->
 		    	<elementSpec mode="change" ident="bibl">
 					<constraintSpec mode="add" ident="noEmptyBibl" scheme="isoschematron">
@@ -86,19 +89,15 @@
 		    	<elementSpec mode="change" ident="biblStruct">
 		    		<model behaviour="block" cssClass="bibl-citation">
 		    			<modelSequence>
-		    				<!-- short title 
-		    				<model predicate=".//title[@type='short']" behaviour="bibl-link">
-		    					<param name="content" value=".//title[@type='short']"/>
-		    					<param name="id" value="@xml:id"></param>
-		    					<outputRendition> font-weight:bold; font-style:normal; color: #f6a623; </outputRendition>
-		    					<outputRendition scope="after"> content:"\a"; white-space:pre; </outputRendition>
-		    				</model>
-		    				-->
-		    				<!-- si article -->
 		    				<modelSequence predicate="@type='journalArticle' or @type='bookSection' or @type='encyclopediaArticle' or @type='newspaperArticle'">
+		    				    <!-- author: use ODD processing !-->
 		    					<model behaviour="inline">
 		    						<param name="content" value="./analytic/author"/>
 		    					</model>
+		    					<model behaviour="text">
+		    					    <param name="content">' '</param>
+		    					</model>
+		    					<!-- if it is a review !-->
 		    					<modelSequence predicate="relatedItem[@type='reviewOf']">
 		    						<model behaviour="text">
 		    							<param name="content" value="' review of '"/>
@@ -112,21 +111,24 @@
 		    						</model>
 		    					</modelSequence>
 		    					<modelSequence predicate="./analytic/title[not(@type='short')]">
+		    					    <desc>Enclose the title of journal articles, book sections, encyclopedia articles and newspaper articles in double quotation marks.</desc>
 		    						<model behaviour="text">
 		    							<param name="content" value="'“'"/>
 		    						</model>
 		    						<model behaviour="inline">
-		    							<param name="content" value="./analytic/title"/>
+		    							<param name="content" value="./analytic/title[not(@type='short')]"/>
 		    						</model>
 		    						<model behaviour="text">
-		    							<param name="content" value="'”, '"/>
+		    							<param name="content" value="'.” '"/>
 		    						</model>
 		    					</modelSequence>
 		    					<model predicate="@type='bookSection' or @type='encyclopediaArticle'" behaviour="text">
 		    						<param name="content" value="'in '"/>
 		    					</model>
+		    					<!-- title of the journal or book !-->
 		    					<model behaviour="inline">
 		    						<param name="content" value="./monogr/title"/>
+		    						<outputRendition scope="after">content:' ';</outputRendition>
 		    					</model>
 		    					<model predicate="following-sibling::*" behaviour="text">
 		    						<param name="content" value="', '"/>
@@ -166,17 +168,24 @@
 		    				<model behaviour="inline">
 		    					<param name="content" value="./series"/>
 		    				</model>
-		    				<!-- imprint -->
-		    				<model behaviour="inline">
-		    					<param name="content" value="./monogr/imprint"/>
+		    				<!-- issue !-->
+		    				<model predicate="monogr/biblScope[@unit='vol']" behaviour="inline">
+		    				    <param name="content" value="./monogr/biblScope[@unit='vol']"/>
+		    				    <outputRendition scope="after">content:' ';</outputRendition>
 		    				</model>
-		    				<!-- pyu specific: biblscope (outside imprint) -->
-		    				<modelSequence predicate="monogr/biblScope">
+		    				<!-- imprint -->
+		    				<model predicate="monogr/imprint/date" behaviour="inline">
+		    					<param name="content" value="./monogr/imprint"/>
+		    					<outputRendition scope="before">content:'(';</outputRendition>
+		    					<outputRendition scope="after">content:')';</outputRendition>'
+		    				</model>
+		    				<!-- pages -->
+		    				<modelSequence predicate="monogr/biblScope[@unit='pp']">
 		    					<model behaviour="text">
 		    						<param name="content" value="': '"/>
 		    					</model>
 		    					<model behaviour="inline">
-		    						<param name="content" value="monogr/biblScope[@unit='page']"/>
+		    						<param name="content" value="monogr/biblScope[@unit='pp']"/>
 		    					</model>
 		    				</modelSequence>
 		    				<!-- edition -->

@@ -113,7 +113,7 @@ declare function model:apply($config as map(*), $input as node()*) {
                                     latex:text($config, ., ("tei-author6"), ', ')
                                 else
                                     if (child::* and not(following-sibling::author)) then
-                                        latex:text($config, ., ("tei-author7"), '. ')
+                                        latex:text($config, ., ("tei-author7"), if (ends-with(name/forename,'.')) then '' else '. ')
                                     else
                                         $config?apply($config, ./node())
                         )
@@ -1055,12 +1055,13 @@ else
     if (@type='journalArticle' or @type='bookSection' or @type='encyclopediaArticle' or @type='newspaperArticle') then
         (
             latex:inline($config, ., ("tei-biblStruct2"), ./analytic/author),
+            latex:text($config, ., ("tei-biblStruct3"), ' '),
             if (relatedItem[@type='reviewOf']) then
                 (
-                    latex:text($config, ., ("tei-biblStruct3"), ' review of '),
-                    latex:link($config, ., ("tei-biblStruct4"), let $ref := substring-after(./relatedItem/ref/@target,'#') return ancestor::listBibl/biblStruct[@xml:id=$ref]/*/title[@type='short']/text(),  '?tabs=no&amp;odd=' || request:get-parameter('odd', ()) || '?' || ./relatedItem/ref/@target),
+                    latex:text($config, ., ("tei-biblStruct4"), ' review of '),
+                    latex:link($config, ., ("tei-biblStruct5"), let $ref := substring-after(./relatedItem/ref/@target,'#') return ancestor::listBibl/biblStruct[@xml:id=$ref]/*/title[@type='short']/text(),  '?tabs=no&amp;odd=' || request:get-parameter('odd', ()) || '?' || ./relatedItem/ref/@target),
                     if (following-sibling::*) then
-                        latex:text($config, ., ("tei-biblStruct5"), ', ')
+                        latex:text($config, ., ("tei-biblStruct6"), ', ')
                     else
                         ()
                 )
@@ -1069,26 +1070,26 @@ else
                 (),
             if (./analytic/title[not(@type='short')]) then
                 (
-                    latex:text($config, ., ("tei-biblStruct6"), '“'),
-                    latex:inline($config, ., ("tei-biblStruct7"), ./analytic/title),
-                    latex:text($config, ., ("tei-biblStruct8"), '”, ')
+                    latex:text($config, ., ("tei-biblStruct7"), '“'),
+                    latex:inline($config, ., ("tei-biblStruct8"), ./analytic/title[not(@type='short')]),
+                    latex:text($config, ., ("tei-biblStruct9"), '.” ')
                 )
 
             else
                 (),
             if (@type='bookSection' or @type='encyclopediaArticle') then
-                latex:text($config, ., ("tei-biblStruct9"), 'in ')
+                latex:text($config, ., ("tei-biblStruct10"), 'in ')
             else
                 (),
-            latex:inline($config, ., ("tei-biblStruct10"), ./monogr/title),
+            latex:inline($config, ., ("tei-biblStruct11"), ./monogr/title),
             if (following-sibling::*) then
-                latex:text($config, ., ("tei-biblStruct11"), ', ')
+                latex:text($config, ., ("tei-biblStruct12"), ', ')
             else
                 (),
             if (./monogr/author and (@type='bookSection' or @type='encyclopediaArticle')) then
                 (
-                    latex:text($config, ., ("tei-biblStruct12"), 'by '),
-                    latex:inline($config, ., ("tei-biblStruct13"), ./monogr/author)
+                    latex:text($config, ., ("tei-biblStruct13"), 'by '),
+                    latex:inline($config, ., ("tei-biblStruct14"), ./monogr/author)
                 )
 
             else
@@ -1099,35 +1100,42 @@ else
         (),
     if (@type='book' or @type='thesis' or @type='manuscript') then
         (
-            latex:inline($config, ., ("tei-biblStruct14"), ./monogr/author),
-            latex:inline($config, ., ("tei-biblStruct15", "monogr-title"), ./monogr/title[not(@type='short')]),
-            latex:text($config, ., ("tei-biblStruct16"), '. ')
+            latex:inline($config, ., ("tei-biblStruct15"), ./monogr/author),
+            latex:inline($config, ., ("tei-biblStruct16", "monogr-title"), ./monogr/title[not(@type='short')]),
+            latex:text($config, ., ("tei-biblStruct17"), '. ')
         )
 
     else
         (),
     if (./monogr/editor) then
         (
-            latex:text($config, ., ("tei-biblStruct17"), 'edited by '),
-            latex:inline($config, ., ("tei-biblStruct18"), ./monogr/editor)
+            latex:text($config, ., ("tei-biblStruct18"), 'edited by '),
+            latex:inline($config, ., ("tei-biblStruct19"), ./monogr/editor)
         )
 
     else
         (),
-    latex:inline($config, ., ("tei-biblStruct19"), ./series),
-    latex:inline($config, ., ("tei-biblStruct20"), ./monogr/imprint),
-    if (monogr/biblScope) then
+    latex:inline($config, ., ("tei-biblStruct20"), ./series),
+    if (monogr/biblScope[@unit='vol']) then
+        latex:inline($config, ., ("tei-biblStruct21"), ./monogr/biblScope[@unit='vol'])
+    else
+        (),
+    if (monogr/imprint/date) then
+        latex:inline($config, ., ("tei-biblStruct22"), ./monogr/imprint)
+    else
+        (),
+    if (monogr/biblScope[@unit='pp']) then
         (
-            latex:text($config, ., ("tei-biblStruct21"), ': '),
-            latex:inline($config, ., ("tei-biblStruct22"), monogr/biblScope[@unit='page'])
+            latex:text($config, ., ("tei-biblStruct23"), ': '),
+            latex:inline($config, ., ("tei-biblStruct24"), monogr/biblScope[@unit='pp'])
         )
 
     else
         (),
-    latex:inline($config, ., ("tei-biblStruct23"), ./monogr/edition),
-    latex:inline($config, ., ("tei-biblStruct24"), .//note),
+    latex:inline($config, ., ("tei-biblStruct25"), ./monogr/edition),
+    latex:inline($config, ., ("tei-biblStruct26"), .//note),
     if (not(./relatedItem/note)) then
-        latex:text($config, ., ("tei-biblStruct25"), '.')
+        latex:text($config, ., ("tei-biblStruct27"), '.')
     else
         ()
 )

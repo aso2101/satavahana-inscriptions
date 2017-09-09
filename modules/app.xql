@@ -1158,7 +1158,7 @@ declare function app:related-inscriptions($node as node(), $model as map(*)) {
                           <div class="panel-heading">
                              <h4 class="panel-title">
                                 <a class="accordion-toggle" data-toggle="collapse" href="#collapse-inscriptions">
-                                    Mentioned in these inscriptions
+                                    Mentioned in these records
                                 </a>
                                 <hr/>
                              </h4>
@@ -1188,11 +1188,11 @@ function app:navigation-title($node as node(), $model as map(*)) {
     let $data := $model('data')
     let $idspan :=
         if ($id) then
-            <span class="small pull-right">ID: { $id }</span>
+            <span class="small">ID: { $id }</span>
         else ()
     let $teiLink := concat(request:get-uri(),'.xml')
     let $teispan := 
-            <span class="small pull-right" style="margin:-.25em .5em;"><a href="{$teiLink}"><img src="{$config:app-nav-base}/resources/images/tei-25.png"/></a></span>    
+            <span class="small" style="margin:-.25em .5em;"><a href="{$teiLink}"><img src="{$config:app-nav-base}/resources/images/tei-25.png"/></a></span>    
     let $main-title := 
         if (name($data) = 'person') then 
             $data//tei:persName[1]/text()
@@ -1204,7 +1204,12 @@ function app:navigation-title($node as node(), $model as map(*)) {
             $data//tei:title[1]/text()
         else ()
     return 
-        <h3 class="text-center">{ $main-title } {$teispan} { $idspan }</h3>
+        <div class="record-title">
+            <div class="pull-right text-muted id-info">{ $idspan }{$teispan}</div>
+            <div class="clearfix">
+                <h3> { $main-title } </h3>
+            </div>
+        </div>
         
 };
 

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <html data-template="pages:app-root">
     <head>
         <title data-template="config:app-title">App Title</title>
@@ -57,13 +58,11 @@
                         <section id="right-panel" class="col-md-12 col-xs-12">
                             <div class="container-fluid">
                                 <section class="row" data-template="pages:navigation">
-                                    <div class="col-md-1 hidden-xs hidden-sm"></div>
+                                    <div class="col-md-1 hidden-xs hidden-sm"/>
                                     <div class="col-md-10 col-sm-12">
                                         <div class="navigation-top row">
                                             <!-- Document title -->
-                                            <div class="hidden-xs hidden-sm col-md-12 col-lg-12 col-title">
-                                                <h5 data-template="app:navigation-title"/>
-                                            </div>
+                                            <div class="hidden-xs hidden-sm col-md-12 col-lg-12 col-title" data-template="app:navigation-title"/>
                                         </div>
                                         <!-- Document pane -->
                                         <div id="content-inner">
@@ -71,13 +70,13 @@
                                                 <!--#SAICustom - Include SAI maps -->
                                                 <!--<div data-template="pages:view" class="content"/>-->
                                                 <div class="content">
-                                                    <div data-template="app:display-node" data-template-path="root()" class="content"/>
+                                                    <div data-template="app:section-custom" data-template-path="." data-template-title="Preferred citation" class="content"/>
                                                     <div data-template="app:related-inscriptions"/>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-1 hidden-xs hidden-sm"></div>
+                                    <div class="col-md-1 hidden-xs hidden-sm"/>
                                 </section>
                             </div>
                         </section>
