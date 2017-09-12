@@ -183,11 +183,30 @@ declare function app:person-relations($node as node(), $model as map(*)) {
     return
         if (empty($list)) then ()
         else
-            <div>
-                <h4>Relations with other persons:</h4>
-                <ul>{ $list }</ul>
-                {d3xquery:build-familyTree-html($id)}
-            </div>
+            <section class="related-persons cust-collapse">
+                <div class="panel panel-default">             
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a class="accordion-toggle" data-toggle="collapse" href="#collapse-inscriptions">
+                                Relations with other persons
+                            </a>
+                            <hr/>
+                        </h4>
+                    </div>
+                    <div id="collapse-inscriptions" class="panel-collapse collapse in">
+                        <div class="panel-body">   
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <ul>{ $list }</ul>
+                                </div>
+                                <div class="col-sm-6">
+                                    {d3xquery:build-familyTree-html($id)}
+                                </div>
+                            </div>
+                         </div>
+                     </div>
+                </div>
+            </section>
 };
 
 declare function app:flatten-app($node as node()*) {
