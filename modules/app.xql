@@ -9,6 +9,7 @@ import module namespace kwic="http://exist-db.org/xquery/kwic";
 import module namespace smap="localhost:8080/exist/apps/SAI/smap" at "lib/map.xql";
 import module namespace facet="http://expath.org/ns/facet" at "lib/facet.xqm";
 import module namespace slider = "http://localhost/ns/slider" at "lib/date-slider.xqm";
+import module namespace d3xquery="http://expath.org/ns/d3xquery" at "lib/d3xquery.xqm";
 
 (: For SAI customization of pages.xql which does not handle current data well :)
 import module namespace pages="http://www.tei-c.org/tei-simple/pages" at "lib/pages.xql";
@@ -185,6 +186,7 @@ declare function app:person-relations($node as node(), $model as map(*)) {
             <div>
                 <h4>Relations with other persons:</h4>
                 <ul>{ $list }</ul>
+                {d3xquery:build-familyTree-html($id)}
             </div>
 };
 
