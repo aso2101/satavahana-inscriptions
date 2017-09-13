@@ -99,19 +99,116 @@ declare function d3xquery:get-child($id as xs:string){
         )
 };
 
+declare function d3xquery:get-expanded-data($data){
+    let $uris := distinct-values((for $r in $data return tokenize($r/@active,' '), for $r in $data return tokenize($r/@passive,' '), for $r in $data return tokenize($r/@mutual,' ')))
+    for $u in $uris
+    return d3xquery:get-related($u)
+};
+
+(:~
+ : Build JSON data from relationsips. 
+ : @param $data pass in TEI relationships. 
+:)
+declare function d3xquery:build-json-force($data as node()*) {
+let $uris := distinct-values((for $r in $data return tokenize($r/@active,' '), for $r in $data return tokenize($r/@passive,' '), for $r in $data return tokenize($r/@mutual,' ')))    
+let $json-xml := 
+    <root>
+        <nodes>{
+            for $uri in $uris
+            return 
+                <json:value>
+                    <id>{$uri}</id>
+                    <name>{replace($uri,'#','')}</name>
+                </json:value>
+                }
+        </nodes>
+        <links>{ 
+            for $r in $data
+            return  
+                if($r/@mutual) then 
+                    for $m in tokenize($r/@mutual,' ')
+                    return 
+                        let $node := 
+                            for $p in tokenize($r/@mutual,' ')
+                            where $p != $m
+                            return 
+                                <json:value>
+                                    <source>{$m}</source>
+                                    <target>{$p}</target>
+                                    <relationship>{string($r/@name)}</relationship>
+                                    <value>0</value>
+                                </json:value>
+                        return $node
+                else
+                    if(contains($r/@active,' ')) then 
+                        if(contains($r/@passive,' ')) then 
+                            for $a in tokenize($r/@active,' ') 
+                            return 
+                                for $p in tokenize($r/@passive,' ') 
+                                return 
+                                    <json:value>
+                                        <source>{string($p)}</source>
+                                        <target>{string($a)}</target>
+                                        <relationship>{string($r/@name)}</relationship>
+                                        <value>0</value>
+                                    </json:value> 
+                        (: multiple active, one passive :)
+                        else 
+                            let $passive := string($r/@passive)
+                            for $a in tokenize($r/@active,' ')
+                            return 
+                                <json:value>
+                                    <source>{string($passive)}</source>
+                                    <target>{string($a)}</target>
+                                    <relationship>{string($r/@name)}</relationship>
+                                    <value>0</value>
+                                </json:value>
+                    else 
+                    (: One active multiple passive :)
+                        if(contains($r/@passive,' ')) then 
+                            let $active := string($r/@active)
+                            for $p in tokenize($r/@passive,' ')
+                            return 
+                                <json:value>
+                                    {if(count($data) = 1) then attribute {xs:QName("json:array")} {'true'} else ()}
+                                    <source>{string($p)}</source>
+                                    <target>{string($active)}</target>
+                                    <relationship>{string($r/@name)}</relationship>
+                                    <value>0</value>
+                                </json:value>
+                        (: One active one passive :)            
+                        else 
+                            <json:value>
+                                {if(count($data) = 1) then attribute {xs:QName("json:array")} {'true'} else ()}
+                                <source>{string($r/@passive)}</source>
+                                <target>{string($r/@active)}</target>
+                                <relationship>{string($r/@name)}</relationship>
+                                <value>0</value>
+                            </json:value>   
+                }
+        </links>
+    </root>   
+return fn:serialize($json-xml,
+            <output:serialization-parameters>
+                <output:method value="json"/>
+                <output:indent value="yes"/>
+                <output:media-type value="application/json"/>
+            </output:serialization-parameters>)
+};
+
 (:~
  : Output HTML for inclusion on person pages
 :)
 declare function d3xquery:build-familyTree-html($id as xs:string?) as node()* {
-    (<h4 class="text-center">Family Tree</h4>,
-    <div id="graph-container" class="text-center"> 
+    (<h4>Family Tree</h4>,
+    <div id="graph-container" style="margin-left:-5em;"> 
         <script>
             <![CDATA[ 
             $( document ).ready(function() {
             ]]>
                 var treeData = {d3xquery:build-familyTree-data($id)};
             <![CDATA[     
-                dTree.init(treeData, {target: "#graph",debug: true,height: 250,width:800,callbacks: {nodeClick: function(name, extra) {console.log(name);}},
+                dTree.init(treeData, {target: "#graph",debug: true,height: 400,width: 1200,callbacks: {nodeClick: function(name, extra) {console.log(name);}},
                 margin: {
                   top: 0,
                   right: 0,
@@ -127,3 +224,23 @@ declare function d3xquery:build-familyTree-html($id as xs:string?) as node()* {
     )
 }; 
 
+
+
+(:~
+ : Output HTML for inclusion on person pages
+:)
+declare function d3xquery:build-force-html($id as xs:string?) as node()* {
+    <div id="graph-container" style="margin-left:-5em;"> 
+        <script>
+            <![CDATA[ 
+            $( document ).ready(function() {
+            ]]>
+                var json = {d3xquery:build-json-force(d3xquery:get-related($id))};
+            <![CDATA[     
+                d3xquery.initialGraph(json)
+            });
+            ]]>
+        </script>
+        <div id="graph"></div>
+    </div>
+}; 

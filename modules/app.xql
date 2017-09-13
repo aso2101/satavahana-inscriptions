@@ -200,7 +200,7 @@ declare function app:person-relations($node as node(), $model as map(*)) {
                                     <ul>{ $list }</ul>
                                 </div>
                                 <div class="col-sm-8">
-                                    {d3xquery:build-familyTree-html($id)}
+                                    {(:d3xquery:build-familyTree-html($id):) d3xquery:build-force-html($id)}
                                 </div>
                             </div>
                          </div>
