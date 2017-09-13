@@ -111,7 +111,7 @@ declare function d3xquery:build-familyTree-html($id as xs:string?) as node()* {
             ]]>
                 var treeData = {d3xquery:build-familyTree-data($id)};
             <![CDATA[     
-                dTree.init(treeData, {target: "#graph",debug: true,height: 250,width: 600,callbacks: {nodeClick: function(name, extra) {console.log(name);}},
+                dTree.init(treeData, {target: "#graph",debug: true,height: 250,width:800,callbacks: {nodeClick: function(name, extra) {console.log(name);}},
                 margin: {
                   top: 0,
                   right: 0,

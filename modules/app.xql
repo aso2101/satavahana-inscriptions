@@ -164,12 +164,12 @@ declare function app:person-relations($node as node(), $model as map(*)) {
             case "sibling" return
                 <data>
                     <label>Sibling</label>
-                    <otherPerson>{ translate(translate(translate($relation/@mutual,$hashname,''),' ',''),'#','') }</otherPerson>
+                    <otherPerson>{ translate(translate(replace($relation/@mutual,$hashname,''),' ',''),'#','') }</otherPerson>
                 </data>
             case "spouse" return
                 <data>
                     <label>Spouse</label>
-                    <otherPerson>{ translate(translate(translate($relation/@mutual,$hashname,''),' ',''),'#','') }</otherPerson>
+                    <otherPerson>{ translate(translate(replace($relation/@mutual,$hashname,''),' ',''),'#','') }</otherPerson>
                 </data>
             default return ""
         let $label := $data/label/text()
@@ -196,10 +196,10 @@ declare function app:person-relations($node as node(), $model as map(*)) {
                     <div id="collapse-inscriptions" class="panel-collapse collapse in">
                         <div class="panel-body">   
                             <div class="row">
-                                <div class="col-sm-6">
+                                <div class="col-sm-4">
                                     <ul>{ $list }</ul>
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm-8">
                                     {d3xquery:build-familyTree-html($id)}
                                 </div>
                             </div>
