@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <html data-template="pages:app-root">
     <head>
         <title data-template="config:app-title">App Title</title>
@@ -25,9 +26,9 @@
         <script type="text/javascript" src="resources/scripts/jquery.fs.macaroon.min.js"/>
         <script type="text/javascript" src="resources/scripts/jasny-bootstrap.min.js"/>
         <script type="text/javascript" src="resources/scripts/app.js"/>
-        <script src="https://d3js.org/d3.v4.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
-        <script src="https://cdn.rawgit.com/ErikGartner/dTree/master/dist/dTree.min.js"></script>
+        <script src="https://d3js.org/d3.v4.min.js"/>
+        <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"/>
+        <script src="https://cdn.rawgit.com/ErikGartner/dTree/master/dist/dTree.min.js"/>
         <script>
         $( document ).ready(function() {
             $('.modal').detach().appendTo("body");
@@ -82,7 +83,7 @@
                                         <div id="content-inner">
                                             <div>
                                                 <div class="content">
-                                                    <div data-template="app:display-node" data-template-path="self::*" class="content"/>
+                                                    <div data-template="app:section-custom" data-template-path="self::*" data-template-title="Prosopographic information" class="content"/>
                                                     <!-- these will still require XQuery routines !-->
                                                     <div data-template="app:person-relations"/>
                                                     <div data-template="app:related-inscriptions"/>

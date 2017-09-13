@@ -1458,6 +1458,10 @@ a:hover {
   margin-top: 2.26em!important;
   font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
 }
+dt,
+h4 {
+  font-family: "Open Sans", arial, Verdana, "Helvetica", sans-serif;
+}
 #main-container {
   max-width: 1200px;
   margin-top: 53px;
@@ -1658,5 +1662,6 @@ h4.slider {
 }
 .nodeText {
   padding: 5px;
+  margin: 0;
   font: 10px sans-serif;
 }

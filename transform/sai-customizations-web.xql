@@ -1540,27 +1540,34 @@ else
                     if (ancestor::listPerson) then
                         (
                             ext-html:dl($config, ., ("tei-person1"), (
-    html:heading($config, ., ("tei-person2"), 'Name:', 4),
     if (persName[not(@type)]) then
         (
-            ext-html:dt($config, ., ("tei-person3"), 'Attested form: '),
-            sai-html:name-orthography($config, ., ("tei-person4"))
+            ext-html:dt($config, ., ("tei-person2"), 'Attested name'),
+            sai-html:name-orthography($config, ., ("tei-person3"))
         )
 
     else
         (),
     if (persName[@type='pra-reconstruction']) then
         (
-            ext-html:dt($config, ., ("tei-person5"), 'Normalized form: '),
-            ext-html:dd($config, ., ("tei-person6"), persName[@type='pra-reconstruction'])
+            ext-html:dt($config, ., ("tei-person4"), 'Normalized name'),
+            ext-html:dd($config, ., ("tei-person5"), persName[@type='pra-reconstruction'])
         )
 
     else
         (),
     if (persName[@type='san-reconstruction']) then
         (
-            ext-html:dt($config, ., ("tei-person7"), 'Sanskrit equivalent: '),
-            ext-html:dd($config, ., ("tei-person8"), persName[@type='san-reconstruction'])
+            ext-html:dt($config, ., ("tei-person6"), 'Sanskrit equivalent'),
+            ext-html:dd($config, ., ("tei-person7"), persName[@type='san-reconstruction'])
+        )
+
+    else
+        (),
+    if (addName[@type='family']) then
+        (
+            ext-html:dt($config, ., ("tei-person8"), 'Family name'),
+            ext-html:dd($config, ., ("tei-person9"), addName[@type='family'])
         )
 
     else
@@ -1569,11 +1576,10 @@ else
 ),
                             if (state or trait or residence or occupation) then
                                 (
-                                    ext-html:dl($config, ., ("tei-person9"), (
-    html:heading($config, ., ("tei-person10"), 'Additional information:', 4),
+                                    ext-html:dl($config, ., ("tei-person10"), (
     if (state[@type='political']) then
         (
-            ext-html:dt($config, ., ("tei-person11"), 'Political roles: '),
+            ext-html:dt($config, ., ("tei-person11"), 'Political roles '),
             sai-html:state-or-trait($config, ., ("tei-person12"), state[@type='political'])
         )
 
@@ -1581,7 +1587,7 @@ else
         (),
     if (state[@type='social']) then
         (
-            ext-html:dt($config, ., ("tei-person13"), 'Social identifiers: '),
+            ext-html:dt($config, ., ("tei-person13"), 'Social identifiers '),
             sai-html:state-or-trait($config, ., ("tei-person14"), state[@type='social'])
         )
 
@@ -1589,7 +1595,7 @@ else
         (),
     if (trait[@type='ethnicity']) then
         (
-            ext-html:dt($config, ., ("tei-person15"), 'Ethnicity: '),
+            ext-html:dt($config, ., ("tei-person15"), 'Ethnicity '),
             sai-html:state-or-trait($config, ., ("tei-person16"), trait[@type='ethnicity'])
         )
 
@@ -1597,7 +1603,7 @@ else
         (),
     if (trait[@type='gotra']) then
         (
-            ext-html:dt($config, ., ("tei-person17"), 'Gotra: '),
+            ext-html:dt($config, ., ("tei-person17"), 'Gotra '),
             sai-html:state-or-trait($config, ., ("tei-person18"), trait[@type='gotra'])
         )
 
@@ -1605,7 +1611,7 @@ else
         (),
     if (occupation) then
         (
-            ext-html:dt($config, ., ("tei-person19"), 'Occupation: '),
+            ext-html:dt($config, ., ("tei-person19"), 'Occupation '),
             sai-html:state-or-trait($config, ., ("tei-person20"), occupation)
         )
 

@@ -1056,16 +1056,6 @@ let $html := $pm-config:web-transform($docNode, map { "root": root($docNode) }, 
 return 
     if(not(empty($docNode))) then 
         $html
-    (:
-        <div class="map panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">title</h3>
-            </div>
-            <div class="panel-collapse collapse in" id="map-panel">
-                {$html}
-            </div>
-        </div>    
-      :)  
     else ()
 };
 (: this is jugar, since the modal can't be programmatically placed at the bottom of the page

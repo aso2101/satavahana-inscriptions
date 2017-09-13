@@ -530,19 +530,15 @@
 				    <modelSequence predicate="ancestor::listPerson" behaviour="block">
 			            <model behaviour="dl">
 			                <modelSequence>
-        						<model behaviour="heading">
-        							<param name="level">4</param>
-        							<param name="content">'Name:'</param>
-        						</model>
                                 <modelSequence predicate="persName[not(@type)]">
                                     <model behaviour="dt">
-                                        <param name="content">'Attested form: '</param>
+                                        <param name="content">'Attested name'</param>
                                     </model>
                                     <model behaviour="name-orthography"/>
                                 </modelSequence>
                                 <modelSequence predicate="persName[@type='pra-reconstruction']">
                                     <model behaviour="dt">
-                                        <param name="content">'Normalized form: '</param>
+                                        <param name="content">'Normalized name'</param>
                                     </model>
                                     <model behaviour="dd">
                                         <param name="content" value="persName[@type='pra-reconstruction']"/>
@@ -550,10 +546,18 @@
                                 </modelSequence>
                                 <modelSequence predicate="persName[@type='san-reconstruction']">
                                     <model behaviour="dt">
-                                        <param name="content">'Sanskrit equivalent: '</param>
+                                        <param name="content">'Sanskrit equivalent'</param>
                                     </model>
                                     <model behaviour="dd">
                                         <param name="content" value="persName[@type='san-reconstruction']"/>
+                                    </model>
+                                </modelSequence>
+                                <modelSequence predicate="addName[@type='family']">
+                                    <model behaviour="dt">
+                                        <param name="content">'Family name'</param>
+                                    </model>
+                                    <model behaviour="dd">
+                                        <param name="content" value="addName[@type='family']"/>
                                     </model>
                                 </modelSequence>
                             </modelSequence>
@@ -561,13 +565,9 @@
                         <modelSequence predicate="state or trait or residence or occupation" behaviour="block">
                             <model behaviour="dl">
                                 <modelSequence>
-                                    <model behaviour="heading">
-                                        <param name="level">4</param>
-                                        <param name="content">'Additional information:'</param>
-                                    </model>
                                     <modelSequence predicate="state[@type='political']">
                                         <model behaviour="dt">
-                                            <param name="content">'Political roles: '</param>
+                                            <param name="content">'Political roles '</param>
                                         </model>
                                         <model behaviour="state-or-trait">
                                             <param name="states">state[@type='political']</param>
@@ -575,7 +575,7 @@
                                     </modelSequence>
                                     <modelSequence predicate="state[@type='social']">
                                         <model behaviour="dt">
-                                            <param name="content">'Social identifiers: '</param>
+                                            <param name="content">'Social identifiers '</param>
                                         </model>
                                         <model behaviour="state-or-trait">
                                             <param name="states">state[@type='social']</param>
@@ -583,7 +583,7 @@
                                     </modelSequence>
                                     <modelSequence predicate="trait[@type='ethnicity']">
                                         <model behaviour="dt">
-                                            <param name="content">'Ethnicity: '</param>
+                                            <param name="content">'Ethnicity '</param>
                                         </model>
                                         <model behaviour="state-or-trait">
                                             <param name="states">trait[@type='ethnicity']</param>
@@ -591,7 +591,7 @@
                                     </modelSequence>
                                     <modelSequence predicate="trait[@type='gotra']">
                                         <model behaviour="dt">
-                                            <param name="content">'Gotra: '</param>
+                                            <param name="content">'Gotra '</param>
                                         </model>
                                         <model behaviour="state-or-trait">
                                             <param name="states">trait[@type='gotra']</param>
@@ -599,7 +599,7 @@
                                     </modelSequence>
                                     <modelSequence predicate="occupation">
                                         <model behaviour="dt">
-                                            <param name="content">'Occupation: '</param>
+                                            <param name="content">'Occupation '</param>
                                         </model>
                                         <model behaviour="state-or-trait">
                                             <param name="states">occupation</param>
