@@ -539,21 +539,18 @@ declare
 function app:show-hits($node as node()*, $model as map(*), $start as xs:integer, $per-page as xs:integer) {
 (
     for $hit at $p in subsequence($model("hits"), $start, $per-page)
-    let $r := $hit
-    let $root-el := root($r)
+    let $expanded := util:expand($hit)
+    let $root-el := root($hit)
     let $type := app:rec-type($root-el)
-    let $hit-root := if($type = 'Inscription') then $root-el else  $r    
-    let $hit-padded := <hit>{($hit/preceding-sibling::*[1], $hit, $hit/following-sibling::*[1])}</hit>        
-    let $matchId := ($hit/@xml:id, util:node-id($hit))[1]
-    let $config := <config width="80" table="yes"/>
-    let $kwic := kwic:summarize($hit, <config width="40"/>) (:kwic:summarize($hit-padded, $config, util:function(xs:QName("local:filter-kwic"), 2)):)
+    let $hit-root := if($type = 'Inscription') then $root-el else  $hit
+    let $html := $pm-config:web-transform($expanded, map { "root": root($hit) },$model?config?odd)            
+    (:let $matchId := ($hit/@xml:id, util:node-id($hit))[1]:)
+    let $config := <config width="40" table="no"/>
     return
         (
         app:loc($hit-root, $type, $start, $p),
         <tr class="reference">
-            <td colspan="3" class="kwic">
-                {$kwic}
-            </td>
+            <td colspan="3" class="kwic">{kwic:get-summary($html, ($html//*:mark)[1], $config)} </td>
         </tr>
         )
 )        
