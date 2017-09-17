@@ -275,31 +275,6 @@
 						</model>
 					</modelSequence>
 				</elementSpec>
-                <!-- FACSIMILE !-->
-                <elementSpec mode="change" ident="facsimile">
-                    <model predicate="$parameters?modal='true'" behaviour="image-modals">
-                    	<param name="images">graphic</param>
-                    </model>
-					<model behaviour="section-collapsible" cssClass="facsimile">
-					    <param name="id">'facsimile'</param>
-					    <param name="button-title">'Facsimiles'</param>
-					</model>
-				</elementSpec>
-			    <!-- FIGURE !-->
-                <elementSpec mode="change" ident="figure">
-                    <model predicate="head" behaviour="figure" cssClass="figure">
-                        <param name="title">head/node()</param>
-                        <param name="content">*[not(self::head)]</param>
-                    </model>
-                    <model behaviour="block" cssClass="figure text-center"/>
-                </elementSpec>
-                <elementSpec mode="change" ident="figDesc">
-                    <model behaviour="block" cssClass="text-center">
-                        <outputRendition scope="before">content: '[..';</outputRendition>
-                        <outputRendition scope="after">content: '..]';</outputRendition>
-                        <outputRendition>color: grey;font-style:italic;</outputRendition>
-                    </model>
-                </elementSpec>
                 <!-- ==== E ==== !-->
                 <!-- EDITOR !-->
                 <elementSpec mode="change" ident="editor">
@@ -341,6 +316,31 @@
 					</modelSequence>
 				</elementSpec>
                 <!-- ==== F ==== !-->
+                <!-- FACSIMILE !-->
+                <elementSpec mode="change" ident="facsimile">
+                    <model predicate="$parameters?modal='true'" behaviour="image-modals">
+                    	<param name="images">graphic</param>
+                    </model>
+					<model behaviour="section-collapsible" cssClass="facsimile">
+					    <param name="id">'facsimile'</param>
+					    <param name="button-title">'Facsimiles'</param>
+					</model>
+				</elementSpec>
+			    <!-- FIGURE !-->
+                <elementSpec mode="change" ident="figure">
+                    <model predicate="head" behaviour="figure" cssClass="figure">
+                        <param name="title">head/node()</param>
+                        <param name="content">*[not(self::head)]</param>
+                    </model>
+                    <model behaviour="block" cssClass="figure text-center"/>
+                </elementSpec>
+                <elementSpec mode="change" ident="figDesc">
+                    <model behaviour="block" cssClass="text-center">
+                        <outputRendition scope="before">content: '[..';</outputRendition>
+                        <outputRendition scope="after">content: '..]';</outputRendition>
+                        <outputRendition>color: grey;font-style:italic;</outputRendition>
+                    </model>
+                </elementSpec>
 				<!-- FILEDESC !-->
 				<elementSpec mode="change" ident="fileDesc">
 					<modelSequence predicate="$parameters?header='short'">

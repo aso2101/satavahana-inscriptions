@@ -43,7 +43,7 @@ let $modals :=
                 </div>
                 <div class="modal-body">
                     <img class="img-responsive center-block" src="{concat("/exist/apps/SAI-data/",$url)}"></img>
-                    <p class="text-center">{$i/tei:desc}</p>
+                    <p class="text-center">{pmf:apply-children($config, $node, $i/tei:desc)}</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn" data-dismiss="modal">Close</button>
