@@ -899,17 +899,16 @@ declare function app:dynamic-map-data($node as node(), $model as map(*)){
 declare function app:dynamic-map-data($node as node(), $model as map(*), $type as xs:string?){
     if($model("hits")//tei:geo) then 
         for $p in $model("hits")//tei:geo
-        return <map-point xmlns="http://www.tei-c.org/ns/1.0">{root($p)}</map-point>
+        return <map-point xmlns="http://www.tei-c.org/ns/1.0" class="T1">{root($p)}</map-point>
     else if($model("places")//tei:geo) then
        for $p in $model("places")//tei:geo
-       return <map-point xmlns="http://www.tei-c.org/ns/1.0">{root($p)}</map-point> 
+       return <map-point xmlns="http://www.tei-c.org/ns/1.0" class="T2">{root($p)}</map-point> 
     else 
         let $data := if($model("places")) then $model("places") else if($model("persons")) then $model("persons") else if($model("data")) then $model("data") else $model("hits") 
         let $places := if($model("places") | $model("persons")) then distinct-values($data//tei:placeName/@key | $data/@xml:id) else distinct-values($data//tei:origPlace/tei:placeName/@key | $data/@xml:id) 
         for $p in $places
         let $id := replace($p,'pl:','')
-        let $place := collection($config:remote-root || '/contextual/Places')//@xml:id[. = $id]
-        let $p := root($place)
+        let $place := collection($config:remote-root || '/contextual/Places')//@xml:id[. = $id]/ancestor-or-self::tei:place
         let $related := 
             if($type = ('Persons','People')) then
                 (
@@ -924,7 +923,7 @@ declare function app:dynamic-map-data($node as node(), $model as map(*), $type a
                     )
             else ()
         return 
-            <map-point xmlns="http://www.tei-c.org/ns/1.0" id="{$id}">{$p, $related}</map-point>
+            <map-point xmlns="http://www.tei-c.org/ns/1.0" id="{$id}">{$place, $related}</map-point>
 };
 
 (:~ 
