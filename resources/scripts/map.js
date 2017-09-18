@@ -37,14 +37,14 @@ $(document).ready(function() {
             var relation = feature.properties.relation
             $.each(relation, function(key, item) {
                relationContent += '<br/><a href="' + item.id + '">' + item.name + ' [' + item.type + '] </a>';
+               console.log( item.name )
             });
         }
         // http://leafletjs.com/reference.html#popup
         marker.bindPopup(popupContent + relationContent);
         //Add links to matching names on HTML page
         $('#' + feature.properties.id).each(function(){
-           $(this).append(' <a href="' + $(this).html() + '" class="small panto">(show on map)</a> ');
-           //console.log('ID: '+ feature.properties.id + ' Name:' + feature.properties.name);
+            $(this).append(' <a href="' + $(this).html() + '" class="small panto">(show on map)</a> ');
         });
     });
     //trigger panto() function from place titles to map markers. 
