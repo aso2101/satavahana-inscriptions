@@ -1,221 +1,22 @@
-//   XQuery version uses a modified version of the d3sparql.js library
-//   For original see: https://github.com/ktym/d3sparql and Web site: http://github.com/ktym/d3sparql/
-//   Graph outputs supported by this library:
-//      - Charts
-//          barchart, piechart, scatterplot
-//      - Graphs
-//          force graph, sankey graph
-//      - Trees
-//          roundtree, dendrogram, treemap, sunburst, circlepack
-//      - Family tree (subset of tree, uses dtree library )
-//      - Maps
-//          coordmap, namedmap
-//      - Tables
-//          htmltable, htmlhash
-
+//Sets up force directed graph   d3 v3 
+var w = 900,
+    h = 400,
+    damper = 0.1,
+    padding = 10,
+    color = d3.scale.category20c();
+    
 var d3xquery = {
-    version: "d3xquery.js version 2017-09-07",
-    debug: true // set to true for showing debug information
-}
-
-//Global graph variables
-var w = 1020,
-h = 600,
-damper = 0.1,
-padding = 10,
-color = d3.scaleOrdinal(d3.schemeCategory20c);
-
-//find center of graph
-var center = {
-    x: w / 2, y: h / 2
-};
-
-//Used for "zoom" effect on bubble graph
-var toggleSelected = true;
-
-//Pass in query params and get json data
-d3xquery.query = function (endpoint, graphType, eventType, itemURI, relType, callback) {
-    var url = endpoint + '?graphType=' + graphType + '&id=' + itemURI //+ '&eventType=' + eventType + '&itemURI=' + itemURI + '&relType=' + relType;
-    /*
-    d3.request(url, mime, function (data) {
-        //remove tooltip?
-        //tooltip = d3.select("body").append("div").attr("class","toolTip").style("position", "absolute").style("z-index", "10").style("visibility", "hidden").style("background-color", "white").style("padding", "5px").text("a simple tooltip");
-        d3.select("svg").remove();
-        d3.select(".toolTip").remove();
-        var json = data.responseText
-        callback(JSON.parse(json))
-    })
-    */
-    d3.request(url)
-    .mimeType("application/json")
-    .response(function(data) { 
-        d3.select("svg").remove();
-        d3.select(".toolTip").remove();
-        var json = data.responseText
-        callback(JSON.parse(json))
-        })
-    .get(function(data) {
-    console.log(graphType);
-    //  console.log("Not sure what should happen here?");
-    });
+    version: "d3xquery.js version 2017-09-07"
 }
 
 d3xquery.initialGraph = function (json) {
     //Now in render() function
-    svg = d3.select("#graph").append("svg:svg").attr("preserveAspectRatio", "xMinYMin meet").attr("viewBox", "0 0 " + w + " " + h).classed("svg-content-responsive", true);
-    
+    svg = d3.select("#graph").append("svg:svg").attr("preserveAspectRatio", "xMinYMin meet").attr("viewBox", "0 0 " + w + " " + h).classed("svg-content-responsive", true);    
     //Tooltip for mouseover
     tooltip = d3.select("body").append("div").attr("class", "toolTip").style("position", "absolute").style("z-index", "10").style("visibility", "hidden").style("background-color", "white").style("padding", "5px").text("a simple tooltip");
-    if(graphType === 'faimlyTree') {
-      console.log('family');
-      familyTree(json);
-    }
-    else if (graphType !== 'bubble') {
-        console.log('bubble');
-        bubbleGraph(json);
-    }
-    else {
-        console.log('force');
-        forcegraph(json);
-    }
+    forcegraph(json);
 };
 
-function bubbleGraph(json) {
-    var nodes =[];
-    
-    var data = json.data.children
-    
-    //Sale and range for circle radius.
-    var max_amount = d3.max(data, function (d) {
-        return parseInt(d.radius, 10);
-    });
-    radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85]);
-    
-    //Add some additional values to dataset
-    data.forEach(function (d) {
-        var node = {
-            id: d.name,
-            radius: radius_scale(parseInt(d.radius, 10)),
-            name: d.name,
-            value: d.radius,
-            type: d.type,
-            x: Math.random() * 900,
-            y: Math.random() * 800
-        };
-        nodes.push(node);
-    });
-    
-    //Not sure this is effective
-    nodes.sort(function (a, b) {
-        return b.radius - a.radius;
-    });
-    
-    //Set up force graph
-    var force = d3.layout.force().nodes(nodes).gravity(0.01).charge(function (d) {
-        return - Math.pow(d.radius, 2.0) / 8;
-    }).friction(0.9).on("tick", tick).start();
-    
-    //Add circles for each data point
-    var circles = svg.selectAll("circle").data(nodes).enter().append("circle")
-        .attr("r", 0).attr("fill", function (d) {
-            return color(d.name);
-        }).attr("stroke-width", 2).attr("stroke", function (d) {
-            return d3.rgb(color(d.name)).darker();
-        }).attr("id", function (d) {
-            return "bubble_" + d.name;
-        }).attr("class", "bubble"
-         ).on("mouseover", function (d) {
-            tooltip.text(d.name + ' (' + d.value + ')').style("top", (d3.event.pageY) + "px").style("left", (d3.event.pageX) + "px");
-            return tooltip.style("visibility", "visible");
-        }).on("click", function (d) {
-            if (toggleSelected == true) {
-                updateChart(d.id, d.type);
-                fade(d.id, 0);
-                toggleSelected = false;
-            } else {
-                toggleSelected = true;
-                unfade(d.id, 1);
-            }
-        }).call(force.drag);
-    
-    //Expanding circles effect
-    circles.transition().duration(2000).attr("r", function (d) {
-        return d.radius;
-    });
-    
-    //Tick function to position circles
-    function tick(e) {
-        circles.each(move_towards_center(e.alpha)).each(collide(e.alpha)).attr("cx", function (d) {
-            return d.x = Math.max(d.radius, Math.min(w - d.radius, d.x));
-        }).attr("cy", function (d) {
-            return d.y = Math.max(d.radius, Math.min(h - d.radius, d.y));
-        });
-    }
-    
-    //Fade and expand selected circle
-    function fade(c, opacity) {
-        svg.selectAll("circle").filter(function (d) {
-            return d.id != c;
-        }).transition().remove();
-        svg.selectAll("circle").filter(function (d) {
-            return d.id == c;
-        }).transition().duration(2000).attr("r", function (d) {
-            return w / 4;
-        }).attr("cx", function (d) {
-            return center.x;
-        }).attr("cy", function (d) {
-            return center.y;
-        }).attr('fill-opacity', '.1');
-    }
-    
-    function unfade(c, opacity) {
-        svg.selectAll("circle").filter(function (d) {
-            return d.id == c;
-        }).transition().duration(2000).attr("r", 0).attr("cx", function (d) {
-            return center.x;
-        }).attr("cy", function (d) {
-            return center.y;
-        }).attr('fill-opacity', '1');
-        //.on('mousedown.drag', null);
-        d3.selectAll(".forceNode").remove();
-        bubbleGraph(json)
-    }
-    //Move circles toward the center of the svg container
-    function move_towards_center(alpha) {
-        return function (d) {
-            d.x = d.x + (center.x - d.x) * (damper + 0.02) * alpha;
-            d.y = d.y + (center.y - d.y) * (damper + 0.02) * alpha;
-        };
-    }
-    
-    // Resolve collisions between nodes.
-    function collide(alpha) {
-        var quadtree = d3.geom.quadtree(nodes);
-        return function (d) {
-            var r = d.radius + radius_scale.domain()[1] + padding,
-            nx1 = d.x - r,
-            nx2 = d.x + r,
-            ny1 = d.y - r,
-            ny2 = d.y + r;
-            quadtree.visit(function (quad, x1, y1, x2, y2) {
-                if (quad.point && (quad.point !== d)) {
-                    var x = d.x - quad.point.x,
-                    y = d.y - quad.point.y,
-                    l = Math.sqrt(x * x + y * y),
-                    r = d.radius + quad.point.radius + padding;
-                    if (l < r) {
-                        l = (l - r) / l * alpha;
-                        d.x -= x *= l;
-                        d.y -= y *= l;
-                        quad.point.x += x;
-                        quad.point.y += y;
-                    }
-                }
-                return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-            });
-        };
-    }
-};
 
 function forcegraph(json) {
     //Var for edges
@@ -251,12 +52,11 @@ function forcegraph(json) {
     var node = svg.selectAll(".node").data(force.nodes()).enter().append("svg:g").call(force.drag);
         
     //Add circles to group
-    var circle = node.append("svg:circle").attr("r", function (d) {
-            return (d.weight * .5) + 6
-        }).attr("class", "forceNode").style("fill", function (d) {
-            return color(d.type);
+    var circle = node.append("svg:circle").attr("r", "15")
+        .attr("class", "forceNode").style("fill", function (d) {
+            return color(d.id);
         }).style("stroke", function (d) {
-            return d3.rgb(color(d.type)).darker();
+            return d3.rgb(color(d.id)).darker();
         }).on("click", function (d) {
             getNodeInfo(d.id);
         }).on("mouseover", function (d) {
@@ -493,124 +293,4 @@ function forcegraph(json) {
                 }
             });
         }
-
-
-};
-
-//Begin tree, use dTree plugin
-function familyTree(json){
-var treeData = json
-
-dTree.init(treeData, {target: "#graph",debug: true,height: 800,width: 1200,callbacks: {nodeClick: function(name, extra) {console.log(name);}}});
-    
-}
-
-//Begin tree
-function familyTree2(json) {
-
-//Dummy data for testing tree
-var treeData = [
-  {
-    "name": "Top Level",
-    "parent": "null",
-    "children": [
-      {
-        "name": "Level 2: A",
-        "parent": "Top Level",
-        "children": [
-          {
-            "name": "Son of A",
-            "parent": "Level 2: A"
-          },
-          {
-            "name": "Daughter of A",
-            "parent": "Level 2: A"
-          }
-        ]
-      },
-      {
-        "name": "Level 2: B",
-        "parent": "Top Level"
-      }
-    ]
-  }
-];
-
-// ************** Generate the tree diagram	 *****************
-
-var tree = d3.layout.tree().size([w, h]),
-    nodes = tree.nodes(treeData),
-    links = tree.links(nodes); 
-
-// Create the link lines.
-svg.selectAll(".link")
-    .data(links)
-    .enter().append("path")
-    .attr("class", "link")
-    .attr("d", elbow);
-
-var nodes = svg.selectAll(".node")
-    .data(nodes)
-    .enter();
-
-// Create the node rectangles.
-nodes.append("rect")
-    .attr("class", "node")
-    .attr("height", 20)
-    .attr("width", 40)
-    .attr("id", function (d) {
-    return d.id;
-})
-    .attr("display", function (d) {
-    if (d.hidden) {
-        return "none"
-    } else {
-        return ""
-    };
-});
-
-// Create the node text label.
-nodes.append("text")
-    .text(function (d) {
-    return d.name;
-});
-
-
-/** 
-This draws the lines between nodes.
-**/
-function elbow(d, i) {
-    if (d.target.no_parent) {
-        return "M0,0L0,0";
-    }
-    var diff = d.source.y - d.target.y;
-    //0.40 defines the point from where you need the line to break out change is as per your choice.
-    var ny = d.target.y + diff * 0.40;
-
-    linedata = [{
-        x: d.target.x,
-        y: d.target.y
-    }, {
-        x: d.target.x,
-        y: ny
-    }, {
-        x: d.source.x,
-        y: d.source.y
-    }]
-
-    var fun = d3.svg.line().x(function (d) {
-        return d.x;
-    }).y(function (d) {
-        return d.y;
-    }).interpolate("step-after");
-    return fun(linedata);
-}
-//end tree
-}
-
-function updateChart(id, type){
-    var url = 'get-relationships.xql' + '?graphType=' + type + '&eventType=' + id + '&relType=' + id
-    d3.json(url, function (json) {
-        forcegraph(json)
-    });
 };
