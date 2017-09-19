@@ -560,7 +560,7 @@ declare function pmf:section-collapsible($config as map(*), $node as element(), 
 :)
 declare function pmf:section-collapsible-with-tabs($config as map(*), $node as element(), $class as xs:string+, $id as xs:string, $button-title as xs:string?, $break as xs:string?, $content) {
     let $work := $node/ancestor-or-self::tei:TEI
-    let $relPath := app:get-identifier2($work)
+    (:let $relPath := app:get-identifier2($work):)
     return
     <section class="{$class} cust-collapse">
         <div class="panel panel-default">             
