@@ -72,17 +72,19 @@ let $data :=
             <type>FeatureCollection</type>
             <features>
             {
-                for $place in $data/descendant-or-self::*:map-point
-                where $place//tei:geo
-                let $name :=
-                    if ($place//tei:titleStmt/tei:title) then
-                        $place//tei:titleStmt/tei:title[1]/text()
-                    else $place//tei:placeName[1]/text()
-                let $lat := substring-before($place//tei:geo,' ')
-                let $long := substring-after($place//tei:geo,' ')
-                let $id := string($place//@xml:id[1])
+                for $place in $data/descendant-or-self::*:map-point[descendant::tei:geo]
+                let $name := 
+                    if($place/@name) then string($place/@name) 
+                    else if ($place/descendant-or-self::tei:place/tei:placeName) then 
+                        $place/descendant-or-self::tei:place[1]/tei:placeName[1]/text()
+                    else if ($place/descendant-or-self::tei:titleStmt/tei:title) then
+                        $place/descendant-or-self::tei:titleStmt/tei:title[1]/text()[1]    
+                    else $place/descendant::tei:placeName[1]/text()
+                let $lat := substring-before($place//tei:geo[1],' ')
+                let $long := substring-after($place//tei:geo[1],' ')
+                let $id := if(string($place/@id[1]) != '') then string($place/@id[1]) else string($place//@xml:id[1])
                 let $relation := $place//tei:relation
-                return
+                return 
                 <json:value>
                     <type>Feature</type>
                     <geometry>
@@ -103,12 +105,14 @@ let $data :=
           </features>
         </root>   
     else if(count($data//tei:geo) = 1) then
-        for $place in $data/descendant-or-self::*:map-point
-        where $place//tei:geo
+        for $place in $data/descendant-or-self::*:map-point[descendant::tei:geo]
         let $name := 
-                    if ($place//tei:place/tei:placeName[@type='ancient']) then 
-                        $place//tei:place/tei:placeName[@type='ancient'][1]/text()
-                    else $place//tei:place/tei:placeName[1]/text()
+                    if($place/@name) then string($place/@name) 
+                    else if ($place/descendant-or-self::tei:place/tei:placeName) then 
+                        $place/descendant-or-self::tei:place[1]/tei:placeName[1]/text()
+                    else if ($place/descendant-or-self::tei:titleStmt/tei:title) then
+                        $place/descendant-or-self::tei:titleStmt/tei:title[1]/text()[1]    
+                    else $place/descendant::tei:placeName[1]/text()
         let $lat := substring-before($place//tei:geo,' ')
         let $long := substring-after($place//tei:geo,' ')
         let $id := $place/@id
