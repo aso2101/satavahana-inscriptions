@@ -1045,7 +1045,8 @@ return
     if(not(empty($docNode))) then $html else ()
 };
 
-(: PYU function adapted for SAI 
+(: PYU function adapted for SAI :)
+(: Possibly depreciated, test before removing. :)
 declare function app:display-tabs($node as node(), $model as map(*), $path as xs:string?) {
     let $odd := $model?config?odd
     let $tabs := array {"Logical","Physical","XML"}
@@ -1083,8 +1084,8 @@ declare function app:display-tabs($node as node(), $model as map(*), $path as xs
     	</div>  
     else ()
 };
-:)
-(:
+
+(: Possibly depreciated, test before removing. :)
 declare function app:process-content-tabs($node as node(), $model as map(*),$path as xs:string?, $tabId as xs:string, $odd as xs:string) {
     let $docNode := util:eval(concat("$model?data/",$path))
     let $html := $pm-config:web-transform($docNode, map { "root": root($docNode), "break":$tabId}, $model?config?odd)
@@ -1111,8 +1112,6 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
         }       
         </div>        
 };
-
-:)
 
 (:~
  : Get related inscriptions. 
