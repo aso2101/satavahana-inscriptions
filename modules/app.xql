@@ -510,18 +510,45 @@ function app:show-hits($node as node()*, $model as map(*), $start as xs:integer,
     let $type := app:rec-type($root-el)
     let $hit-root := if($type = 'Inscription') then $root-el else  $hit
     let $html := $pm-config:web-transform($expanded, map { "root": root($hit) },$model?config?odd)            
-    (:let $matchId := ($hit/@xml:id, util:node-id($hit))[1]:)
-    let $config := <config width="40" table="no"/>
     return
         (
         app:loc($hit-root, $type, $start, $p),
         <tr class="reference">
-            <td colspan="3" class="kwic">{kwic:get-summary($html, ($html//*:mark)[1], $config)} </td>
+            <td colspan="3" class="kwic">{app:output-kwic($html)} </td>
         </tr>
         )
 )        
 };
 
+(:~
+ : Custom KWIC used by SAI in order to also take advantage of ODD processing
+ : @param $nodes search results
+ :)
+declare function app:output-kwic($nodes as node()*){
+    for $node in $nodes
+    return 
+        typeswitch($node)
+            case text() return ()
+            case comment() return ()
+            case element(mark) return
+                let $p := 
+                        let $s := string-join($node/preceding::text(),' ')
+                        let $string-length := string-length($s)
+                        return 
+                            if($string-length gt 60) then 
+                                concat('...', substring($s, ($string-length - 40), $string-length))
+                            else $s
+                let $f := 
+                            let $s := string-join($node/following::text(),' ')
+                            let $string-length := string-length($s)
+                            return 
+                                if($string-length gt 40) then  
+                                    concat(substring($s, 1, 40),'...')
+                                else $s
+                return      
+                <div class="result"> {$p} <match class="match" style="font-weight:bold;">{$node/text()}</match> {$f} </div>
+            default return app:output-kwic($node/node())
+};
 
 (:  Number of hits :)
 declare function app:hit-count($node as node()*, $model as map(*)) {
@@ -1007,6 +1034,7 @@ return
         $html
     else ()
 };
+
 (: this is jugar, since the modal can't be programmatically placed at the bottom of the page
  : due to the templating functions, and so it's covered by the backdrop. i've made the backdrop
  : transparent in the css, but it would be nice to fix this for real. :)
@@ -1017,7 +1045,7 @@ return
     if(not(empty($docNode))) then $html else ()
 };
 
-(: PYU function adapted for SAI :)
+(: PYU function adapted for SAI 
 declare function app:display-tabs($node as node(), $model as map(*), $path as xs:string?) {
     let $odd := $model?config?odd
     let $tabs := array {"Logical","Physical","XML"}
@@ -1054,9 +1082,9 @@ declare function app:display-tabs($node as node(), $model as map(*), $path as xs
     		</div>		
     	</div>  
     else ()
-	   
 };
-
+:)
+(:
 declare function app:process-content-tabs($node as node(), $model as map(*),$path as xs:string?, $tabId as xs:string, $odd as xs:string) {
     let $docNode := util:eval(concat("$model?data/",$path))
     let $html := $pm-config:web-transform($docNode, map { "root": root($docNode), "break":$tabId}, $model?config?odd)
@@ -1084,6 +1112,7 @@ declare function app:process-content-tabs($node as node(), $model as map(*),$pat
         </div>        
 };
 
+:)
 
 (:~
  : Get related inscriptions. 

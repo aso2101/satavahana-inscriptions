@@ -491,7 +491,8 @@
 						<param name="button-title" value="'Sites located here'"/>
 				    </model>
 				</elementSpec>
-				<!-- P !-->
+
+    			<!-- P !-->
 				<!-- ==== P ==== -->
 				<elementSpec mode="change" ident="p">
 					<!--<model predicate="@type='editions' or @type='studies'" behaviour="block"/>-->

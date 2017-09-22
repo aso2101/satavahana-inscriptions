@@ -42,11 +42,13 @@ declare function app:get-id2($node as node()) {
          substring-after(document-uri(root($node)), $root)
  };
 
-declare function app:get-identifier2($node as node()) {
+declare function app:get-identifier2($node as node()?) {
+if($node) then 
     if ($config:address-by-id) then
         app:get-id2($node)
     else
         app:get-relpath2($node)
+else()        
 };
 
 
